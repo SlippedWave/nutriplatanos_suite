@@ -20,9 +20,24 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'phone',
+        'curp',
+        'rfc',
         'email',
         'password',
+        'address',
+        'emergency_contact',
+        'emergency_contact_phone',
+        'emergency_contact_relationship',
     ];
+
+    /**
+     * Get the WorkSchedules for the user.
+     */
+    public function schedules()
+    {
+        return $this->hasMany(WorkSchedule::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -55,7 +70,7 @@ class User extends Authenticatable
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
 }
