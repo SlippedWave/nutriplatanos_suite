@@ -17,6 +17,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('phone');
+            $table->string('curp');
+            $table->string('rfc');
+            $table->string('address');
+            $table->string('emergency_contact');
+            $table->string('emergency_contact_phone');
+            $table->string('emergency_contact_relationship');
             $table->rememberToken();
             $table->timestamps();
         });
