@@ -1,0 +1,81 @@
+{
+    "name": "Nutriplátanos Design System",
+    "version": "1.0.0",
+    "description": "A comprehensive design system for the Nutriplátanos Laravel application",
+    "tokens": {
+        "colors": {
+            "primary": {
+                "50": "#fefce8",
+                "100": "#fef9c3",
+                "200": "#fef08a",
+                "300": "#fde047",
+                "400": "#facc15",
+                "500": "#f5e50a",
+                "600": "#eab308",
+                "700": "#ca8a04",
+                "800": "#a16207",
+                "900": "#854d0e"
+            },
+            "secondary": {
+                "50": "#f0fdf4",
+                "100": "#dcfce7",
+                "200": "#bbf7d0",
+                "300": "#86efac",
+                "400": "#4ade80",
+                "500": "#178d35",
+                "600": "#16a34a",
+                "700": "#15803d",
+                "800": "#166534",
+                "900": "#14532d"
+            }
+        },
+        "typography": {
+            "fontSizes": {
+                "xs": "0.75rem",
+                "sm": "0.875rem",
+                "base": "1rem",
+                "lg": "1.125rem",
+                "xl": "1.25rem",
+                "2xl": "1.5rem",
+                "3xl": "1.875rem",
+                "4xl": "2.25rem",
+                "5xl": "3rem",
+                "6xl": "3.75rem"
+            },
+            "fontWeights": {
+                "light": 300,
+                "normal": 400,
+                "medium": 500,
+                "semibold": 600,
+                "bold": 700,
+                "extrabold": 800
+            }
+        },
+        "spacing": {
+            "1": "0.25rem",
+            "2": "0.5rem",
+            "3": "0.75rem",
+            "4": "1rem",
+            "5": "1.25rem",
+            "6": "1.5rem",
+            "8": "2rem",
+            "10": "2.5rem",
+            "12": "3rem",
+            "16": "4rem"
+        }
+    },
+    "components": [
+        "buttons",
+        "forms",
+        "cards",
+        "navigation",
+        "badges",
+        "modals",
+        "alerts"
+    ],
+    "files": {
+        "main": "resources/css/design-system.css",
+        "documentation": "resources/css/README.md",
+        "examples": "resources/views/components/design-system-examples.blade.php"
+    }
+}

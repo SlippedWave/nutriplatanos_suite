@@ -3,19 +3,30 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+// Redirect root to login for guests, dashboard for authenticated users
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::get('/design-system', function () {
+    return view('components.design-system-examples');
+})->name('design-system');
 
-Route::middleware(['auth'])->group(function () {
+// Guest routes (only accessible when not authenticated)
+Route::middleware('guest')->group(function () {
+    Volt::route('login', 'auth.login')->name('login');
+});
+
+// Protected routes (only accessible when authenticated)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('dashboard', 'dashboard')->name('dashboard');
+
     Route::redirect('settings', 'settings/profile');
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
-    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
 require __DIR__ . '/auth.php';
