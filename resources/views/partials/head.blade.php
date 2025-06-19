@@ -3,7 +3,6 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 
-@fluxAppearance
 
 <title>{{ $title ?? config('app.name') }}</title>
 
