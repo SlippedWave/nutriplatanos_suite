@@ -6,7 +6,6 @@
     <form wire:submit="createUser" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <flux:field>
-                <flux:label>{{ __('Información del Usuario') }}</flux:label>
                 <flux:input wire:model="name" label="{{ __('Nombre completo') }}" requidanger class="text-[var(--color-text)]!" />
                 <flux:error name="name" />
             </flux:field>
