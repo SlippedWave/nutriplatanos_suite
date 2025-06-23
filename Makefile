@@ -42,7 +42,14 @@ install:
 .PHONY: run
 run:
 	@echo "Running the application..."
+	@echo "Starting the Laravel server..."
 	$(ARTISAN) serve
+
+# Run the npm run dev command
+.PHONY: npm-dev
+npm-dev:
+	@echo "Running npm in development mode..."
+	$(NPM) run dev
 
 # Database migrations
 .PHONY: migrate

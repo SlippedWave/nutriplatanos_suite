@@ -6,14 +6,70 @@
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
     --color-*: initial;
+    --text-*: initial;
+
 }
 
 @theme {
     /* ==========================================================================
        DESIGN TOKENS - NUTRIPLÁTANOS DESIGN SYSTEM
        ========================================================================== */
+
+    --color-blue-50: #eff6ff;
+    --color-blue-100: #dbeafe;
+    --color-blue-200: #bfdbfe;
+    --color-blue-300: #93c5fd;
+    --color-blue-400: #60a5fa;
+    --color-blue-500: #3b82f6;
+    /* Main brand blue */
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+    --color-blue-800: #1e40af;
+    --color-blue-900: #1e3a8a;
+    --color-blue-950: #172554;
+
+    --color-red-50: #fef2f2;
+    --color-red-100: #fee2e2;
+    --color-red-200: #fecaca;
+    --color-red-300: #fca5a5;
+    --color-red-400: #f87171;
+    --color-red-500: #ef4444;
+    /* Main brand red */
+    --color-red-600: #dc2626;
+    --color-red-700: #b91c1c;
+    --color-red-800: #991b1b;
+    --color-red-900: #7f1d1d;
+    --color-red-950: #450a0a;
+
+    --color-yellow-50: #fffbeb;
+    --color-yellow-100: #fef3c7;
+    --color-yellow-200: #fde68a;
+    --color-yellow-300: #fcd34d;
+    --color-yellow-400: #fbbf24;
+    --color-yellow-500: #f59e0b;
+    /* Main brand yellow */
+    --color-yellow-600: #d97706;
+    --color-yellow-700: #b45309;
+    --color-yellow-800: #92400e;
+    --color-yellow-900: #78350f;
+    --color-yellow-950: #451a03;
+
+    --color-green-50: #f0fdf4;
+    --color-green-100: #dcfce7;
+    --color-green-200: #bbf7d0;
+    --color-green-300: #86efac;
+    --color-green-400: #4ade80;
+    --color-green-500: #22c55e;
+    /* Main brand green */
+    --color-green-600: #16a34a;
+    --color-green-700: #15803d;
+    --color-green-800: #166534;
+    --color-green-900: #14532d;
+    --color-green-950: #052e16;
 
     /* Brand Colors */
     --color-primary-50: #fefce8;
@@ -52,6 +108,14 @@
     --color-warning-600: #d97706;
     --color-warning-700: #b45309;
 
+    --color-danger-50: #fef2f2;
+    --color-danger-500: #ef4444;
+    --color-danger-600: #dc2626;
+    --color-danger-700: #b91c1c;
+    --color-danger-800: #991b1b;
+    --color-danger-900: #7f1d1d;
+    --color-danger-950: #450a0a;
+
     --color-error-50: #fef2f2;
     --color-error-500: #ef4444;
     --color-error-600: #dc2626;
@@ -86,6 +150,7 @@
     --color-slate-800: #1e293b;
     --color-slate-900: #0f172a;
     --color-slate-950: #020617;
+
 
 
     /* Surface Colors */
@@ -258,6 +323,8 @@
     --color-zinc-900: var(--color-slate-900);
     --color-zinc-950: var(--color-slate-950);
 
+    --color-danger: var(--color-danger-500);
+
     /* Brand colors for Tailwind */
     --color-banana-50: var(--color-primary-50);
     --color-banana-100: var(--color-primary-100);
@@ -286,4 +353,6 @@
     --color-accent: var(--color-primary-500);
     --color-accent-content: var(--color-primary-600);
     --color-accent-foreground: var(--color-text-primary-950);
+
+
 }

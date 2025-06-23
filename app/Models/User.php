@@ -24,11 +24,17 @@ class User extends Authenticatable
         'curp',
         'rfc',
         'email',
+        'role',
+        'is_active',
         'password',
         'address',
         'emergency_contact',
         'emergency_contact_phone',
         'emergency_contact_relationship',
+        'last_login_at',
+        'last_login_ip',
+        'last_modified_at',
+        'last_modified_by',
     ];
 
     /**
@@ -58,6 +64,9 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
+            'last_modified_at' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
         ];
     }
@@ -72,5 +81,16 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Update the user's login tracking information
+     */
+    public function updateLoginTracking(string $ipAddress): void
+    {
+        $this->update([
+            'last_login_at' => now(),
+            'last_login_ip' => $ipAddress,
+        ]);
     }
 }

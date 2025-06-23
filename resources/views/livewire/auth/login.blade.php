@@ -48,6 +48,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
         }
 
         RateLimiter::clear($this->throttleKey());
+        
+        // Update last login information
+        Auth::user()->updateLoginTracking(request()->ip());
+        
         Session::regenerate();
 
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);

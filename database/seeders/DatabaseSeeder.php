@@ -15,4 +15,4 @@ class DatabaseSeeder extends Seeder
             RouteSeeder::class,
         ]);
     }
-} 
+}

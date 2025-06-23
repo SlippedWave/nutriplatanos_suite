@@ -23,10 +23,16 @@ Route::middleware('guest')->group(function () {
 // Protected routes (only accessible when authenticated)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
-
-    Route::redirect('settings', 'settings/profile');
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('settings/password', 'settings.password')->name('settings.password');
+    Route::redirect('configuración', 'settings/contraseña');
+    Volt::route('configuración/perfil', 'settings.profile')->name('settings.profile');
+    Volt::route('configuración/contraseña', 'settings.password')->name('settings.password');
+    Volt::route('configuración/usuarios', 'settings.users')->name('settings.users');
 });
 
+/* Route::middleware('auth')->group(function () {
+    Route::get('/users', function () {
+        return view('livewire.users.index');
+    })->name('users.index');
+});
+ */
 require __DIR__ . '/auth.php';

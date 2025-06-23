@@ -15,6 +15,8 @@ class UserSeeder extends Seeder
             'name' => 'Administrador Sistema',
             'email' => 'admin@nutriplatanos.com',
             'password' => Hash::make('password'),
+            'role' => 'admin',
+            'is_active' => true,
             'phone' => '5512345678',
             'curp' => 'ADMS123456HDFABC01',
             'rfc' => 'ADMS123456ABC',
@@ -29,6 +31,8 @@ class UserSeeder extends Seeder
             'name' => 'Juan Pérez Martínez',
             'email' => 'juan@nutriplatanos.com',
             'password' => Hash::make('password'),
+            'role' => 'coordinator',
+            'is_active' => true,
             'phone' => '5523456789',
             'curp' => 'PEMJ123456HDFABC02',
             'rfc' => 'PEMJ123456ABC',
@@ -42,6 +46,8 @@ class UserSeeder extends Seeder
             'name' => 'María Rodríguez Sánchez',
             'email' => 'maria@nutriplatanos.com',
             'password' => Hash::make('password'),
+            'role' => 'carrier',
+            'is_active' => true,
             'phone' => '5534567890',
             'curp' => 'ROSM123456HDFABC03',
             'rfc' => 'ROSM123456ABC',
@@ -51,4 +57,4 @@ class UserSeeder extends Seeder
             'emergency_contact_relationship' => 'Esposo',
         ]);
     }
-} 
+}

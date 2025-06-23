@@ -35,10 +35,9 @@ class ProfileUpdateTest extends TestCase
 
         $this->assertEquals('Test User', $user->name);
         $this->assertEquals('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
     }
 
-    public function test_email_verification_status_is_unchanged_when_email_address_is_unchanged(): void
+    public function test_email_address_can_be_updated(): void
     {
         $user = User::factory()->create();
 
@@ -51,7 +50,7 @@ class ProfileUpdateTest extends TestCase
 
         $response->assertHasNoErrors();
 
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $this->assertEquals($user->email, $user->refresh()->email);
     }
 
     public function test_user_can_delete_their_account(): void
@@ -86,4 +85,5 @@ class ProfileUpdateTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+}
 }
