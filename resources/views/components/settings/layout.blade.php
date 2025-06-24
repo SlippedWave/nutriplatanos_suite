@@ -3,7 +3,9 @@
         <flux:navlist>
             <flux:navlist.item :href="route('settings.profile')" wire:navigate>{{ __('Perfil') }}</flux:navlist.item>
             <flux:navlist.item :href="route('settings.password')" wire:navigate>{{ __('Contraseña') }}</flux:navlist.item>
-            <flux:navlist.item :href="route('settings.users')" wire:navigate>{{ __('Usuarios') }}</flux:navlist.item>
+            @if(auth()->user()->isAdmin())
+                <flux:navlist.item :href="route('settings.users')" wire:navigate>{{ __('Usuarios') }}</flux:navlist.item>
+            @endif
         </flux:navlist>
     </div>
 
