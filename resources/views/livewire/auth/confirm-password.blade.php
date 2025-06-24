@@ -63,6 +63,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
             viewable
         />
 
-        <flux:button variant="primary" type="submit" class="w-full">{{ __('Confirmar') }}</flux:button>
+        <div class="space-y-3">
+            <flux:button variant="primary" type="submit" class="w-full hover:bg-primary-600">{{ __('Confirmar') }}</flux:button>
+            <flux:button href="{{ route('dashboard') }}" variant="outline" class="w-full" wire:navigate>
+                <flux:icon.home class="size-4" />
+                Ir al inicio
+            </flux:button>
+
+        </div>
+
     </form>
 </div>
