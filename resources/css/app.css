@@ -99,9 +99,14 @@
 
     /* Semantic Colors */
     --color-success-50: #f0fdf4;
+    --color-success-100: #dcfce7;
+    --color-success-200: #bbf7d0;
+    --color-success-300: #86efac;
+    --color-success-400: #4ade80;
     --color-success-500: #22c55e;
     --color-success-600: #16a34a;
     --color-success-700: #15803d;
+    --color-success-800: #166534;
 
     --color-warning-50: #fffbeb;
     --color-warning-500: #f59e0b;

@@ -10,6 +10,7 @@ new class extends Component {
     use WithPagination;
 
     public string $search = '';
+    public $perPage = 10;
     public string $sortField = 'name';
     public string $sortDirection = 'asc';
 
@@ -200,7 +201,7 @@ new class extends Component {
                           ->orWhere('email', 'like', '%' . $this->search . '%');
                 })
                 ->orderBy($this->sortField, $this->sortDirection)
-                ->paginate(10)
+                ->paginate($this->perPage)
         ];
     }
 }; ?>
@@ -253,13 +254,21 @@ new class extends Component {
                 placeholder="{{ __('Buscar usuarios...') }}"
             />
         </div>
-        <flux:button 
-            variant="primary" 
-            icon="plus"
-            wire:click="openCreateModal"
-        >
-            {{ __('Nuevo Usuario') }}
-        </flux:button>
+        <div class="flex gap-2">
+            <flux:select wire:model.live="perPage" class="w-20">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </flux:select>
+            <flux:button 
+                variant="primary" 
+                icon="plus"
+                wire:click="openCreateModal"
+            >
+                {{ __('Nuevo Usuario') }}
+            </flux:button>
+        </div>
     </div>
 
     <!-- Users Table -->

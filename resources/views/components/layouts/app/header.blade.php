@@ -26,6 +26,16 @@
             >
                 {{ __('Inicio') }}
             </flux:navbar.item>
+            @if(auth()->user()->role== 'admin' || auth()->user()->role== 'coordinator')
+            <flux:navbar.item 
+                icon="users" 
+                :href="route('customers.index')" 
+                :current="request()->routeIs('customers.*')"
+                wire:navigate
+            >
+                {{ __('Clientes') }}
+            </flux:navbar.item>
+            @endif
         </flux:navbar>
         <flux:spacer />
         <!-- User Menu -->
@@ -108,6 +118,16 @@
                 >
                     {{ __('Inicio') }}
                 </flux:navlist.item>
+                @if(auth()->user()->role == 'admin' || auth()->user()->role == 'coordinator')
+                    <flux:navlist.item 
+                        icon="users" 
+                        :href="route('customers.index')" 
+                        :current="request()->routeIs('customers.*')"
+                        wire:navigate
+                    >
+                        {{ __('Clientes') }}
+                    </flux:navlist.item>
+                @endif
             </flux:navlist>
         </div>
 

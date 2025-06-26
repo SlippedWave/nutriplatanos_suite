@@ -87,13 +87,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
     }
 }; ?>
 
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-3">
     <x-auth-header :title="__('Iniciar sesión en tu cuenta')" :description="__('Ingresa tu correo electrónico y contraseña para iniciar sesión')" />
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form wire:submit="login" class="flex flex-col gap-6">
+    <form wire:submit="login" class="flex flex-col space-y-3">
         <!-- Email Address -->
         <flux:field>
             <flux:label class="text-accent-foreground">{{ __('Correo electrónico') }}</flux:label>

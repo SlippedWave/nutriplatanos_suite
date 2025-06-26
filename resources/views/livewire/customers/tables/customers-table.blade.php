@@ -1,0 +1,327 @@
+<div class="space-y-6">
+    <!-- Flash Messages -->
+    @if (session()->has('message'))
+        <div x-data="{ show: true }" 
+             x-init="setTimeout(() => show = false, 4000)" 
+             x-show="show"
+             x-transition:enter="transform ease-out duration-300 transition"
+             x-transition:enter-start="translate-y-2 opacity-0"
+             x-transition:enter-end="translate-y-0 opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center">
+            <div>{{ session('message') }}</div>
+            <button type="button" @click="show = false" class="text-green-500 hover:text-green-700">
+                <span class="sr-only">Close</span>
+                <flux:icon.x-mark class="w-4 h-4" />
+            </button>
+        </div>
+    @endif
+
+    @if (session()->has('error'))
+        <div x-data="{ show: true }" 
+             x-init="setTimeout(() => show = false, 4000)" 
+             x-show="show"
+             x-transition:enter="transform ease-out duration-300 transition"
+             x-transition:enter-start="translate-y-2 opacity-0"
+             x-transition:enter-end="translate-y-0 opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg flex justify-between items-center">
+            <div>{{ session('error') }}</div>
+            <button type="button" @click="show = false" class="text-danger-500 hover:text-danger-700">
+                <span class="sr-only">Close</span>
+                <flux:icon.x-mark class="w-4 h-4" />
+            </button>
+        </div>
+    @endif
+
+    <!-- Header with Search and Actions -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex-1">
+            <flux:input 
+                wire:model.live.debounce.300ms="search" 
+                placeholder="Buscar clientes..."
+                type="search"
+            >
+            </flux:input>
+        </div>
+        
+        <div class="flex gap-2">
+            <flux:select wire:model.live="perPage" class="w-20">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </flux:select>
+            
+            <flux:button variant="primary"
+                            icon="plus"
+                            wire:click="openCreateModal">
+                {{ __('Agregar Cliente') }}
+            </flux:button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-hidden bg-white shadow-sm ring-1 ring-gray-200 rounded-lg">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left">
+                            <button 
+                                wire:click="sortBy('name')" 
+                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                            >
+                                Nombre
+                                @if($sortField === 'name')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="size-3" />
+                                    @else
+                                        <flux:icon.chevron-down class="size-3" />
+                                    @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button 
+                                wire:click="sortBy('email')" 
+                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                            >
+                                Email
+                                @if($sortField === 'email')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="size-3" />
+                                    @else
+                                        <flux:icon.chevron-down class="size-3" />
+                                    @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button 
+                                wire:click="sortBy('phone')" 
+                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                            >
+                                Teléfono
+                                @if($sortField === 'phone')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="size-3" />
+                                    @else
+                                        <flux:icon.chevron-down class="size-3" />
+                                    @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button 
+                                wire:click="sortBy('box_balance')" 
+                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                            >
+                                Cajas
+                                @if($sortField === 'box_balance')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="size-3" />
+                                    @else
+                                        <flux:icon.chevron-down class="size-3" />
+                                    @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button 
+                                wire:click="sortBy('address')" 
+                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                            >
+                                Dirección
+                                @if($sortField === 'address')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="size-3" />
+                                    @else
+                                        <flux:icon.chevron-down class="size-3" />
+                                    @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button 
+                                wire:click="sortBy('rfc')" 
+                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                            >
+                                RFC
+                                @if($sortField === 'rfc')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="size-3" />
+                                    @else
+                                        <flux:icon.chevron-down class="size-3" />
+                                    @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Estado
+                            </span>
+                        </th>
+                        <th class="px-6 py-3 text-left">
+                            <button 
+                                wire:click="sortBy('created_at')" 
+                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                            >
+                                Fecha de Registro
+                                @if($sortField === 'created_at')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="size-3" />
+                                    @else
+                                        <flux:icon.chevron-down class="size-3" />
+                                    @endif
+                                @endif
+                            </button>
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($customers as $customer)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8">
+                                        <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
+                                            <span class="text-primary-600 font-medium text-sm">
+                                                {{ strtoupper(substr($customer->name, 0, 1)) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ $customer->name }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ $customer->email }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ $customer->phone ?: '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ $customer->box_balance ?: '0' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ $customer->address ?: '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ $customer->rfc ?: '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                @if($customer->is_active)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
+                                        Activo
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        Inactivo
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ $customer->created_at->format('d/m/Y') }}
+                            </td>
+                           <td class="px-6 py-4 max-w-[220px]">
+                                <div class="flex items-center gap-2">
+                                    <flux:button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        icon="pencil"
+                                        wire:click="openEditModal({{ $customer->id }})"
+                                        aria-label="{{ __('Editar cliente') }}"
+                                    />
+                                    
+                                    <flux:button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        icon="eye"
+                                        wire:click="openViewModal({{ $customer->id }})"
+                                        aria-label="{{ __('Ver cliente') }}"
+                                    />
+
+                                    <flux:button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        icon="trash"
+                                        class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
+                                        wire:click="openDeleteModal({{ $customer->id }})"
+                                        aria-label="{{ __('Eliminar cliente') }}"
+                                    />
+
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <flux:icon.users class="size-12 text-gray-300 mb-4" />
+                                    <h3 class="text-sm font-medium text-gray-900 mb-1">No hay clientes</h3>
+                                    <p class="text-sm text-gray-500 mb-4">
+                                        @if($search)
+                                            No se encontraron clientes que coincidan con "{{ $search }}"
+                                        @else
+                                            Comienza agregando tu primer cliente.
+                                        @endif
+                                    </p>
+                                    @if(!$search)
+                                        <flux:button variant="primary">
+                                            <flux:icon.plus class="size-4" />
+                                            Agregar Cliente
+                                        </flux:button>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if($customers->hasPages())
+            <div class="px-6 py-3 border-t border-gray-200">
+                {{ $customers->links() }}
+            </div>
+        @endif
+    </div>
+
+    <!-- Results Info -->
+    <div class="flex items-center justify-between text-sm text-gray-500">
+        <div>
+            Mostrando {{ $customers->firstItem() ?? 0 }} - {{ $customers->lastItem() ?? 0 }} 
+            de {{ $customers->total() }} clientes
+        </div>
+        
+        @if($search)
+            <button 
+                wire:click="$set('search', '')" 
+                class="text-primary-600 hover:text-primary-700"
+            >
+                Limpiar búsqueda
+            </button>
+        @endif
+    </div>
+
+    <!-- Modals -->
+    @include('components.customers.create-customer-modal')
+
+    @include('components.customers.update-customer-modal', ['customer' => $customer])
+
+    @include('components.customers.view-customer-modal', ['customer' => $customer])
+
+    @include('components.customers.delete-customer-modal', ['customer' => $customer])
+</div>

@@ -1,22 +1,23 @@
+<?php
+
+use App\Models\Customer;
+
+$activeCustomers = Customer::where('is_active', true)->count();
+
+?>
+
 <x-layouts.app :title="__('Panel de Control - Nutriplátanos')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <!-- Welcome Section -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-[var(--color-text)] mb-2">
-                Bienvenido, {{ auth()->user()->name }}
-            </h1>
-            <p class="text-[var(--color-gray-600)]">
-                Gestiona tu negocio de plátanos desde un solo lugar
-            </p>
-        </div>
+        <x-welcome-section welcome-message="Gestiona los recursos del negocio desde una sola plataforma. Aquí podrás ver un resumen de tu negocio, administrar productos, clientes y ventas." />
 
         <!-- Quick Stats -->
         <div class="grid auto-rows-min gap-4 md:grid-cols-3 mb-6">
-            <div class="bg-[var(--color-background)] rounded-xl border border-[var(--color-gray-200)] p-6">
+            @if(auth()->user()->role == 'admin' || auth()->user()->role == 'coordinator')
+            <div class="bg-[var(--color-background)] rounded-xl border border-[var(--color-gray-200)] p-6 cursor-pointer" href="{{ route('customers.index') }}" wire:navigate>
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-[var(--color-gray-600)]">Clientes Activos</p>
-                        <p class="text-2xl font-bold text-[var(--color-text)]">0</p>
+                        <p class="text-2xl font-bold text-[var(--color-text)]">{{$activeCustomers}}</p>
                     </div>
                     <div class="h-8 w-8 rounded-lg bg-[var(--color-primary)] bg-opacity-10 flex items-center justify-center">
                         <svg class="h-4 w-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,6 +26,7 @@
                     </div>
                 </div>
             </div>
+            @endif
             
             <div class="bg-[var(--color-background)] rounded-xl border border-[var(--color-gray-200)] p-6">
                 <div class="flex items-center justify-between">
