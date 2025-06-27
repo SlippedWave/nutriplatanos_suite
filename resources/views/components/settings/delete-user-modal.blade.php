@@ -1,4 +1,4 @@
-<flux:modal wire:model="showDeleteModal" class="space-y-6 border-0 bg-background!">
+<flux:modal wire:model="showDeleteModal" class="space-y-4 border-0 bg-background!">
         <div class="flex items-center justify-between">
             <flux:heading size="lg" class="text-danger-800!">{{ __('Eliminar Usuario') }}</flux:heading>
         </div>
