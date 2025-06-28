@@ -30,7 +30,6 @@ class CustomersTable extends Component
     public $rfc = '';
     public $is_active = true;
 
-    public ?Customer $customer = null;
     public ?Customer $selectedCustomer = null;
 
     protected $queryString = [
@@ -58,7 +57,6 @@ class CustomersTable extends Component
     public function openCreateModal()
     {
         $this->selectedCustomer = null;
-        $this->customer = null; // Reset customer to ensure a new instance
         $this->resetFormFields();
         $this->showCreateModal = true;
     }
@@ -66,7 +64,6 @@ class CustomersTable extends Component
     public function openEditModal($customerId)
     {
         $this->selectedCustomer = Customer::findOrFail($customerId);
-        $this->customer = $this->selectedCustomer;
         $this->fillForm($this->selectedCustomer);
         $this->showUpdateModal = true;
     }
@@ -74,14 +71,12 @@ class CustomersTable extends Component
     public function openViewModal($customerId)
     {
         $this->selectedCustomer = Customer::findOrFail($customerId);
-        $this->customer = $this->selectedCustomer;
         $this->showViewModal = true;
     }
 
     public function openDeleteModal($customerId)
     {
         $this->selectedCustomer = Customer::findOrFail($customerId);
-        $this->customer = $this->selectedCustomer;
         $this->showDeleteModal = true;
     }
 
@@ -91,7 +86,6 @@ class CustomersTable extends Component
         $this->showUpdateModal = false;
         $this->showDeleteModal = false;
         $this->showViewModal = false;
-        $this->customer = null;
         $this->selectedCustomer = null;
         $this->resetFormFields();
     }
@@ -149,7 +143,7 @@ class CustomersTable extends Component
     public function resetForm()
     {
         $this->resetFormFields();
-        $this->customer = null;
+        $this->selectedCustomer = null;
     }
 
     public function resetFormFields()
