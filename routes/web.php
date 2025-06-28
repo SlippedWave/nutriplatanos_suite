@@ -15,6 +15,9 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('configuracion/perfil', 'settings.profile')->name('settings.profile');
     Volt::route('configuracion/clave', 'settings.password')->name('settings.password');
 
+    Volt::route('rutas', 'routes.index')->name('routes.index');
+    Volt::route('rutas/historial', 'routes.history')->name('routes.history');
+
     Route::middleware(['role:admin', 'password.confirm'])->group(function () {
         Volt::route('configuracion/usuarios', 'settings.users')->name('settings.users');
     });

@@ -1,3 +1,7 @@
+<?php
+$role = auth()->user()->role ?? 'guest';
+?>
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -7,7 +11,7 @@
 
 <body class="min-h-screen">
     <!-- Main Header -->
-    <flux:header container class="border-b border-slate-50 shadow-lg">
+    <flux:header container class="border-b border-slate-50 shadow-lg ">
         <!-- Mobile menu toggle -->
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
@@ -26,7 +30,7 @@
             >
                 {{ __('Inicio') }}
             </flux:navbar.item>
-            @if(auth()->user()->role== 'admin' || auth()->user()->role== 'coordinator')
+            @if($role == 'admin' || $role == 'coordinator')
             <flux:navbar.item 
                 icon="users" 
                 :href="route('customers.index')" 
@@ -36,6 +40,14 @@
                 {{ __('Clientes') }}
             </flux:navbar.item>
             @endif
+            <flux:navbar.item 
+                :current="request()->routeIs('routes.*')"
+                icon="map" 
+                :href="route('routes.index')"
+                wire:navigate
+            >
+                {{ __('Rutas') }}
+            </flux:navbar.item>
         </flux:navbar>
         <flux:spacer />
         <!-- User Menu -->

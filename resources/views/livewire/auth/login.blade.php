@@ -43,7 +43,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+            'email' => __('Las credenciales proporcionadas no coinciden con nuestros registros.'),
+            ]);
+        }
+        
+        // Check if user is active
+        if (!Auth::user()->is_active) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+            
+            throw ValidationException::withMessages([
+            'email' => __('Tu cuenta está inactiva. Contacta con el administrador.'),
             ]);
         }
 
