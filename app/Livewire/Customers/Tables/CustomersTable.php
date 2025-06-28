@@ -31,6 +31,7 @@ class CustomersTable extends Component
     public $is_active = true;
 
     public ?Customer $customer = null;
+    public ?Customer $selectedCustomer = null;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -56,34 +57,43 @@ class CustomersTable extends Component
 
     public function openCreateModal()
     {
+        $this->selectedCustomer = null;
         $this->customer = null; // Reset customer to ensure a new instance
-        $this->resetForm();
+        $this->resetFormFields();
         $this->showCreateModal = true;
     }
 
     public function openEditModal($customerId)
     {
-        $this->customer = Customer::findOrFail($customerId);
-        $this->fillForm($this->customer);
+        $this->selectedCustomer = Customer::findOrFail($customerId);
+        $this->customer = $this->selectedCustomer;
+        $this->fillForm($this->selectedCustomer);
         $this->showUpdateModal = true;
     }
 
     public function openViewModal($customerId)
     {
-        $this->customer = Customer::findOrFail($customerId);
+        $this->selectedCustomer = Customer::findOrFail($customerId);
+        $this->customer = $this->selectedCustomer;
         $this->showViewModal = true;
     }
 
     public function openDeleteModal($customerId)
     {
-        $this->customer = Customer::findOrFail($customerId);
+        $this->selectedCustomer = Customer::findOrFail($customerId);
+        $this->customer = $this->selectedCustomer;
         $this->showDeleteModal = true;
     }
 
     public function closeModals()
     {
-        $this->reset(['showCreateModal', 'showUpdateModal', 'showDeleteModal', 'showViewModal', 'customer']);
-        $this->resetForm();
+        $this->showCreateModal = false;
+        $this->showUpdateModal = false;
+        $this->showDeleteModal = false;
+        $this->showViewModal = false;
+        $this->customer = null;
+        $this->selectedCustomer = null;
+        $this->resetFormFields();
     }
 
     public function createCustomer()
@@ -138,8 +148,13 @@ class CustomersTable extends Component
 
     public function resetForm()
     {
-        $this->reset(['name', 'email', 'phone', 'address', 'rfc', 'is_active']);
+        $this->resetFormFields();
         $this->customer = null;
+    }
+
+    public function resetFormFields()
+    {
+        $this->reset(['name', 'email', 'phone', 'address', 'rfc', 'is_active']);
     }
 
     public function fillForm(Customer $customer)

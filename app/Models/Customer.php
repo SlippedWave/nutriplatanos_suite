@@ -41,4 +41,20 @@ class Customer extends Model
         'box_balance' => 'integer', // Cast box_balance to an integer
         'is_active' => 'boolean', // Cast is_active to a boolean
     ];
+
+    /**
+     * Get the sales for this customer.
+     */
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    /**
+     * Get the box balance for this customer.
+     */
+    public function boxBalance()
+    {
+        return $this->hasOne(BoxBalance::class, 'client_id');
+    }
 }

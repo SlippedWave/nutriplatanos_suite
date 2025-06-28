@@ -319,9 +319,9 @@
     <!-- Modals -->
     @include('components.customers.create-customer-modal')
 
-    @include('components.customers.update-customer-modal', ['selectedCustomer' => $selectedCustomer])
+    @include('components.customers.update-customer-modal')
 
-    @include('components.customers.view-customer-modal', ['selectedCustomer' => $selectedCustomer])
+    @include('components.customers.view-customer-modal')
 
-    @include('components.customers.delete-customer-modal', ['selectedCustomer' => $selectedCustomer])
+    @include('components.customers.delete-customer-modal')
 </div>

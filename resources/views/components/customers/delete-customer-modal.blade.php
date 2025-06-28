@@ -3,7 +3,7 @@
         <flux:heading size="lg" class="text-danger-800!">{{ __('Eliminar Cliente') }}</flux:heading>
     </div>
 
-    @if($customer)
+    @if($selectedCustomer)
         <div class="space-y-4">
             <div class="bg-danger-50 rounded-lg p-4">
                 <div class="flex">
@@ -25,11 +25,11 @@
                 <h4 class="font-medium text-gray-900">{{ __('Cliente a eliminar:') }}</h4>
                 <div class="mt-2 flex items-center gap-3">
                     <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 text-primary-900 font-medium text-sm">
-                        {{ strtoupper(substr($customer->name, 0, 1)) }}
+                        {{ strtoupper(substr($selectedCustomer->name, 0, 1)) }}
                     </span>
                     <div>
-                        <p class="font-medium">{{ $customer->name }}</p>
-                        <p class="text-sm text-gray-600">{{ $customer->email }}</p>
+                        <p class="font-medium">{{ $selectedCustomer->name }}</p>
+                        <p class="text-sm text-gray-600">{{ $selectedCustomer->email }}</p>
                     </div>
                 </div>
             </div>

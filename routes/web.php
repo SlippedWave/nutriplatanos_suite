@@ -21,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['role:admin,coordinator', 'password.confirm'])->group(function () {
         Volt::route('clientes', 'customers.index')->name('customers.index');
+        Volt::route('clientes/detalles/{customer}', 'customers.show')->name('customers.show');
     });
 });
 

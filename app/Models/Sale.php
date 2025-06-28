@@ -24,7 +24,6 @@ class Sale extends Model
         'weight_kg',
         'price_per_kg',
         'total_amount',
-        'sale_date',
         'payment_status',
         'notes',
     ];
@@ -38,7 +37,6 @@ class Sale extends Model
         'weight_kg' => 'decimal:3',
         'price_per_kg' => 'decimal:2',
         'total_amount' => 'decimal:2',
-        'sale_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -123,7 +121,7 @@ class Sale extends Model
      */
     public function scopeBetweenDates($query, $startDate, $endDate)
     {
-        return $query->whereBetween('sale_date', [$startDate, $endDate]);
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
     }
 
     /**
