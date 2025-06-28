@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('routes', function (Blueprint $table) {
+        Schema::create('box_balances', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->foreignId('carrier_id')->constrained('users')->onDelete('cascade');
-            $table->timestamp('archived_at')->nullable();
+            $table->foreignId('client_id')->unique()->constrained('customers')->onDelete('cascade');
+            $table->integer('total_boxes')->default(0);
             $table->timestamps();
-            $table->softDeletes();
 
             // Indexes
-            $table->index(['date', 'carrier_id']);
-            $table->index('archived_at');
+            $table->index('total_boxes');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('routes');
+        Schema::dropIfExists('box_balances');
     }
 };

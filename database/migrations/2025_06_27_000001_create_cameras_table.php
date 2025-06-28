@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('routes', function (Blueprint $table) {
+        Schema::create('cameras', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
-            $table->foreignId('carrier_id')->constrained('users')->onDelete('cascade');
-            $table->timestamp('archived_at')->nullable();
+            $table->string('name');
+            $table->string('location');
             $table->timestamps();
-            $table->softDeletes();
 
             // Indexes
-            $table->index(['date', 'carrier_id']);
-            $table->index('archived_at');
+            $table->index('name');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('routes');
+        Schema::dropIfExists('cameras');
     }
 };

@@ -3,37 +3,36 @@
 namespace Database\Seeders;
 
 use App\Models\Route;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class RouteSeeder extends Seeder
 {
     public function run(): void
     {
-        Route::create([
-            'name' => 'Ruta Norte',
-            'description' => 'Ruta que cubre las zonas norte de la Ciudad de México',
-            'start_location' => 'Bodega Central',
-            'end_location' => 'Centro de Distribución Norte',
-            'estimated_time' => '2:30:00',
-            'distance' => 45.5,
-        ]);
+        // Get carrier users (assuming they have role 'carrier' or similar)
+        $carriers = User::where('role', 'carrier')->get();
 
-        Route::create([
-            'name' => 'Ruta Sur',
-            'description' => 'Ruta que cubre las zonas sur de la Ciudad de México',
-            'start_location' => 'Bodega Sur',
-            'end_location' => 'Centro de Distribución Sur',
-            'estimated_time' => '3:00:00',
-            'distance' => 52.3,
-        ]);
+        if ($carriers->isEmpty()) {
+            // If no carriers exist, get any users and treat them as carriers
+            $carriers = User::take(3)->get();
+        }
 
-        Route::create([
-            'name' => 'Ruta Oriente',
-            'description' => 'Ruta que cubre las zonas oriente de la Ciudad de México',
-            'start_location' => 'Bodega Principal',
-            'end_location' => 'Centro de Distribución Oriente',
-            'estimated_time' => '2:15:00',
-            'distance' => 38.7,
-        ]);
+        if ($carriers->isNotEmpty()) {
+            Route::create([
+                'date' => now()->format('Y-m-d'),
+                'carrier_id' => $carriers->first()->id,
+            ]);
+
+            Route::create([
+                'date' => now()->addDay()->format('Y-m-d'),
+                'carrier_id' => $carriers->count() > 1 ? $carriers->get(1)->id : $carriers->first()->id,
+            ]);
+
+            Route::create([
+                'date' => now()->addDays(2)->format('Y-m-d'),
+                'carrier_id' => $carriers->count() > 2 ? $carriers->get(2)->id : $carriers->first()->id,
+            ]);
+        }
     }
-} 
+}
