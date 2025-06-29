@@ -18,13 +18,16 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('rutas', 'routes.index')->name('routes.index');
     Volt::route('rutas/historial', 'routes.history')->name('routes.history');
 
-    Route::middleware(['role:admin', 'password.confirm'])->group(function () {
-        Volt::route('configuracion/usuarios', 'settings.users')->name('settings.users');
-    });
+    Route::middleware(['password.confirm'])->group(function () {
+        Volt::route('rutas/historial', 'routes.history')->name('routes.history');
+        Route::middleware(['role:admin'])->group(function () {
+            Volt::route('configuracion/usuarios', 'settings.users')->name('settings.users');
+        });
 
-    Route::middleware(['role:admin,coordinator', 'password.confirm'])->group(function () {
-        Volt::route('clientes', 'customers.index')->name('customers.index');
-        Volt::route('clientes/detalles/{customer}', 'customers.show')->name('customers.show');
+        Route::middleware(['role:admin,coordinator'])->group(function () {
+            Volt::route('clientes', 'customers.index')->name('customers.index');
+            Volt::route('clientes/detalles/{customer}', 'customers.show')->name('customers.show');
+        });
     });
 });
 
