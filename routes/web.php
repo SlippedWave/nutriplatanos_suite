@@ -17,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
 
     Volt::route('rutas', 'routes.index')->name('routes.index');
     Volt::route('rutas/historial', 'routes.history')->name('routes.history');
+    Volt::route('rutas/detalles/{route}', 'routes.show')->name('routes.show');
 
     Route::middleware(['password.confirm'])->group(function () {
         Volt::route('rutas/historial', 'routes.history')->name('routes.history');

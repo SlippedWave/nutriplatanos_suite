@@ -29,6 +29,7 @@ class Route extends Model
     protected $fillable = [
         'date',
         'carrier_id',
+        'title',
         'status',
         'archived_at',
     ];

@@ -3,7 +3,7 @@
         <div class="flex-1">
             <flux:input 
                 wire:model.live.debounce.300ms="search" 
-                placeholder="Buscar rutas..."
+                placeholder="Buscar por transportista o título..."
                 type="search"
                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
@@ -84,6 +84,18 @@
                                 @endif
                             </span>
                         </th>
+                        <th wire:click="sortBy('title')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            Título de Ruta
+                            <span class="ml-2">
+                                @if($sortField === 'title')
+                                    @if($sortDirection === 'asc')
+                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    @else
+                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                                    @endif
+                                @endif
+                            </span>
+                        </th>
                         <th wire:click="sortBy('date')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
                             Fecha
                             <span class="ml-2">
@@ -128,6 +140,9 @@
                                     </div>
                                 </div>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                {{ $route->title ?? 'Sin título' }}
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{{ $route->date->format('d/m/Y') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-{{$route->getStatusColorAttribute()}}-100 
@@ -157,7 +172,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
                                 No se encontraron rutas.
                             </td>
                         </tr>

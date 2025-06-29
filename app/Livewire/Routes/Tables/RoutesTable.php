@@ -146,7 +146,8 @@ class RoutesTable extends Component
                 return $query->where(function ($q) {
                     $q->whereHas('carrier', function ($userQuery) {
                         $userQuery->where('name', 'like', '%' . $this->search . '%');
-                    });
+                    })
+                        ->orWhere('title', 'like', '%' . $this->search . '%');
                 });
             })
             ->when($this->startDate, function ($query) {

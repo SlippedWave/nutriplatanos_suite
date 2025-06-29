@@ -22,31 +22,36 @@ class RouteSeeder extends Seeder
             Route::create([
                 'date' => now()->format('Y-m-d'),
                 'carrier_id' => $carriers->first()->id,
-                'status' => Route::STATUS_EN_PROGRESO,
+                'title' => 'Ruta Centro - Norte',
+                'status' => Route::STATUS_IN_PROGRESS,
             ]);
 
             Route::create([
                 'date' => now()->addDay()->format('Y-m-d'),
                 'carrier_id' => $carriers->count() > 1 ? $carriers->get(1)->id : $carriers->first()->id,
-                'status' => Route::STATUS_PENDIENTE,
+                'title' => 'Ruta Este - Oeste',
+                'status' => Route::STATUS_PENDING,
             ]);
 
             Route::create([
                 'date' => now()->addDays(2)->format('Y-m-d'),
                 'carrier_id' => $carriers->count() > 2 ? $carriers->get(2)->id : $carriers->first()->id,
-                'status' => Route::STATUS_ARCHIVADA,
+                'title' => 'Ruta Industrial',
+                'status' => Route::STATUS_ARCHIVED,
             ]);
 
             Route::create([
                 'date' => now()->subDays(1)->format('Y-m-d'),
                 'carrier_id' => $carriers->first()->id,
-                'status' => Route::STATUS_CANCELADA,
+                'title' => 'Ruta Comercial Sur',
+                'status' => Route::STATUS_CANCELED,
             ]);
 
             Route::create([
                 'date' => now()->subDays(2)->format('Y-m-d'),
                 'carrier_id' => $carriers->count() > 1 ? $carriers->get(1)->id : $carriers->first()->id,
-                'status' => Route::STATUS_ARCHIVADA,
+                'title' => 'Ruta Residencial',
+                'status' => Route::STATUS_ARCHIVED,
             ]);
         }
     }

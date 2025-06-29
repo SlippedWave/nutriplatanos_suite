@@ -12,13 +12,16 @@
                     </svg>
                 </span>
                 <div>
-                    <h3 class="text-xl font-semibold">Ruta del {{ $selectedRoute->date->format('d/m/Y') }}</h3>
+                    <h3 class="text-xl font-semibold">{{ $selectedRoute->title ?? 'Ruta del ' . $selectedRoute->date->format('d/m/Y') }}</h3>
                     <p class="text-gray-600">{{ $selectedRoute->carrier_name ?? 'Sin transportista asignado' }}</p>
                 </div>
             </div>
             <div class="mt-4">
                 <h4 class="font-medium text-gray-900">{{ __('Información de la Ruta') }}</h4>
                 <div class="mt-2 text-sm text-gray-600">
+                    @if($selectedRoute->title)
+                        <p><strong>{{ __('Título:') }}</strong> {{ $selectedRoute->title }}</p>
+                    @endif
                     <p><strong>{{ __('Fecha:') }}</strong> {{ $selectedRoute->date->format('d/m/Y') }}</p>
                     <p><strong>{{ __('Transportista:') }}</strong> {{ $selectedRoute->carrier_name ?? 'No asignado' }}</p>
                     <p>
