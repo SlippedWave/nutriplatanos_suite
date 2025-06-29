@@ -13,6 +13,15 @@ class Route extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * Status constants
+     */
+    const STATUS_PENDING = 'Pendiente';
+    const STATUS_IN_PROGRESS = 'En Progreso';
+    const STATUS_ARCHIVED = 'Archivada';
+    const STATUS_CANCELED = 'Cancelada';
+    const STATUS_DELETED = 'Eliminada';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<string>
@@ -20,6 +29,7 @@ class Route extends Model
     protected $fillable = [
         'date',
         'carrier_id',
+        'status',
         'archived_at',
     ];
 
@@ -69,6 +79,51 @@ class Route extends Model
     }
 
     /**
+     * Get the carrier name accessor.
+     */
+    public function getCarrierNameAttribute(): ?string
+    {
+        return $this->carrier?->name;
+    }
+
+    /**
+     * Get the status label accessor.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return $this->status ?? self::STATUS_PENDING;
+    }
+
+    /**
+     * Get all available statuses.
+     */
+    public static function getStatuses(): array
+    {
+        return [
+            self::STATUS_PENDING,
+            self::STATUS_IN_PROGRESS,
+            self::STATUS_ARCHIVED,
+            self::STATUS_CANCELED,
+            self::STATUS_DELETED,
+        ];
+    }
+
+    /**
+     * Get status color for UI display.
+     */
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_PENDING => 'yellow',
+            self::STATUS_IN_PROGRESS => 'blue',
+            self::STATUS_ARCHIVED => 'gray',
+            self::STATUS_CANCELED => 'red',
+            self::STATUS_DELETED => 'red',
+            default => 'gray',
+        };
+    }
+
+    /**
      * Scope to get only archived routes.
      */
     public function scopeArchived($query)
@@ -82,5 +137,15 @@ class Route extends Model
     public function scopeActive($query)
     {
         return $query->whereNull('archived_at');
+    }
+
+    /**
+     * Scope to order by carrier name.
+     */
+    public function scopeOrderByCarrierName($query, $direction = 'asc')
+    {
+        return $query->leftJoin('users', 'routes.carrier_id', '=', 'users.id')
+            ->orderBy('users.name', $direction)
+            ->select('routes.*');
     }
 }

@@ -71,126 +71,146 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left">
-                            <button 
-                                wire:click="sortBy('name')" 
-                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
-                            >
-                                Nombre
-                                @if($sortField === 'name')
-                                    @if($sortDirection === 'asc')
-                                        <flux:icon.chevron-up class="size-3" />
-                                    @else
-                                        <flux:icon.chevron-down class="size-3" />
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <button 
+                                    wire:click="sortBy('name')" 
+                                    class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                                >
+                                    Nombre
+                                    @if($sortField === 'name')
+                                        @if($sortDirection === 'asc')
+                                            <flux:icon.chevron-up class="size-3" />
+                                        @else
+                                            <flux:icon.chevron-down class="size-3" />
+                                        @endif
                                     @endif
-                                @endif
-                            </button>
+                                </button>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-left">
-                            <button 
-                                wire:click="sortBy('email')" 
-                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
-                            >
-                                Email
-                                @if($sortField === 'email')
-                                    @if($sortDirection === 'asc')
-                                        <flux:icon.chevron-up class="size-3" />
-                                    @else
-                                        <flux:icon.chevron-down class="size-3" />
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <button 
+                                    wire:click="sortBy('email')" 
+                                    class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                                >
+                                    Email
+                                    @if($sortField === 'email')
+                                        @if($sortDirection === 'asc')
+                                            <flux:icon.chevron-up class="size-3" />
+                                        @else
+                                            <flux:icon.chevron-down class="size-3" />
+                                        @endif
                                     @endif
-                                @endif
-                            </button>
+                                </button>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-left">
-                            <button 
-                                wire:click="sortBy('phone')" 
-                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
-                            >
-                                Teléfono
-                                @if($sortField === 'phone')
-                                    @if($sortDirection === 'asc')
-                                        <flux:icon.chevron-up class="size-3" />
-                                    @else
-                                        <flux:icon.chevron-down class="size-3" />
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <button 
+                                    wire:click="sortBy('phone')" 
+                                    class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                                >
+                                    Teléfono
+                                    @if($sortField === 'phone')
+                                        @if($sortDirection === 'asc')
+                                            <flux:icon.chevron-up class="size-3" />
+                                        @else
+                                            <flux:icon.chevron-down class="size-3" />
+                                        @endif
                                     @endif
-                                @endif
-                            </button>
+                                </button>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-left">
-                            <button 
-                                wire:click="sortBy('box_balance')" 
-                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
-                            >
-                                Cajas
-                                @if($sortField === 'box_balance')
-                                    @if($sortDirection === 'asc')
-                                        <flux:icon.chevron-up class="size-3" />
-                                    @else
-                                        <flux:icon.chevron-down class="size-3" />
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <button 
+                                    wire:click="sortBy('box_balance')" 
+                                    class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                                >
+                                    Cajas
+                                    @if($sortField === 'box_balance')
+                                        @if($sortDirection === 'asc')
+                                            <flux:icon.chevron-up class="size-3" />
+                                        @else
+                                            <flux:icon.chevron-down class="size-3" />
+                                        @endif
                                     @endif
-                                @endif
-                            </button>
+                                </button>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-left">
-                            <button 
-                                wire:click="sortBy('address')" 
-                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
-                            >
-                                Dirección
-                                @if($sortField === 'address')
-                                    @if($sortDirection === 'asc')
-                                        <flux:icon.chevron-up class="size-3" />
-                                    @else
-                                        <flux:icon.chevron-down class="size-3" />
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <button 
+                                    wire:click="sortBy('address')" 
+                                    class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                                >
+                                    Dirección
+                                    @if($sortField === 'address')
+                                        @if($sortDirection === 'asc')
+                                            <flux:icon.chevron-up class="size-3" />
+                                        @else
+                                            <flux:icon.chevron-down class="size-3" />
+                                        @endif
                                     @endif
-                                @endif
-                            </button>
+                                </button>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-left">
-                            <button 
-                                wire:click="sortBy('rfc')" 
-                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
-                            >
-                                RFC
-                                @if($sortField === 'rfc')
-                                    @if($sortDirection === 'asc')
-                                        <flux:icon.chevron-up class="size-3" />
-                                    @else
-                                        <flux:icon.chevron-down class="size-3" />
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <button 
+                                    wire:click="sortBy('rfc')" 
+                                    class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                                >
+                                    RFC
+                                    @if($sortField === 'rfc')
+                                        @if($sortDirection === 'asc')
+                                            <flux:icon.chevron-up class="size-3" />
+                                        @else
+                                            <flux:icon.chevron-down class="size-3" />
+                                        @endif
                                     @endif
-                                @endif
-                            </button>
+                                </button>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-left">
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Estado
-                            </span>
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Estado
+                                </span>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-left">
-                            <button 
-                                wire:click="sortBy('created_at')" 
-                                class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
-                            >
-                                Fecha de Registro
-                                @if($sortField === 'created_at')
-                                    @if($sortDirection === 'asc')
-                                        <flux:icon.chevron-up class="size-3" />
-                                    @else
-                                        <flux:icon.chevron-down class="size-3" />
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <button 
+                                    wire:click="sortBy('created_at')" 
+                                    class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700"
+                                >
+                                    Fecha de Registro
+                                    @if($sortField === 'created_at')
+                                        @if($sortDirection === 'asc')
+                                            <flux:icon.chevron-up class="size-3" />
+                                        @else
+                                            <flux:icon.chevron-down class="size-3" />
+                                        @endif
                                     @endif
-                                @endif
-                            </button>
+                                </button>
+                            </div>
                         </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Acciones
+                        <th class="px-6 py-3 text-center">
+                            <div class="flex justify-center">
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Acciones
+                                </span>
+                            </div>
                         </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($customers as $customer)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center">
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center">
                                     <div class="flex-shrink-0 h-8 w-8">
                                         <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
                                             <span class="text-primary-600 font-medium text-sm">
@@ -205,22 +225,22 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
+                            <td class="px-6 py-4 text-sm text-gray-900 text-center">
                                 {{ $customer->email }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
+                            <td class="px-6 py-4 text-sm text-gray-900 text-center">
                                 {{ $customer->phone ?: '-' }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
+                            <td class="px-6 py-4 text-sm text-gray-900 text-center">
                                 {{ $customer->box_balance ?? '0' }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
+                            <td class="px-6 py-4 text-sm text-gray-900 text-center">
                                 {{ $customer->address ?: '-' }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900">
+                            <td class="px-6 py-4 text-sm text-gray-900 text-center">
                                 {{ $customer->rfc ?: '-' }}
                             </td>
-                            <td class="px-6 py-4 text-sm">
+                            <td class="px-6 py-4 text-sm text-center">
                                 @if($customer->is_active)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
                                         Activo
@@ -231,11 +251,11 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-500">
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">
                                 {{ $customer->created_at->format('d/m/Y') }}
                             </td>
-                           <td class="px-6 py-4 max-w-[220px]">
-                                <div class="flex items-center gap-2">
+                           <td class="px-6 py-4 max-w-[220px] text-center">
+                                <div class="flex items-center gap-2 justify-center">
                                     <flux:button 
                                         variant="ghost" 
                                         size="sm" 

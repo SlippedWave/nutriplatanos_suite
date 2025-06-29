@@ -278,9 +278,9 @@ new class extends Component {
                 <!-- Table Header -->
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[300px]" 
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-[300px]" 
                             wire:click="sortBy('name')">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 justify-center">
                                 {{ __('Nombre') }}
                                 @if($sortField === 'name')
                                     @if($sortDirection === 'asc')
@@ -292,9 +292,9 @@ new class extends Component {
                             </div>
                         </th>
                         
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
                             wire:click="sortBy('email')">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 justify-center">
                                 {{ __('Correo electrónico') }}
                                 @if($sortField === 'email')
                                     @if($sortDirection === 'asc')
@@ -305,11 +305,25 @@ new class extends Component {
                                 @endif
                             </div>
                         </th>
+
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
+                            wire:click="sortBy('phone')">
+                            <div class="flex items-center gap-2 justify-center">
+                                {{ __('Teléfono') }}
+                                @if($sortField === 'phone')
+                                    @if($sortDirection === 'asc')
+                                        <flux:icon.chevron-up class="w-4 h-4" />
+                                    @else
+                                        <flux:icon.chevron-down class="w-4 h-4" />
+                                    @endif
+                                @endif
+                            </div>
+                        </th>
                         
 
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
                             wire:click="sortBy('role')">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 justify-center">
                                 {{ __('Rol') }}
                                 @if($sortField === 'role')
                                     @if($sortDirection === 'asc')
@@ -321,9 +335,9 @@ new class extends Component {
                             </div>
                         </th>
                         
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
                             wire:click="sortBy('created_at')">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 justify-center">
                                 {{ __('Fecha de registro') }}
                                 @if($sortField === 'created_at')
                                     @if($sortDirection === 'asc')
@@ -335,9 +349,9 @@ new class extends Component {
                             </div>
                         </th>
 
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 max-w-[220px]" 
                             wire:click="sortBy('last_login_at')">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 justify-center">
                                 {{ __('Último acceso') }}
                                 @if($sortField === 'last_login_at')
                                     @if($sortDirection === 'asc')
@@ -349,15 +363,15 @@ new class extends Component {
                             </div>
                         </th>
 
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[220px]">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[220px]">
                             {{ __('Dirección') }}
                         </th>
 
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[220px]">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[220px]">
                             {{ __('Contacto de emergencia') }}
                         </th>
                         
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[220px]">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[220px]">
                             {{ __('Acciones') }}
                         </th>
                     </tr>
@@ -368,8 +382,8 @@ new class extends Component {
                     @forelse($users as $user)
                         <tr class="hover:bg-gray-50 transition-colors ">
                             <!-- Name Column -->
-                            <td class="px-6 py-4 w-[300px]">
-                                <div class="flex items-center gap-3">
+                            <td class="px-6 py-4 w-[300px] text-center">
+                                <div class="flex items-center gap-3 justify-center">
                                     <div>
                                         <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-900 font-medium text-sm">
                                             {{ $user->initials() }}
@@ -408,19 +422,45 @@ new class extends Component {
                             </td>
                             
                             <!-- Email Column -->
-                            <td class="px-6 py-4 max-w-[220px]">
+                            <td class="px-6 py-4 max-w-[220px] text-center">
                                 <div class="min-w-0">
                                     <div class="text-sm text-gray-900 break-words">{{ $user->email }}</div>
                                 </div>
                             </td>
 
                             <!-- Phone Column -->
-                            <td class="px-6 py-4 text-sm text-gray-900 max-w-[220px] break-words">
+                            <td class="px-6 py-4 text-sm text-gray-900 max-w-[220px] break-words text-center">
                                 {{ $user->phone ?? '-' }}
+                            </td>
+
+                            <!-- Role Column -->
+                            <td class="px-6 py-4 max-w-[220px] text-center">
+                                <div class="text-sm text-gray-900">
+                                    @switch($user->role)
+                                        @case('admin')
+                                            <span class="inline-flex items-center py-0.5 px-2 rounded-full  
+                                                text-xs font-medium bg-primary-100 text-yellow-800">
+                                                {{ __('Admin') }}
+                                            </span>
+                                            @break
+                                        @case('carrier')
+                                            <span class="inline-flex items-center py-0.5 px-2 rounded-full  
+                                                text-xs font-medium bg-slate-100 text-blue-800">
+                                                {{ __('Transportista') }}
+                                            </span>
+                                            @break
+                                        @case('coordinator')
+                                            <span class="inline-flex items-center py-0.5 px-2 rounded-full  
+                                                text-xs font-medium bg-secondary-100 text-green-800">
+                                                {{ __('Coordinador') }}
+                                            </span>
+                                            @break
+                                    @endswitch
+                                </div>
                             </td>
                             
                             <!-- Created At Column -->
-                            <td class="px-6 py-4 max-w-[220px]">
+                            <td class="px-6 py-4 max-w-[220px] text-center">
                                 <div class="text-sm text-gray-900">
                                     {{ $user->created_at->format('d/m/Y') }}
                                 </div>
@@ -430,7 +470,7 @@ new class extends Component {
                             </td>
 
                             <!-- Last Login Column -->
-                            <td class="px-6 py-4 max-w-[220px]">
+                            <td class="px-6 py-4 max-w-[220px] text-center">
                                 @if($user->last_login_at)
                                     <div class="text-sm text-gray-900">
                                         {{ $user->last_login_at->format('d/m/Y') }}
@@ -451,12 +491,12 @@ new class extends Component {
                             </td>
 
                             <!-- Address Column -->
-                            <td class="px-6 py-4 max-w-[220px]">
+                            <td class="px-6 py-4 max-w-[220px] text-center">
                                 <div class="text-sm text-gray-900 break-words">{{ $user->address ?? '-' }}</div>
                             </td>
 
                             <!-- Emergency Contact Column -->
-                            <td class="px-6 py-4 max-w-[220px]">
+                            <td class="px-6 py-4 max-w-[220px] text-center">
                                 <div class="min-w-0">
                                     <div class="text-sm text-gray-900 break-words">{{ $user->emergency_contact }}</div>
                                     @if($user->emergency_contact_relationship)
@@ -469,8 +509,8 @@ new class extends Component {
                             </td>
                             
                             <!-- Actions Column -->
-                            <td class="px-6 py-4 max-w-[220px]">
-                                <div class="flex items-center gap-2">
+                            <td class="px-6 py-4 max-w-[220px] text-center">
+                                <div class="flex items-center gap-2 justify-center">
                                     <flux:button 
                                         variant="ghost" 
                                         size="sm" 

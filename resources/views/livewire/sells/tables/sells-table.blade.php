@@ -65,8 +65,8 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                            <div class="flex items-center space-x-1">
+                        <th wire:click="sortBy('created_at')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1 justify-center">
                                 <span>Fecha de Venta</span>
                                 @if($sortField === 'created_at')
                                     @if($sortDirection === 'asc')
@@ -82,8 +82,8 @@
                             </div>
                         </th>
                         
-                        <th wire:click="sortBy('customer_id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                            <div class="flex items-center space-x-1">
+                        <th wire:click="sortBy('customer_id')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1 justify-center">
                                 <span>Cliente</span>
                                 @if($sortField === 'customer_id')
                                     @if($sortDirection === 'asc')
@@ -99,8 +99,8 @@
                             </div>
                         </th>
                         
-                        <th wire:click="sortBy('user_id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                            <div class="flex items-center space-x-1">
+                        <th wire:click="sortBy('user_id')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1 justify-center">
                                 <span>Vendedor</span>
                                 @if($sortField === 'user_id')
                                     @if($sortDirection === 'asc')
@@ -116,16 +116,16 @@
                             </div>
                         </th>
                         
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Peso (kg)
                         </th>
                         
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Precio por kg
                         </th>
                         
-                        <th wire:click="sortBy('total_amount')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                            <div class="flex items-center space-x-1">
+                        <th wire:click="sortBy('total_amount')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1 justify-center">
                                 <span>Monto Total</span>
                                 @if($sortField === 'total_amount')
                                     @if($sortDirection === 'asc')
@@ -140,8 +140,12 @@
                                 @endif
                             </div>
                         </th>
+
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Fecha de Registro
+                        </th>
                         
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Estado
                         </th>
                     </tr>
@@ -149,11 +153,11 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($sales as $sale)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 {{ $sale->created_at->format('d/m/Y H:i') }}
                             </td>
                             
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="text-sm font-medium text-gray-900">
                                     {{ $sale->customer->name }}
                                 </div>
@@ -164,23 +168,27 @@
                                 @endif
                             </td>
                             
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 {{ $sale->user->name }}
                             </td>
                             
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 {{ number_format($sale->weight_kg, 3) }} kg
                             </td>
                             
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 ${{ number_format($sale->price_per_kg, 2) }}
                             </td>
                             
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                                 ${{ number_format($sale->total_amount, 2) }}
                             </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                {{ $sale->created_at->format('d/m/Y H:i') }}
+                            </td>
                             
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @php
                                     $statusColors = [
                                         'pending' => 'bg-yellow-100 text-yellow-800',
@@ -202,7 +210,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
                                 @if($search)
                                     No se encontraron ventas que coincidan con "{{ $search }}".
                                 @else
