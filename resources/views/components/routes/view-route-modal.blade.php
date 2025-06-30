@@ -35,6 +35,11 @@
                         <p><strong>{{ __('Archivada:') }}</strong> {{ $selectedRoute->archived_at->format('d/m/Y H:i') }}</p>
                     @endif
                 </div>
+                <div class="mt-3">
+                    <a href="{{ route('routes.show', $selectedRoute->id) }}" class="text-primary-700 hover:text-primary-800 text-sm font-medium">
+                        {{ __('Ver más detalles') }} &rarr;
+                    </a>
+                </div>
             </div>
         </div>
     @endif

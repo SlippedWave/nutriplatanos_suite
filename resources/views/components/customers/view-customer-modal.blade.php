@@ -23,7 +23,7 @@
                     <p><strong>{{ __('Estado:') }}</strong> {{ $selectedCustomer->is_active ? __('Activo') : __('Inactivo') }}</p>
                 </div>
                 <div class="mt-3">
-                    <a href="{{ route('customers.show', $selectedCustomer->id) }}" class="text-primary-800 hover:text-primary-800 text-sm font-medium">
+                    <a href="{{ route('customers.show', $selectedCustomer->id) }}" class="text-primary-700 hover:text-primary-800 text-sm font-medium">
                         {{ __('Ver más detalles') }} &rarr;
                     </a>
                 </div>

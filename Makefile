@@ -73,6 +73,7 @@ help:
 	@echo "  make test     - Run tests"
 	@echo "  make install  - Install dependencies"
 	@echo "  make run      - Run the application"
+	@echo "  make npm-dev  - Run npm in development mode"
 	@echo "  make migrate  - Run database migrations"
 	@echo "  make seed     - Seed the database"
 	@echo "  make help     - Display this help message"

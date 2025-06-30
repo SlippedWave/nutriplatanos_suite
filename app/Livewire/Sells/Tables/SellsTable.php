@@ -11,6 +11,7 @@ class SellsTable extends Component
     use WithPagination;
 
     public $customer_id = null;
+    public $route_id = null;
     public $search = '';
     public $perPage = 10;
     public $sortField = 'created_at';
@@ -27,9 +28,10 @@ class SellsTable extends Component
         'dateFilter' => ['except' => 'all'],
     ];
 
-    public function mount($customer_id = null)
+    public function mount($customer_id = null, $route_id = null)
     {
         $this->customer_id = $customer_id;
+        $this->route_id = $route_id;
         $this->applyDateFilter();
     }
 
@@ -84,6 +86,9 @@ class SellsTable extends Component
         $salesQuery = Sale::with(['customer', 'user'])
             ->when($this->customer_id, function ($query) {
                 $query->where('customer_id', $this->customer_id);
+            })
+            ->when($this->route_id, function ($query) {
+                $query->where('route_id', $this->route_id);
             })
             ->when($this->search, function ($query) {
                 $query->whereHas('customer', function ($q) {
