@@ -49,12 +49,4 @@ class Customer extends Model
     {
         return $this->hasMany(Sale::class);
     }
-
-    /**
-     * Get the box balance for this customer.
-     */
-    public function boxBalance()
-    {
-        return $this->hasOne(BoxBalance::class, 'client_id');
-    }
 }

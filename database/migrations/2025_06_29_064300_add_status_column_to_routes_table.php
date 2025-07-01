@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('routes', function (Blueprint $table) {
-            $table->enum('status', ['Pendiente', 'En Progreso', 'Archivada', 'Cancelada', 'Eliminada'])
-                ->default('Pendiente')
-                ->after('archived_at');
+            $table->enum('status', ['active', 'pending', 'closed'])
+                ->default('pending')
+                ->after('closed_at');
         });
     }
 

@@ -31,8 +31,8 @@
                         </span>
                     </p>
                     <p><strong>{{ __('Creada:') }}</strong> {{ $selectedRoute->created_at->format('d/m/Y H:i') }}</p>
-                    @if($selectedRoute->archived_at)
-                        <p><strong>{{ __('Archivada:') }}</strong> {{ $selectedRoute->archived_at->format('d/m/Y H:i') }}</p>
+                    @if($selectedRoute->closed_at)
+                        <p><strong>{{ __('Cerrada:') }}</strong> {{ $selectedRoute->closed_at->format('d/m/Y H:i') }}</p>
                     @endif
                 </div>
                 <div class="mt-3">

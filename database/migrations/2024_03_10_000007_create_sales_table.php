@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('status'); // pendiente, completada, cancelada
             $table->text('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes(); // For soft delete functionality
         });
     }
 
@@ -23,4 +24,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('sales');
     }
-}; 
+};

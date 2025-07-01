@@ -13,21 +13,15 @@ return new class extends Migration
     {
         Schema::create('box_movements', function (Blueprint $table) {
             $table->id();
-            $table->enum('movement_type', ['in', 'out']);
-            $table->integer('quantity');
             $table->foreignId('camera_id')->nullable()->constrained('cameras')->onDelete('set null');
-            $table->foreignId('client_id')->nullable()->constrained('customers')->onDelete('set null');
-            $table->foreignId('route_id')->nullable()->constrained('routes')->onDelete('set null');
+            $table->foreignId('sale_id')->nullable()->constrained('sales')->onDelete('set null');
+            $table->enum('movement_type', ['in', 'out']);
+            $table->enum('box_content_status', ['empty', 'full'])
+                ->default('empty')
+                ->comment('Indicates whether the box is empty or contains product when moved');
+            $table->integer('quantity');
             $table->timestamp('moved_at');
-            $table->timestamps();
             $table->softDeletes();
-
-            // Indexes
-            $table->index(['movement_type', 'moved_at']);
-            $table->index('camera_id');
-            $table->index('client_id');
-            $table->index('route_id');
-            $table->index('moved_at');
         });
     }
 

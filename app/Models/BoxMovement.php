@@ -17,11 +17,11 @@ class BoxMovement extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'camera_id',
+        'sale_id',
         'movement_type',
         'quantity',
-        'camera_id',
-        'client_id',
-        'route_id',
+        'box_content_status', // Indicates if the box is empty or full when moved
         'moved_at',
     ];
 
@@ -34,8 +34,6 @@ class BoxMovement extends Model
         'movement_type' => 'string',
         'quantity' => 'integer',
         'moved_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
@@ -48,6 +46,15 @@ class BoxMovement extends Model
     ];
 
     /**
+     * The possible box content statuses.
+     */
+    const BOX_CONTENT_STATUSES = [
+        'empty' => 'empty',
+        'full' => 'full',
+    ];
+
+
+    /**
      * Get the camera for this box movement.
      */
     public function camera(): BelongsTo
@@ -56,19 +63,11 @@ class BoxMovement extends Model
     }
 
     /**
-     * Get the client for this box movement.
+     * Get the sale for this box movement.
      */
-    public function client(): BelongsTo
+    public function sale(): BelongsTo
     {
-        return $this->belongsTo(Customer::class, 'client_id');
-    }
-
-    /**
-     * Get the route for this box movement.
-     */
-    public function route(): BelongsTo
-    {
-        return $this->belongsTo(Route::class);
+        return $this->belongsTo(Sale::class, 'sale_id');
     }
 
     /**
@@ -98,8 +97,8 @@ class BoxMovement extends Model
     /**
      * Scope to get movements for a specific client.
      */
-    public function scopeForClient($query, $clientId)
+    public function scopeForSale($query, $saleId)
     {
-        return $query->where('client_id', $clientId);
+        return $query->where('sale_id', $saleId);
     }
 }

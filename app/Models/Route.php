@@ -15,11 +15,9 @@ class Route extends Model
     /**
      * Status constants
      */
-    const STATUS_PENDING = 'Pendiente';
-    const STATUS_IN_PROGRESS = 'En Progreso';
-    const STATUS_ARCHIVED = 'Archivada';
-    const STATUS_CANCELED = 'Cancelada';
-    const STATUS_DELETED = 'Eliminada';
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACTIVE = 'active';
+    const STATUS_CLOSED = 'closed';
 
     /**
      * The attributes that are mass assignable.
@@ -31,7 +29,7 @@ class Route extends Model
         'carrier_id',
         'title',
         'status',
-        'archived_at',
+        'closed_at',
     ];
 
     /**
@@ -41,7 +39,7 @@ class Route extends Model
      */
     protected $casts = [
         'date' => 'date',
-        'archived_at' => 'datetime',
+        'closed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -102,10 +100,8 @@ class Route extends Model
     {
         return [
             self::STATUS_PENDING,
-            self::STATUS_IN_PROGRESS,
-            self::STATUS_ARCHIVED,
-            self::STATUS_CANCELED,
-            self::STATUS_DELETED,
+            self::STATUS_ACTIVE,
+            self::STATUS_CLOSED,
         ];
     }
 
@@ -116,20 +112,17 @@ class Route extends Model
     {
         return match ($this->status) {
             self::STATUS_PENDING => 'yellow',
-            self::STATUS_IN_PROGRESS => 'blue',
-            self::STATUS_ARCHIVED => 'gray',
-            self::STATUS_CANCELED => 'red',
-            self::STATUS_DELETED => 'red',
-            default => 'gray',
+            self::STATUS_ACTIVE => 'green',
+            self::STATUS_CLOSED => 'blue'
         };
     }
 
     /**
      * Scope to get only archived routes.
      */
-    public function scopeArchived($query)
+    public function scopeClosed($query)
     {
-        return $query->whereNotNull('archived_at');
+        return $query->whereNotNull('closed_at');
     }
 
     /**
@@ -137,7 +130,7 @@ class Route extends Model
      */
     public function scopeActive($query)
     {
-        return $query->whereNull('archived_at');
+        return $query->whereNull('closed_at');
     }
 
     /**

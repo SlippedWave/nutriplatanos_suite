@@ -15,6 +15,8 @@ return new class extends Migration
             $table->string('phone');
             $table->string('email');
             $table->string('rfc');
+            $table->boolean('active')->default(true)
+                ->comment('Indicates if the customer is active or not');
             $table->timestamps();
         });
     }
@@ -23,4 +25,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('customers');
     }
-}; 
+};

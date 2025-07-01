@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->date('date');
             $table->foreignId('carrier_id')->constrained('users')->onDelete('cascade');
-            $table->timestamp('archived_at')->nullable();
+            $table->timestamp('closed_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             // Indexes
             $table->index(['date', 'carrier_id']);
-            $table->index('archived_at');
+            $table->index('closed_at');
         });
     }
 

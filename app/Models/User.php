@@ -38,14 +38,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the WorkSchedules for the user.
-     */
-    public function schedules()
-    {
-        return $this->hasMany(WorkSchedule::class);
-    }
-
-    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
@@ -68,6 +60,14 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the routes the user has driven.
+     */
+    public function routes()
+    {
+        return $this->hasMany(Route::class, 'carrier_id');
     }
 
     /**
