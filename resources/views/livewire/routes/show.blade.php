@@ -15,7 +15,25 @@ new class extends Component {
 ?>
 
 <section class="w-full">
-    <x-welcome-section welcome-message="Mostrando información de la ruta." />
+    <x-layouts.routes.layout :heading="$route->title ?? 'Detalles de la Ruta'" :subheading="'Información detallada de la ruta creada el ' . $route->created_at->format('d/m/Y')">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Detalles de la Ruta</h2>
+            <div>
+                <flux:button.group>
+                    <flux:button variant="primary" 
+                        class="bg-secondary-400! hover:bg-secondary-300!"
+                        wire:click="$emit('openModal', 'routes.edit-route-modal', ['route' => $route])">
+                        Editar ruta
+                    </flux:button>
+                    <flux:button 
+                        variant="primary"
+                        class="hover:bg-primary-200!" 
+                        wire:click="$emit('openModal', 'routes.add-sell-modal', ['route' => $route])">
+                        Cerrar ruta
+                    </flux:button>
+                </flux:button.group>
+            </div>
+        </div>
     <div class="mt-2 w-full max-w-full overflow-hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -64,3 +82,6 @@ new class extends Component {
         <h3 class="text-lg font-medium text-gray-900 mb-4">Ventas registradas en la ruta:</h3>
         @livewire('sells.tables.sells-table', ['route_id' => $route->id])
     </div>
+    <!-- End Sales History Section -->
+    </x-layouts.routes.layout>
+</section>

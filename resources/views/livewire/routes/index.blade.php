@@ -7,7 +7,6 @@ new class extends Component {
     public $role;
     public $user;
     public $activeRoute = null;
-    public $pendingRoutes = [];
     public $heading = '';
     public $subheading = '';
 
@@ -19,17 +18,18 @@ new class extends Component {
     {
         $this->user = auth()->user();
         $this->role = $this->user->role ?? 'guest';
-        $this->pendingRoutes = $this->user->routes->where('status', 'pending')->sortByDesc('created_at');
         $this->activeRoute = $this->user->routes->where('status', 'active')->first();
+
+
+
         $this->title = 'Ruta del día ' . now()->format('d M Y');
 
         if ($this->activeRoute) {
-            $this->heading = 'Mi Ruta Activa';
-            $this->subheading = 'Aquí puedes ver los detalles de tu ruta activa.';
-        } elseif (count($this->pendingRoutes) >= 3) {
-            $this->heading = 'Rutas Pendientes';
-            $this->subheading = 'Tienes más de 3 rutas pendientes, por favor completa alguna antes de crear una nueva.';
-        } else {
+            $this->heading = 'Ruta Activa: ' . $this->activeRoute->title;
+            $this->subheading = 'Gestionando ruta del ' . $this->activeRoute->created_at->format('d M Y');
+            return $this->redirectRoute('routes.show', ['route' => $this->activeRoute->id]);
+        } 
+        else {
             $this->heading = 'Crear Nueva Ruta';
             $this->subheading = 'Puedes crear una nueva ruta para comenzar a gestionar tus entregas.';
         }
@@ -122,44 +122,38 @@ new class extends Component {
             </button>
         </div>
     @endif
-    <x-layouts.routes.layout :heading="$this->heading" :subheading="$this->subheading" :role="$role">
+    <x-layouts.routes.layout :heading="$this->heading" :subheading="$this->subheading">
         <div class="mt-5 w-full max-w-full">
             <div class="flex flex-col items-center">
-                @if ($activeRoute)
-    
-                @elseif (count($pendingRoutes) >= 3)
-    
-                @else
-                    <div class="flex flex-col items-center w-full">
-                        <flux:button wire:click="toggleCreateModal" variant="primary" icon="plus" class="max-w-[220px]">
-                            {{ __('Crear nueva ruta') }}
-                        </flux:button>
+                <div class="flex flex-col items-center w-full">
+                    <flux:button wire:click="toggleCreateModal" variant="primary" icon="plus" class="max-w-[220px]">
+                        {{ __('Crear nueva ruta') }}
+                    </flux:button>
 
-                        <!-- Modal para crear ruta -->
-                       <flux:modal wire:model="showCreateModal" class="space-y-6 border-0 bg-background!">
-                            <div class="flex items-center justify-between">
-                                <flux:heading size="lg">{{ __('Crear Nueva Ruta') }}</flux:heading>
+                    <!-- Modal para crear ruta -->
+                    <flux:modal wire:model="showCreateModal" class="space-y-6 border-0 bg-background!">
+                        <div class="flex items-center justify-between">
+                            <flux:heading size="lg">{{ __('Crear Nueva Ruta') }}</flux:heading>
+                        </div>
+                                <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" />
+                        <form wire:submit="createRoute" class="space-y-4">
+                            <flux:field>
+                                <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" value="{{"Ruta del día" . now()}}"/>
+                                <flux:error name="title" />
+                            </flux:field>
+
+                            <flux:field>
+                                <flux:textarea wire:model="notes" label="{{ __('Notas adicionales') }}" class="text-[var(--color-text)]!" />
+                                <flux:error name="notes" />
+                            </flux:field>
+
+                            <div class="flex justify-end gap-3 pt-4">
+                                <flux:button variant="ghost" wire:click="$set('showCreateModal', false)">{{ __('Cancelar') }}</flux:button>
+                                <flux:button type="submit" variant="primary">{{ __('Crear Ruta') }}</flux:button>
                             </div>
-                                    <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" />
-                            <form wire:submit="createRoute" class="space-y-4">
-                                <flux:field>
-                                    <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" value="{{"Ruta del día" . now()}}"/>
-                                    <flux:error name="title" />
-                                </flux:field>
-
-                                <flux:field>
-                                    <flux:textarea wire:model="notes" label="{{ __('Notas adicionales') }}" class="text-[var(--color-text)]!" />
-                                    <flux:error name="notes" />
-                                </flux:field>
-
-                                <div class="flex justify-end gap-3 pt-4">
-                                    <flux:button variant="ghost" wire:click="$set('showCreateModal', false)">{{ __('Cancelar') }}</flux:button>
-                                    <flux:button type="submit" variant="primary">{{ __('Crear Ruta') }}</flux:button>
-                                </div>
-                            </form>
-                        </flux:modal>
-                    </div>
-                @endif
+                        </form>
+                    </flux:modal>
+                </div>
             </div>
         </div>
     </x-layouts.routes.layout>

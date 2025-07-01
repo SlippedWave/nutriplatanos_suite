@@ -19,10 +19,8 @@ new class extends Component {
 
 <section class="w-full">
     
-    <x-layouts.routes.layout :heading="__('Rutas')" :subheading="$subheading" :role="$role">
+    <x-layouts.routes.layout :heading="__('Rutas')" :subheading="$subheading">
         <div class="mt-5 w-full max-w-full">
-{{--             @livewire('routes.tables.routes-table')
- --}}        
             @livewire('routes.tables.routes-table', ['user_id' => ($role == 'admin' || $role=='coordinator') ? null : auth()->user()->id ])
         </div>
     </x-layouts.routes.layout>

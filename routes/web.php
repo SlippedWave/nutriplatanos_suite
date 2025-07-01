@@ -20,7 +20,6 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('rutas/detalles/{route}', 'routes.show')->name('routes.show');
 
     Route::middleware(['password.confirm'])->group(function () {
-        Volt::route('rutas/historial', 'routes.history')->name('routes.history');
         Route::middleware(['role:admin'])->group(function () {
             Volt::route('configuracion/usuarios', 'settings.users')->name('settings.users');
         });

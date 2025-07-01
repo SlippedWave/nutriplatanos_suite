@@ -71,6 +71,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the active route for the user.
+     */
+    public function activeRoute()
+    {
+        return $this->routes()->where('status', 'active')->first() !== null;
+    }
+
+    /**
      * Check if the user is an admin
      */
     public function isAdmin(): bool
