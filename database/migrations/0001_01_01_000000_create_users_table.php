@@ -14,16 +14,24 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
             $table->string('phone');
             $table->string('curp');
             $table->string('rfc');
+            $table->string('email')->unique();
+            $table->enum('role', ['admin', 'coordinator', 'carrier'])->default('carrier')
+                ->comment('Role of the user, e.g., admin, coordinator, carrier');
+            $table->boolean('active')->default(true)
+                ->comment('Indicates if the user account is active or not');
+            $table->string('password');
             $table->string('address');
             $table->string('emergency_contact');
             $table->string('emergency_contact_phone');
             $table->string('emergency_contact_relationship');
             $table->rememberToken();
+            $table->timestamp('last_login_at')->nullable()->after('is_active')
+                ->comment('Timestamp of the last login of the user');
+            $table->string('last_login_ip', 45)->nullable()->after('last_login_at')
+                ->comment('IP address of the last login of the user');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -19,8 +19,7 @@ class Customer extends Model
         'phone',
         'email',
         'rfc',
-        'box_balance',
-        'is_active', // Indicates if the customer is active
+        'active', // Indicates if the customer is active
     ];
 
     /**
@@ -39,7 +38,7 @@ class Customer extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'box_balance' => 'integer', // Cast box_balance to an integer
-        'is_active' => 'boolean', // Cast is_active to a boolean
+        'active' => 'boolean', // Cast is_active to a boolean
     ];
 
     /**
