@@ -96,7 +96,7 @@
                                 @endif
                             </span>
                         </th>
-                        <th wire:click="sortBy('date')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                        <th wire:click="sortBy('created_at')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
                             Fecha
                             <span class="ml-2">
                                 @if($sortField === 'date')
@@ -143,7 +143,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 {{ $route->title ?? 'Sin título' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{{ $route->date->format('d/m/Y') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{{ $route->created_at->format('d/m/Y') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-{{$route->getStatusColorAttribute()}}-100 
                                     text-{{$route->getStatusColorAttribute()}}-800">

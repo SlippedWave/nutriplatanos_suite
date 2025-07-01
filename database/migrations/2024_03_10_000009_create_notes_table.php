@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('title');
             $table->text('content');
             $table->string('type')->nullable(); // general, venta, ruta, inventario
             $table->morphs('notable'); // Para relacionar con otros modelos
@@ -23,4 +22,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('notes');
     }
-}; 
+};

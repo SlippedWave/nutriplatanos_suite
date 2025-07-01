@@ -13,14 +13,16 @@ return new class extends Migration
     {
         Schema::create('routes', function (Blueprint $table) {
             $table->id();
-            $table->date('date');
             $table->foreignId('carrier_id')->constrained('users')->onDelete('cascade');
+            $table->string('title')->nullable();
             $table->timestamp('closed_at')->nullable();
+            $table->enum('status', ['active', 'closed'])
+                ->default('active');
             $table->timestamps();
             $table->softDeletes();
 
             // Indexes
-            $table->index(['date', 'carrier_id']);
+            $table->index(['carrier_id']);
             $table->index('closed_at');
         });
     }

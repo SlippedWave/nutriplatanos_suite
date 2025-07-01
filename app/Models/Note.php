@@ -10,7 +10,6 @@ class Note extends Model
 {
     protected $fillable = [
         'user_id',
-        'title',
         'content',
         'type',
         'notable_type',

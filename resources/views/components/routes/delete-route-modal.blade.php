@@ -30,7 +30,7 @@
                         </svg>
                     </span>
                     <div>
-                        <p class="font-medium">Ruta del {{ $selectedRoute->date->format('d/m/Y') }}</p>
+                        <p class="font-medium">{{ $selectedRoute->title ?? 'Ruta del ' . $selectedRoute->created_at->format('d/m/Y') }}</p>
                         <p class="text-sm text-gray-600">{{ $selectedRoute->carrier_name ?? 'Sin transportista asignado' }}</p>
                     </div>
                 </div>

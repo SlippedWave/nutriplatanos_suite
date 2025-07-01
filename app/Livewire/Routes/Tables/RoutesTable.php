@@ -13,7 +13,7 @@ class RoutesTable extends Component
     public $user_id = null;
     public $search = '';
     public $perPage = 10;
-    public $sortField = 'date';
+    public $sortField = 'created_at';
     public $sortDirection = 'desc';
     public $dateFilter = 'all'; // all, today, week, month
     public $statusFilter = 'all'; // all, or specific status
@@ -151,10 +151,10 @@ class RoutesTable extends Component
                 });
             })
             ->when($this->startDate, function ($query) {
-                return $query->whereDate('date', '>=', $this->startDate);
+                return $query->whereDate('created_at', '>=', $this->startDate);
             })
             ->when($this->endDate, function ($query) {
-                return $query->whereDate('date', '<=', $this->endDate);
+                return $query->whereDate('created_at', '<=', $this->endDate);
             })
             ->when($this->statusFilter !== 'all', function ($query) {
                 return $query->where('status', $this->statusFilter);

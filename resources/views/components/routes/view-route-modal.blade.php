@@ -12,7 +12,7 @@
                     </svg>
                 </span>
                 <div>
-                    <h3 class="text-xl font-semibold">{{ $selectedRoute->title ?? 'Ruta del ' . $selectedRoute->date->format('d/m/Y') }}</h3>
+                    <h3 class="text-xl font-semibold">{{ $selectedRoute->title ?? 'Ruta del ' . $selectedRoute->created_at->format('d/m/Y') }}</h3>
                     <p class="text-gray-600">{{ $selectedRoute->carrier_name ?? 'Sin transportista asignado' }}</p>
                 </div>
             </div>
@@ -22,7 +22,7 @@
                     @if($selectedRoute->title)
                         <p><strong>{{ __('Título:') }}</strong> {{ $selectedRoute->title }}</p>
                     @endif
-                    <p><strong>{{ __('Fecha:') }}</strong> {{ $selectedRoute->date->format('d/m/Y') }}</p>
+                    <p><strong>{{ __('Fecha:') }}</strong> {{ $selectedRoute->created_at->format('d/m/Y H:i') }}</p>
                     <p><strong>{{ __('Transportista:') }}</strong> {{ $selectedRoute->carrier_name ?? 'No asignado' }}</p>
                     <p>
                         <strong>{{ __('Estado:') }}</strong> 
@@ -30,7 +30,6 @@
                             {{ $selectedRoute->status_label }}
                         </span>
                     </p>
-                    <p><strong>{{ __('Creada:') }}</strong> {{ $selectedRoute->created_at->format('d/m/Y H:i') }}</p>
                     @if($selectedRoute->closed_at)
                         <p><strong>{{ __('Cerrada:') }}</strong> {{ $selectedRoute->closed_at->format('d/m/Y H:i') }}</p>
                     @endif

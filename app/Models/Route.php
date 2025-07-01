@@ -15,7 +15,6 @@ class Route extends Model
     /**
      * Status constants
      */
-    const STATUS_PENDING = 'pending';
     const STATUS_ACTIVE = 'active';
     const STATUS_CLOSED = 'closed';
 
@@ -25,7 +24,6 @@ class Route extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'date',
         'carrier_id',
         'title',
         'status',
@@ -38,7 +36,6 @@ class Route extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'date' => 'date',
         'closed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -90,7 +87,10 @@ class Route extends Model
      */
     public function getStatusLabelAttribute(): string
     {
-        return $this->status ?? self::STATUS_PENDING;
+        return match ($this->status) {
+            self::STATUS_ACTIVE => 'Activa',
+            self::STATUS_CLOSED => 'Cerrada',
+        };
     }
 
     /**
@@ -99,7 +99,6 @@ class Route extends Model
     public static function getStatuses(): array
     {
         return [
-            self::STATUS_PENDING,
             self::STATUS_ACTIVE,
             self::STATUS_CLOSED,
         ];
@@ -111,9 +110,8 @@ class Route extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            self::STATUS_PENDING => 'yellow',
             self::STATUS_ACTIVE => 'green',
-            self::STATUS_CLOSED => 'blue'
+            self::STATUS_CLOSED => 'yellow',
         };
     }
 
