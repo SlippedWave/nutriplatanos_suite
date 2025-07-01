@@ -132,6 +132,14 @@ class Route extends Model
     }
 
     /**
+     * Get all notes for this sale.
+     */
+    public function notes()
+    {
+        return $this->morphMany(Note::class, 'notable');
+    }
+
+    /**
      * Scope to order by carrier name.
      */
     public function scopeOrderByCarrierName($query, $direction = 'asc')

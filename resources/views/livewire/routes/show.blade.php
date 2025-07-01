@@ -40,6 +40,11 @@ new class extends Component {
                 <p class="text-sm font-medium text-gray-500">Nombre:</p>
                 <p class="mt-1 text-sm text-gray-900">{{ $route->title ?? 'Ruta creada en ' . $route->created_at->format('d/m/Y') }}</p>
             </div>
+            
+            <div>
+                <p class="text-sm font-medium text-gray-500">Inició:</p>
+                <p class="mt-1 text-sm text-gray-900">{{ $route->created_at->format('d/m/Y H:i') }}</p>
+            </div>
 
             @if($route->status)
             <div>
@@ -58,30 +63,40 @@ new class extends Component {
                 <p class="mt-1 text-sm text-gray-900">{{ $route->carrier_name }}</p>
             </div>
             @endif
-            
-            
-            @if($route->date)
-            <div>
-                <p class="text-sm font-medium text-gray-500">Fecha de trabajo:</p>
-                <p class="mt-1 text-sm text-gray-900">{{ $route->date }}</p>
-            </div>
-            @endif
-            
-            <div>
-                <p class="text-sm font-medium text-gray-500">Fecha de Creación:</p>
-                <p class="mt-1 text-sm text-gray-900">{{ $route->created_at->format('d/m/Y') }}</p>
-            </div>
-
-
 
         </div>
     </div>
 
+    <div class="mt-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Notas:</h3>
+            <flux:button 
+                variant="primary" 
+                class="bg-secondary-400! hover:bg-secondary-300!"
+                icon="plus"
+                wire:click="$emit('openModal', 'routes.add-note-modal', ['route' => $route])">
+                Añadir nota
+            </flux:button>
+        </div>
+        <ul class="list-disc pl-5 space-y-2">
+            @forelse ($route->notes() as $note)
+                <li class="text-sm text-gray-700">
+                    <span class="font-semibold">{{ $note->created_at->format('d/m/Y H:i') }}:</span> {{ $note->content }}
+                </li>
+            @empty
+                <li class="text-sm text-gray-500">No hay notas registradas para esta ruta.</li>
+            @endforelse
+        </ul>
+        
+    </div>
+
     <!-- Sales History Section -->
-    <div class="mt-8">
+    <div class="mt-6">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Ventas registradas en la ruta:</h3>
         @livewire('sells.tables.sells-table', ['route_id' => $route->id])
     </div>
     <!-- End Sales History Section -->
+
+
     </x-layouts.routes.layout>
 </section>
