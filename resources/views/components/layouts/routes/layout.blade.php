@@ -3,7 +3,7 @@
 <div class="flex-1">
     <div class="w-full flex justify-center items-center mb-4! mt-0! pt-0! ">
         <flux:navbar>
-            <flux:navbar.item :href="route('routes.index')" wire:navigate>{{ __('Rutas') }}</flux:navbar.item>
+            <flux:navbar.item :href="route('routes.index')" wire:navigate>{{ __('Mi ruta') }}</flux:navbar.item>
             <flux:navbar.item :href="route('routes.history')" wire:navigate>{{ ($role === 'admin' || $role === 'coordinator') ? __('Ver historial de rutas') : __('Mis rutas') }}</flux:navbar.item>
         </flux:navbar>
     </div>
