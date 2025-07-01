@@ -29,7 +29,7 @@ class RoutesTable extends Component
     // Form fields
     public $name = '';
     public $description = '';
-    public $is_active = true;
+    public $active = true;
 
     public ?Route $selectedRoute = null;
 
@@ -123,7 +123,7 @@ class RoutesTable extends Component
     {
         $this->name = '';
         $this->description = '';
-        $this->is_active = true;
+        $this->active = true;
     }
 
     public function deleteRoute()

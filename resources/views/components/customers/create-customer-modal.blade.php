@@ -24,7 +24,7 @@
         </div>
         <flux:textarea wire:model="address" label="{{ __('Dirección') }}" rows="2" class="text-[var(--color-text)]!" />
 
-        <flux:checkbox wire:model="is_active" label="{{ __('Cliente activo') }}" />
+        <flux:checkbox wire:model="active" label="{{ __('Cliente activo') }}" />
 
         <div class="flex justify-end gap-3 pt-4">
             <flux:button variant="ghost" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>

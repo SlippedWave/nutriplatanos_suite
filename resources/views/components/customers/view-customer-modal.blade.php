@@ -20,7 +20,7 @@
                     <p><strong>{{ __('Teléfono:') }}</strong> {{ $selectedCustomer->phone }}</p>
                     <p><strong>{{ __('Dirección:') }}</strong> {{ $selectedCustomer->address }}</p>
                     <p><strong>{{ __('RFC:') }}</strong> {{ $selectedCustomer->rfc }}</p>
-                    <p><strong>{{ __('Estado:') }}</strong> {{ $selectedCustomer->is_active ? __('Activo') : __('Inactivo') }}</p>
+                    <p><strong>{{ __('Estado:') }}</strong> {{ $selectedCustomer->active ? __('Activo') : __('Inactivo') }}</p>
                 </div>
                 <div class="mt-3">
                     <a href="{{ route('customers.show', $selectedCustomer->id) }}" class="text-primary-700 hover:text-primary-800 text-sm font-medium">

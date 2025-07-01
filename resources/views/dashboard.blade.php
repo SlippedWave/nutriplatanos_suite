@@ -2,7 +2,7 @@
 
 use App\Models\Customer;
 
-$activeCustomers = Customer::where('is_active', true)->count();
+$activeCustomers = Customer::where('active', true)->count();
 
 ?>
 

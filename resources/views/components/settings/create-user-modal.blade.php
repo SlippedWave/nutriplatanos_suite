@@ -48,7 +48,7 @@
             <flux:input wire:model="password_confirmation" type="password" label="{{ __('Confirmar contraseña') }}" required class="text-[var(--color-text)]!" />
         </div>
 
-        <flux:checkbox wire:model="is_active" label="{{ __('Usuario activo') }}" />
+        <flux:checkbox wire:model="active" label="{{ __('Usuario activo') }}" />
 
         <div class="flex justify-end gap-3 pt-4">
             <flux:button variant="ghost" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>

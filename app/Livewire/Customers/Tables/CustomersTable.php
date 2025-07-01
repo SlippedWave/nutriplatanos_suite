@@ -28,7 +28,7 @@ class CustomersTable extends Component
     public $phone = '';
     public $address = '';
     public $rfc = '';
-    public $is_active = true;
+    public $active = true;
 
     public ?Customer $selectedCustomer = null;
 
@@ -98,7 +98,7 @@ class CustomersTable extends Component
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'rfc' => 'nullable|string|max:13',
-            'is_active' => 'boolean',
+            'active' => 'boolean',
         ]);
 
         Customer::create($validated);
@@ -121,7 +121,7 @@ class CustomersTable extends Component
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'rfc' => 'nullable|string|max:13',
-            'is_active' => 'boolean',
+            'active' => 'boolean',
         ]);
 
         $this->customer->update($validated);
@@ -148,7 +148,7 @@ class CustomersTable extends Component
 
     public function resetFormFields()
     {
-        $this->reset(['name', 'email', 'phone', 'address', 'rfc', 'is_active']);
+        $this->reset(['name', 'email', 'phone', 'address', 'rfc', 'active']);
     }
 
     public function fillForm(Customer $customer)
@@ -158,7 +158,7 @@ class CustomersTable extends Component
         $this->phone = $customer->phone;
         $this->address = $customer->address;
         $this->rfc = $customer->rfc;
-        $this->is_active = $customer->is_active;
+        $this->active = $customer->active;
     }
 
     public function render()

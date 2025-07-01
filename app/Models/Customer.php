@@ -38,7 +38,7 @@ class Customer extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'box_balance' => 'integer', // Cast box_balance to an integer
-        'active' => 'boolean', // Cast is_active to a boolean
+        'active' => 'boolean', // Cast active to a boolean
     ];
 
     /**

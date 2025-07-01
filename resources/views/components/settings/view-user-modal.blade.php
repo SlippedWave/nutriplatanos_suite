@@ -50,8 +50,8 @@
                     <p><span class="font-medium">{{ __('Fecha de registro:') }}</span> {{ $selectedUser->created_at->format('d/m/Y H:i') }}</p>
                     <p><span class="font-medium">{{ __('Último acceso:') }}</span> {{ $selectedUser->last_login_at?->format('d/m/Y H:i') ?: __('Nunca') }}</p>
                     <p><span class="font-medium">{{ __('Estado:') }}</span> 
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $selectedUser->is_active ? 'bg-green-100 text-green-800' : 'bg-danger-100 text-danger-800' }}">
-                            {{ $selectedUser->is_active ? __('Activo') : __('Inactivo') }}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $selectedUser->active ? 'bg-green-100 text-green-800' : 'bg-danger-100 text-danger-800' }}">
+                            {{ $selectedUser->active ? __('Activo') : __('Inactivo') }}
                         </span>
                     </p>
                 </div>

@@ -241,7 +241,7 @@
                                 {{ $customer->rfc ?: '-' }}
                             </td>
                             <td class="px-6 py-4 text-sm text-center">
-                                @if($customer->is_active)
+                                @if($customer->active)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
                                         Activo
                                     </span>

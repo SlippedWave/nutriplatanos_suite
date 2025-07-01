@@ -28,9 +28,9 @@ return new class extends Migration
             $table->string('emergency_contact_phone');
             $table->string('emergency_contact_relationship');
             $table->rememberToken();
-            $table->timestamp('last_login_at')->nullable()->after('is_active')
+            $table->timestamp('last_login_at')->nullable()
                 ->comment('Timestamp of the last login of the user');
-            $table->string('last_login_ip', 45)->nullable()->after('last_login_at')
+            $table->string('last_login_ip', 45)->nullable()
                 ->comment('IP address of the last login of the user');
             $table->timestamps();
             $table->softDeletes();

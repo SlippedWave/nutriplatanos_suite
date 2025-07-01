@@ -33,7 +33,7 @@ new class extends Component {
     public string $role = 'carrier';
     public string $password = '';
     public string $password_confirmation = '';
-    public bool $is_active = true;
+    public bool $active = true;
 
     // Selected user for operations
     public ?User $selectedUser = null;
@@ -102,7 +102,7 @@ new class extends Component {
             'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
             'role' => ['required', 'string', 'in:admin,carrier,coordinator'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'is_active' => ['boolean'],
+            'active' => ['boolean'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -127,7 +127,7 @@ new class extends Component {
             'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
             'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
             'role' => ['required', 'string', 'in:admin,carrier,coordinator'],
-            'is_active' => ['boolean'],
+            'active' => ['boolean'],
         ]);
 
         if (!empty($this->password)) {
@@ -172,7 +172,7 @@ new class extends Component {
         $this->role = 'carrier';
         $this->password = '';
         $this->password_confirmation = '';
-        $this->is_active = true;
+        $this->active = true;
     }
 
     private function fillForm(User $user)
@@ -187,7 +187,7 @@ new class extends Component {
         $this->emergency_contact_phone = $user->emergency_contact_phone ?? '';
         $this->emergency_contact_relationship = $user->emergency_contact_relationship ?? '';
         $this->role = $user->role;
-        $this->is_active = $user->is_active;
+        $this->active = $user->active;
         $this->password = '';
         $this->password_confirmation = '';
     }

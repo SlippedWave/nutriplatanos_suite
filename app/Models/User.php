@@ -25,7 +25,7 @@ class User extends Authenticatable
         'rfc',
         'email',
         'role',
-        'is_active',
+        'active',
         'password',
         'address',
         'emergency_contact',
@@ -57,7 +57,7 @@ class User extends Authenticatable
         return [
             'last_login_at' => 'datetime',
             'last_modified_at' => 'datetime',
-            'is_active' => 'boolean',
+            'active' => 'boolean',
             'password' => 'hashed',
         ];
     }

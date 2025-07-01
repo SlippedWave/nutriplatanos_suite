@@ -48,7 +48,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         }
         
         // Check if user is active
-        if (!Auth::user()->is_active) {
+        if (!Auth::user()->active) {
             Auth::logout();
             RateLimiter::hit($this->throttleKey());
             
