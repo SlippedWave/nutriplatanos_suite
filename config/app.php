@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Nutriplátanos Suite'),
+    'name' => env('APP_NAME', 'Nutriplatanos Suite'),
 
     /*
     |--------------------------------------------------------------------------

@@ -85,6 +85,14 @@ class Sale extends Model
     }
 
     /**
+     * Get all notes for this sale.
+     */
+    public function notes()
+    {
+        return $this->morphMany(Note::class, 'notable');
+    }
+
+    /**
      * Scope to get paid sales.
      */
     public function scopePaid($query)

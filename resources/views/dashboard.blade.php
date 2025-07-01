@@ -6,7 +6,7 @@ $activeCustomers = Customer::where('is_active', true)->count();
 
 ?>
 
-<x-layouts.app :title="__('Panel de Control - Nutriplátanos')">
+<x-layouts.app :title="__('Panel de Control - Nutriplatanos')">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
         <x-welcome-section welcome-message="Gestiona los recursos del negocio desde una sola plataforma. Aquí podrás ver un resumen de tu negocio, administrar productos, clientes y ventas." />
 
