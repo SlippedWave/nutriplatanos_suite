@@ -48,4 +48,24 @@ class Customer extends Model
     {
         return $this->hasMany(Sale::class);
     }
+
+    /**
+     * Get the box balance for this customer.
+     * @return int
+     */
+    public function getBoxBalance()
+    {
+        // Check if BoxBalance record exists for this customer
+        $boxBalance = $this->boxBalance()->first();
+        // Return the current balance if exists, otherwise 0
+        return $boxBalance ? $boxBalance->currentBalance() : 0;
+    }
+
+    /**
+     * Get the box balance relationship.
+     */
+    public function boxBalance()
+    {
+        return $this->hasOne(BoxBalance::class);
+    }
 }

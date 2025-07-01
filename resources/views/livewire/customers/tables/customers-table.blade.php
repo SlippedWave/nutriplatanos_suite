@@ -232,7 +232,7 @@
                                 {{ $customer->phone ?: '-' }}
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-900 text-center">
-                                {{ $customer->box_balance ?? '0' }}
+                                {{ $customer->getBoxBalance() }}
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-900 text-center">
                                 {{ $customer->address ?: '-' }}

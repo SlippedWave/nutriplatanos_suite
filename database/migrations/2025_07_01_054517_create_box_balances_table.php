@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('box_balances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer')->constrained('customers')->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->integer('delivered_boxes')->default(0)
                 ->comment('Number of boxes delivered to the client');
             $table->integer('returned_boxes')->default(0)
