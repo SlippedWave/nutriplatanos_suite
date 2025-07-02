@@ -105,6 +105,14 @@ class Route extends Model
     }
 
     /**
+     * Return if status is active.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
      * Get status color for UI display.
      */
     public function getStatusColorAttribute(): string

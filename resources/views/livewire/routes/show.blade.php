@@ -18,21 +18,25 @@ new class extends Component {
     <x-layouts.routes.layout :heading="$route->title ?? 'Detalles de la Ruta'" :subheading="'Información detallada de la ruta creada el ' . $route->created_at->format('d/m/Y')">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900">Detalles de la Ruta</h2>
+            @if($route->isActive())
             <div>
                 <flux:button.group>
                     <flux:button variant="primary" 
                         class="bg-secondary-400! hover:bg-secondary-300!"
+                        icon="pencil"
                         wire:click="$emit('openModal', 'routes.edit-route-modal', ['route' => $route])">
                         Editar ruta
                     </flux:button>
                     <flux:button 
                         variant="primary"
+                        icon="folder"
                         class="hover:bg-primary-200!" 
                         wire:click="$emit('openModal', 'routes.add-sell-modal', ['route' => $route])">
                         Cerrar ruta
                     </flux:button>
                 </flux:button.group>
             </div>
+            @endif
         </div>
     <div class="mt-2 w-full max-w-full overflow-hidden">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -90,12 +94,27 @@ new class extends Component {
         
     </div>
 
+    <flux:separator class="my-6" />
+
     <!-- Sales History Section -->
-    <div class="mt-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Ventas registradas en la ruta:</h3>
+    <div class="mt-2">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Historial de Ventas</h3>
+            @if($route->isActive())
+            <flux:button 
+                variant="primary" 
+                class="bg-secondary-400! hover:bg-secondary-300!"
+                icon="plus"
+                wire:click="$emit('openModal', 'sells.add-sell-modal', ['route' => $route])">
+                Añadir venta
+            </flux:button>
+            @endif
+        </div>
         @livewire('sells.tables.sells-table', ['route_id' => $route->id])
     </div>
     <!-- End Sales History Section -->
+
+    
 
 
     </x-layouts.routes.layout>

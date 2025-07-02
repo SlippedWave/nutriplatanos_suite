@@ -129,32 +129,10 @@ new class extends Component {
                     <flux:button wire:click="toggleCreateModal" variant="primary" icon="plus" class="max-w-[220px]">
                         {{ __('Crear nueva ruta') }}
                     </flux:button>
-
-                    <!-- Modal para crear ruta -->
-                    <flux:modal wire:model="showCreateModal" class="space-y-6 border-0 bg-background!">
-                        <div class="flex items-center justify-between">
-                            <flux:heading size="lg">{{ __('Crear Nueva Ruta') }}</flux:heading>
-                        </div>
-                                <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" />
-                        <form wire:submit="createRoute" class="space-y-4">
-                            <flux:field>
-                                <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" value="{{"Ruta del día" . now()}}"/>
-                                <flux:error name="title" />
-                            </flux:field>
-
-                            <flux:field>
-                                <flux:textarea wire:model="notes" label="{{ __('Notas adicionales') }}" class="text-[var(--color-text)]!" />
-                                <flux:error name="notes" />
-                            </flux:field>
-
-                            <div class="flex justify-end gap-3 pt-4">
-                                <flux:button variant="ghost" wire:click="$set('showCreateModal', false)">{{ __('Cancelar') }}</flux:button>
-                                <flux:button type="submit" variant="primary">{{ __('Crear Ruta') }}</flux:button>
-                            </div>
-                        </form>
-                    </flux:modal>
                 </div>
             </div>
         </div>
     </x-layouts.routes.layout>
+
+    @include('components.routes.create-route-modal')
 </section>
