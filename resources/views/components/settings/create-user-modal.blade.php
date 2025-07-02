@@ -37,6 +37,11 @@
 
         <flux:textarea wire:model="address" label="{{ __('Dirección') }}" rows="2" class="text-[var(--color-text)]!" />
 
+        <flux:field>
+            <flux:textarea wire:model="notes" label="{{ __('Notas adicionales') }}" class="text-[var(--color-text)]!" />
+            <flux:error name="notes" />
+        </flux:field>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <flux:input wire:model="emergency_contact" label="{{ __('Contacto de emergencia') }}" class="text-[var(--color-text)]!" />
             <flux:input wire:model="emergency_contact_phone" label="{{ __('Teléfono de emergencia') }}" class="text-[var(--color-text)]!" />

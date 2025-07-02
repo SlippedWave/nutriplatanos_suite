@@ -60,17 +60,13 @@ new class extends Component {
                 'notable_id' => $routeId,
             ]);
 
-            $this->dispatch('noteCreated', [
-                'noteId' => $routeId,
-                'notableType' => Route::class,
-                'notableId' => $routeId,
-            ]);
+            $this->dispatch('note-created');
         }
         
         $this->reset(['title', 'notes']);
         $this->showCreateModal = false;
         $this->mount();        
-        $this->dispatch('routeCreated', ['routeId' => $routeId]);
+        $this->dispatch('route-created', ['routeId' => $routeId]);
         session()->flash('message', 'Ruta creada exitosamente!');
     }
 

@@ -24,6 +24,11 @@
         </div>
         <flux:textarea wire:model="address" label="{{ __('Dirección') }}" rows="2" class="text-[var(--color-text)]!" />
 
+        <flux:field>
+            <flux:textarea wire:model="notes" label="{{ __('Notas adicionales') }}" class="text-[var(--color-text)]!" />
+            <flux:error name="notes" />
+        </flux:field>
+        
         <flux:checkbox wire:model="active" label="{{ __('Cliente activo') }}" />
 
         <div class="flex justify-end gap-3 pt-4">

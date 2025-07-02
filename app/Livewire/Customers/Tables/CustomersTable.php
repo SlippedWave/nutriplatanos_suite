@@ -3,9 +3,11 @@
 namespace App\Livewire\Customers\Tables;
 
 use App\Models\Customer;
+use App\Models\Note;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
+use Mockery\Matcher\Not;
 
 class CustomersTable extends Component
 {
@@ -99,9 +101,23 @@ class CustomersTable extends Component
             'address' => 'nullable|string|max:255',
             'rfc' => 'nullable|string|max:13',
             'active' => 'boolean',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
-        Customer::create($validated);
+        $customer = Customer::create($validated);
+
+        // If notes are provided, create a note for the customer
+        if (isset($validated['notes']) && $validated['notes']) {
+            Note::create([
+                'user_id' => auth()->user()->id,
+                'content' => $validated['notes'],
+                'type' => 'customer',
+                'notable_type' => Customer::class,
+                'notable_id' => $customer->id,
+            ]);
+
+            $this->dispatch('note-created');
+        }
 
         $this->closeModals();
         $this->dispatch('customer-created');
