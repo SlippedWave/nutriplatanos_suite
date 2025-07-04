@@ -5,11 +5,23 @@ use App\Models\Route;
 
 new class extends Component {
     public $route;
+    public $showCloseRouteModal = false;
+    public $showEditRouteModal = false;
 
     public function mount()
     {
         $routeId = request()->route('route');
         $this->route = Route::findOrFail($routeId);
+    }
+
+    public function openEditRouteModal()
+    {
+        $this->showEditRouteModal = true;
+    }
+
+    public function openCloseRouteModal()
+    {
+        $this->showCloseRouteModal = true;
     }
 };
 ?>
@@ -24,14 +36,14 @@ new class extends Component {
                     <flux:button variant="primary" 
                         class="bg-secondary-400! hover:bg-secondary-300!"
                         icon="pencil"
-                        wire:click="">
+                        wire:click="openEditRouteModal">
                         Editar ruta
                     </flux:button>
                     <flux:button 
                         variant="primary"
                         icon="folder"
                         class="hover:bg-primary-200!" 
-                        wire:click="">
+                        wire:click="openCloseRouteModal">
                         Cerrar ruta
                     </flux:button>
                 </flux:button.group>
@@ -92,7 +104,8 @@ new class extends Component {
     <!-- End Sales History Section -->
 
     
-
+    @include('components.routes.close-route-modal')
+    @include('components.routes.edit-route-modal')
 
     </x-layouts.routes.layout>
 </section>
