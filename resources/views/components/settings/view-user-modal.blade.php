@@ -44,7 +44,13 @@
                 </div>
             </div>
 
-            <div class="border-t pt-4">
+            @livewire('notes.notes-displayer', [
+                'notable_type' => \App\Models\User::class, 
+                'notable_id' => $selectedUser->id
+            ], key('notes-' . $selectedUser->id))
+        
+
+            <div>
                 <h4 class="font-medium text-gray-900 mb-3">{{ __('Información del Sistema') }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <p><span class="font-medium">{{ __('Fecha de registro:') }}</span> {{ $selectedUser->created_at->format('d/m/Y H:i') }}</p>

@@ -50,6 +50,8 @@ new class extends Component {
             </div>
         </div>
     </div>
+
+    @livewire('notes.notes-displayer', ['notable_type' => Customer::class, 'notable_id' => $customer->id])
     
     <!-- Sales History Section -->
     <div class="mt-8">
