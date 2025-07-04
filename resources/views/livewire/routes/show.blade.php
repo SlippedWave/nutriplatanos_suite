@@ -24,14 +24,14 @@ new class extends Component {
                     <flux:button variant="primary" 
                         class="bg-secondary-400! hover:bg-secondary-300!"
                         icon="pencil"
-                        wire:click="$emit('openModal', 'routes.edit-route-modal', ['route' => $route])">
+                        wire:click="">
                         Editar ruta
                     </flux:button>
                     <flux:button 
                         variant="primary"
                         icon="folder"
                         class="hover:bg-primary-200!" 
-                        wire:click="$emit('openModal', 'routes.add-sell-modal', ['route' => $route])">
+                        wire:click="">
                         Cerrar ruta
                     </flux:button>
                 </flux:button.group>
@@ -73,8 +73,6 @@ new class extends Component {
 
     @livewire('notes.notes-displayer', ['notable_type' => Route::class, 'notable_id' => $route->id])
 
-    <flux:separator class="my-6" />
-
     <!-- Sales History Section -->
     <div class="mt-2">
         <div class="flex items-center justify-between mb-4">
@@ -84,7 +82,7 @@ new class extends Component {
                 variant="primary" 
                 class="bg-secondary-400! hover:bg-secondary-300!"
                 icon="plus"
-                wire:click="$emit('openModal', 'sells.add-sell-modal', ['route' => $route])">
+                wire:click="">
                 Añadir venta
             </flux:button>
             @endif

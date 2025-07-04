@@ -12,7 +12,7 @@ class NotesDisplayer extends Component
     public $notable_id;
 
     public bool $showCreateNoteModal = false;
-    public $notes = '';
+    public $content = '';
 
     public function mount($notable_type, $notable_id)
     {
@@ -25,19 +25,19 @@ class NotesDisplayer extends Component
     public function createNote()
     {
         $this->validate([
-            'notes' => 'required|string|max:1000',
+            'content' => 'required|string|max:1000',
         ]);
 
         \App\Models\Note::create([
             'notable_type' => $this->notable_type,
             'notable_id' => $this->notable_id,
             'user_id' => $this->user_id,
-            'content' => $this->notes,
+            'content' => $this->content,
             'type' => 'general',
         ]);
 
         $this->loadNotes();
-        $this->notes = '';
+        $this->content = '';
         $this->showCreateNoteModal = false;
 
         session()->flash('message', 'Nota añadida exitosamente!');
@@ -56,14 +56,9 @@ class NotesDisplayer extends Component
         return view('livewire.notes.notes-displayer');
     }
 
-    public function toggleCreateNoteModal()
+    public function openCreateNoteModal()
     {
-        $this->showCreateNoteModal = !$this->showCreateNoteModal;
-        if (!$this->showCreateNoteModal) {
-            $this->notes = '';
-        }
-
-        // Debug: Log the state
-        logger('Modal state: ' . ($this->showCreateNoteModal ? 'open' : 'closed'));
+        $this->showCreateNoteModal = true;
+        $this->content = ''; // Reset notes input
     }
 }

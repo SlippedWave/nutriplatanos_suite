@@ -25,7 +25,7 @@ class Note extends Model
     }
 
     /**
-     * Get the parent notable model (Sale, Route, Customer, etc.)
+     * Get the parent notable   odel (Sale, Route, Customer, etc.)
      */
     public function notable(): MorphTo
     {
