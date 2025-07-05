@@ -77,7 +77,6 @@ new class extends Component {
 };
 ?>
 <section class="w-full">
-    
     <x-layouts.routes.layout :heading="$selectedRoute->title ?? 'Detalles de la Ruta'" :subheading="'Información detallada de la ruta creada el ' . $selectedRoute->created_at->format('d/m/Y')">
         @if (session()->has('message'))
             <div x-data="{ show: true }" 
