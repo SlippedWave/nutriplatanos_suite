@@ -1,188 +1,293 @@
-<div class="space-y-4">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex-1">
-            <flux:input 
-                wire:model.live.debounce.300ms="search" 
-                placeholder="Buscar por transportista o título..."
-                type="search"
-                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
+<div class="space-y-6">
+    <!-- Flash Messages -->
+    @if (session()->has('message'))
+        <div x-data="{ show: true }" 
+             x-init="setTimeout(() => show = false, 4000)" 
+             x-show="show"
+             x-transition:enter="transform ease-out duration-300 transition"
+             x-transition:enter-start="translate-y-2 opacity-0"
+             x-transition:enter-end="translate-y-0 opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center">
+            <div>{{ session('message') }}</div>
+            <button type="button" @click="show = false" class="text-green-500 hover:text-green-700">
+                <span class="sr-only">Close</span>
+                <flux:icon.x-mark class="w-4 h-4" />
+            </button>
         </div>
-        
-        <div class="flex gap-2">
-            <!-- Status Filter -->
-            <flux:select wire:model.live="statusFilter" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <flux:select.option value="all">Todos los estados</flux:select.option>
-                <flux:select.option value="Pendiente">Pendiente</flux:select.option>
-                <flux:select.option value="En Progreso">En Progreso</flux:select.option>
-                <flux:select.option value="Archivada">Archivada</flux:select.option>
-                <flux:select.option value="Cancelada">Cancelada</flux:select.option>
-                <flux:select.option value="Eliminada">Eliminada</flux:select.option>
-            </flux:select>
-            
-            <!-- Date Filter -->
-            <flux:select wire:model.live="dateFilter" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <flux:select.option value="all">Todas las fechas</flux:select.option>
-                <flux:select.option value="today">Hoy</flux:select.option>
-                <flux:select.option value="week">Esta semana</flux:select.option>
-                <flux:select.option value="month">Este mes</flux:select.option>
-            </flux:select>
-            
-            <!-- Per Page -->
-            <flux:select wire:model.live="perPage" class="w-20 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                <flux:select.option value="10">10</flux:select.option>
-                <flux:select.option value="25">25</flux:select.option>
-                <flux:select.option value="50">50</flux:select.option>
-                <flux:select.option value="100">100</flux:select.option>
-            </flux:select>
-        </div>
-    </div>
-
-    @if($dateFilter !== 'all' && $startDate && $endDate)
-    <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-            </div>
-            <div class="ml-3">
-                <p class="text-sm text-blue-700">
-                    <span class="font-medium">Filtro activo:</span>
-                    @if($dateFilter === 'today')
-                        Rutas de hoy ({{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }})
-                    @elseif($dateFilter === 'week')
-                        Rutas de esta semana ({{ \Carbon\Carbon::parse($startDate)->format('d/m') }} - {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }})
-                    @elseif($dateFilter === 'month')
-                        Rutas de este mes ({{ \Carbon\Carbon::parse($startDate)->format('M Y') }})
-                    @endif
-                </p>
-            </div>
-            <div class="ml-auto">
-                <button wire:click="$set('dateFilter', 'all')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    Limpiar filtro
-                </button>
-            </div>
-        </div>
-    </div>
     @endif
 
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    @if (session()->has('error'))
+        <div x-data="{ show: true }" 
+             x-init="setTimeout(() => show = false, 4000)" 
+             x-show="show"
+             x-transition:enter="transform ease-out duration-300 transition"
+             x-transition:enter-start="translate-y-2 opacity-0"
+             x-transition:enter-end="translate-y-0 opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg flex justify-between items-center">
+            <div>{{ session('error') }}</div>
+            <button type="button" @click="show = false" class="text-danger-500 hover:text-danger-700">
+                <span class="sr-only">Close</span>
+                <flux:icon.x-mark class="w-4 h-4" />
+            </button>
+        </div>
+    @endif
+
+    <!-- Header with Search and Filters -->
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex-1">
+                <flux:input 
+                    wire:model.live.debounce.300ms="search" 
+                    placeholder="Buscar rutas..."
+                    type="search"
+                />
+            </div>
+            
+            <div class="flex gap-2">
+                <flux:button 
+                    variant="primary" 
+                    wire:click="toggleIncludeDeleted"
+                    class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}"
+                >
+                    {{ $includeDeleted ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}
+                </flux:button>
+
+                <flux:select wire:model.live="perPage" class="w-20">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </flux:select>
+                
+                <flux:button variant="primary" icon="plus" wire:click="openCreateModal">
+                    {{ __('Nueva Ruta') }}
+                </flux:button>
+            </div>
+        </div>
+
+        <!-- Filters Row -->
+        <div class="flex gap-4">
+            <div class="flex-1">
+                <flux:select wire:model.live="statusFilter" placeholder="Filtrar por estado">
+                    <option value="">Todos los estados</option>
+                    <option value="active">Activas</option>
+                    <option value="closed">Cerradas</option>
+                </flux:select>
+            </div>
+            
+            @if($carriers->isNotEmpty())
+                <div class="flex-1">
+                    <flux:select wire:model.live="carrierFilter" placeholder="Filtrar por transportista">
+                        <option value="">Todos los transportistas</option>
+                        @foreach($carriers as $carrier)
+                            <option value="{{ $carrier->id }}">{{ $carrier->name }}</option>
+                        @endforeach
+                    </flux:select>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-hidden bg-white shadow-sm ring-1 ring-gray-200 rounded-lg">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-center">
+            <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th wire:click="sortBy('carrier_name')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
-                            Transportista
-                            <span class="ml-2">
-                                @if($sortField === 'carrier_name')
-                                    @if($sortDirection === 'asc')
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    @else
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                                    @endif
-                                @endif
-                            </span>
-                        </th>
-                        <th wire:click="sortBy('title')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
-                            Título de Ruta
-                            <span class="ml-2">
+                        <th class="px-6 py-3 text-center">
+                            <button wire:click="sortBy('title')" class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
+                                Título
                                 @if($sortField === 'title')
-                                    @if($sortDirection === 'asc')
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    @else
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                                    @endif
+                                    <flux:icon.chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }} class="size-3" />
                                 @endif
-                            </span>
+                            </button>
                         </th>
-                        <th wire:click="sortBy('created_at')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
-                            Fecha
-                            <span class="ml-2">
-                                @if($sortField === 'date')
-                                    @if($sortDirection === 'asc')
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    @else
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                                    @endif
+                        <th class="px-6 py-3 text-center">
+                            <button wire:click="sortBy('status')" class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
+                                Estado
+                                @if($sortField === 'status')
+                                    <flux:icon.chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }} class="size-3" />
                                 @endif
-                            </span>
+                            </button>
                         </th>
-                        <th wire:click="sortBy('route_status')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
-                            Estado de la Ruta
-                            <span class="ml-2">
-                                @if($sortField === 'route_status')
-                                    @if($sortDirection === 'asc')
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                                    @else
-                                        <svg class="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
-                                    @endif
+                        @if(in_array(auth()->user()->role, ['admin', 'coordinator']))
+                        <th class="px-6 py-3 text-center">
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Transportista</span>
+                        </th>
+                        @endif
+                        <th class="px-6 py-3 text-center">
+                            <button wire:click="sortBy('created_at')" class="flex items-center gap-1 text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
+                                Fecha de Inicio
+                                @if($sortField === 'created_at')
+                                    <flux:icon.chevron-{{ $sortDirection === 'asc' ? 'up' : 'down' }} class="size-3" />
                                 @endif
-                            </span>
+                            </button>
                         </th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Acciones
+                        <th class="px-6 py-3 text-center">
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Ventas</span>
+                        </th>
+                        <th class="px-6 py-3 text-center">
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($routes as $route)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                <div class="flex flex-items-center gap-3 justify-center">
-                                    <div>
-                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-900 font-medium text-sm">
-                                            {{ $route->carrier?->initials() ?? 'NA' }}
-                                        </span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        {{ $route->carrier_name ?? 'Sin asignar' }}
-                                    </div>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-center">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ $route->title ?: 'Ruta del ' . $route->created_at->format('d/m/Y') }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                {{ $route->title ?? 'Sin título' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{{ $route->created_at->format('d/m/Y') }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-{{$route->getStatusColorAttribute()}}-100 
-                                    text-{{$route->getStatusColorAttribute()}}-800">
-                                    {{ $route->status_label }}
+                            <td class="px-6 py-4 text-center">
+                                @php
+                                    $statusColors = [
+                                        'active' => 'success',
+                                        'closed' => 'gray',
+                                        'cancelled' => 'danger'
+                                    ];
+                                    $statusLabels = [
+                                        'active' => 'Activa',
+                                        'closed' => 'Cerrada',
+                                        'cancelled' => 'Cancelada'
+                                    ];
+                                    $color = $statusColors[$route->status] ?? 'gray';
+                                    $label = $statusLabels[$route->status] ?? $route->status;
+                                @endphp
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $color }}-100 text-{{ $color }}-800">
+                                    {{ $label }}
                                 </span>
+                            </td>
+                            @if(in_array(auth()->user()->role, ['admin', 'coordinator']))
+                            <td class="px-6 py-4 text-center">
+                                <div class="text-sm text-gray-900">
+                                    {{ $route->carrier->name ?? 'Sin asignar' }}
+                                </div>
+                            </td>
+                            @endif
+                            <td class="px-6 py-4 text-center">
+                                <div class="text-sm text-gray-900">
+                                    {{ $route->created_at->format('d/m/Y H:i') }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="text-sm text-gray-900">
+                                    {{ $route->sales()->count() }}
+                                </div>
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center gap-2 justify-center">
-                                    <flux:button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        icon="eye"
-                                        wire:click="openViewModal({{ $route->id }})"
-                                        aria-label="{{ __('Ver ruta') }}"
-                                    />
-                                    <flux:button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        icon="trash"
-                                        class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
-                                        wire:click="openDeleteModal({{ $route->id }})"
-                                        aria-label="{{ __('Eliminar usuario') }}"
-                                    />
+                                    @if ($route->trashed())
+                                        <flux:button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            icon="eye"
+                                            wire:click="openViewModal({{ $route->id }})"
+                                        />
+                                        <flux:button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            icon="arrow-path"
+                                            class="text-success-600 hover:text-success-700 hover:bg-success-50"
+                                            wire:click="restoreRoute"
+                                        />
+                                        <span class="inline-flex items-center py-0.5 px-2 rounded-full text-xs font-medium bg-danger-100 text-danger-800">
+                                            Eliminada
+                                        </span>
+                                    @else
+                                        <flux:button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            icon="eye"
+                                            wire:click="openViewModal({{ $route->id }})"
+                                        />
+                                        
+                                        @if($route->status === 'active')
+                                            <flux:button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                icon="pencil"
+                                                wire:click="openEditModal({{ $route->id }})"
+                                            />
+                                            <flux:button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                icon="stop"
+                                                class="text-warning-600 hover:text-warning-700 hover:bg-warning-50"
+                                                wire:click="openCloseModal({{ $route->id }})"
+                                            />
+                                        @endif
+                                        
+                                        <flux:button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            icon="trash"
+                                            class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
+                                            wire:click="openDeleteModal({{ $route->id }})"
+                                        />
+                                    @endif
                                 </div>
                             </td>
                         </tr>
-                        @empty
+                    @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
-                                No se encontraron rutas.
+                            <td colspan="{{ in_array(auth()->user()->role, ['admin', 'coordinator']) ? 6 : 5 }}" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <flux:icon.map class="size-12 text-gray-300 mb-4" />
+                                    <h3 class="text-sm font-medium text-gray-900 mb-1">No hay rutas</h3>
+                                    <p class="text-sm text-gray-500 mb-4">
+                                        @if($search)
+                                            No se encontraron rutas que coincidan con "{{ $search }}"
+                                        @else
+                                            Comienza creando tu primera ruta.
+                                        @endif
+                                    </p>
+                                    @if(!$search)
+                                        <flux:button variant="primary" wire:click="openCreateModal">
+                                            <flux:icon.plus class="size-4" />
+                                            Nueva Ruta
+                                        </flux:button>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        @if($routes->hasPages())
+            <div class="px-6 py-3 border-t border-gray-200">
+                {{ $routes->links() }}
+            </div>
+        @endif
+    </div>
+
+    <!-- Results Info -->
+    <div class="flex items-center justify-between text-sm text-gray-500">
+        <div>
+            Mostrando {{ $routes->firstItem() ?? 0 }} - {{ $routes->lastItem() ?? 0 }} 
+            de {{ $routes->total() }} rutas
+        </div>
+        
+        @if($search)
+            <button wire:click="$set('search', '')" class="text-primary-600 hover:text-primary-700">
+                Limpiar búsqueda
+            </button>
+        @endif
     </div>
 
     <!-- Modals -->
-    @include('components.routes.view-route-modal')
-    @include('components.routes.delete-route-modal')
+    @include('components.routes.create-route-modal')
+    @include('components.routes.edit-route-modal', ['selectedRoute' => $selectedRoute])
+    @include('components.routes.view-route-modal', ['selectedRoute' => $selectedRoute])
+    @include('components.routes.delete-route-modal', ['selectedRoute' => $selectedRoute])
+    @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
 </div>

@@ -3,11 +3,9 @@
 namespace App\Livewire\Customers\Tables;
 
 use App\Models\Customer;
-use App\Models\Note;
+use App\Services\CustomerService;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Validation\Rule;
-use Mockery\Matcher\Not;
 
 class CustomersTable extends Component
 {
@@ -17,6 +15,7 @@ class CustomersTable extends Component
     public $perPage = 10;
     public $sortField = 'name';
     public $sortDirection = 'asc';
+    public bool $includeDeleted = false;
 
     // Modal states
     public bool $showCreateModal = false;
@@ -31,8 +30,16 @@ class CustomersTable extends Component
     public $address = '';
     public $rfc = '';
     public $active = true;
+    public $notes = '';
 
     public ?Customer $selectedCustomer = null;
+
+    protected CustomerService $customerService;
+
+    public function boot(CustomerService $customerService)
+    {
+        $this->customerService = $customerService;
+    }
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -46,6 +53,17 @@ class CustomersTable extends Component
         $this->resetPage();
     }
 
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+
+    public function toggleIncludeDeleted()
+    {
+        $this->includeDeleted = !$this->includeDeleted;
+        $this->resetPage();
+    }
+
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -54,11 +72,12 @@ class CustomersTable extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
+        $this->resetPage();
     }
 
+    // Modal management methods
     public function openCreateModal()
     {
-        $this->selectedCustomer = null;
         $this->resetFormFields();
         $this->showCreateModal = true;
     }
@@ -72,7 +91,7 @@ class CustomersTable extends Component
 
     public function openViewModal($customerId)
     {
-        $this->selectedCustomer = Customer::findOrFail($customerId);
+        $this->selectedCustomer = Customer::withTrashed()->findOrFail($customerId);
         $this->showViewModal = true;
     }
 
@@ -92,106 +111,101 @@ class CustomersTable extends Component
         $this->resetFormFields();
     }
 
+    // CRUD operations using CustomerService
     public function createCustomer()
     {
-        $validated = $this->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:customers,email',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'rfc' => 'nullable|string|max:13',
-            'active' => 'boolean',
-            'notes' => 'nullable|string|max:1000',
-        ]);
+        $result = $this->customerService->createCustomer($this->getFormData());
 
-        $customer = Customer::create($validated);
-
-        // If notes are provided, create a note for the customer
-        if (isset($validated['notes']) && $validated['notes']) {
-            Note::create([
-                'user_id' => auth()->user()->id,
-                'content' => $validated['notes'],
-                'type' => 'customer',
-                'notable_type' => Customer::class,
-                'notable_id' => $customer->id,
-            ]);
-
-            $this->dispatch('note-created');
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
         }
-
-        $this->closeModals();
-        $this->dispatch('customer-created');
-        session()->flash('message', 'Cliente creado correctamente.');
     }
 
     public function updateCustomer()
     {
-        $validated = $this->validate([
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('customers')->ignore($this->customer->id),
-            ],
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'rfc' => 'nullable|string|max:13',
-            'active' => 'boolean',
-        ]);
+        if (!$this->selectedCustomer) {
+            session()->flash('error', 'No se ha seleccionado ningún cliente.');
+            return;
+        }
 
-        $this->customer->update($validated);
+        $result = $this->customerService->updateCustomer($this->selectedCustomer, $this->getFormData());
 
-        $this->closeModals();
-        $this->dispatch('customer-updated');
-        session()->flash('message', 'Cliente actualizado correctamente.');
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+        } else {
+            session()->flash('error', $result['message']);
+        }
     }
 
     public function deleteCustomer()
     {
-        $this->customer->delete();
+        if (!$this->selectedCustomer) {
+            session()->flash('error', 'No se ha seleccionado ningún cliente.');
+            return;
+        }
 
-        $this->closeModals();
-        $this->dispatch('customer-deleted');
-        session()->flash('message', 'Cliente eliminado correctamente.');
+        $result = $this->customerService->deleteCustomer($this->selectedCustomer);
+
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
     }
 
-    public function resetForm()
+    // Utility methods
+    private function getFormData(): array
     {
-        $this->resetFormFields();
-        $this->selectedCustomer = null;
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'address' => $this->address,
+            'rfc' => $this->rfc,
+            'active' => $this->active,
+            'notes' => $this->notes,
+        ];
     }
 
-    public function resetFormFields()
+    private function resetFormFields()
     {
-        $this->reset(['name', 'email', 'phone', 'address', 'rfc', 'active']);
+        $this->name = '';
+        $this->email = '';
+        $this->phone = '';
+        $this->address = '';
+        $this->rfc = '';
+        $this->active = true;
+        $this->notes = '';
     }
 
-    public function fillForm(Customer $customer)
+    private function fillForm(Customer $customer)
     {
         $this->name = $customer->name;
         $this->email = $customer->email;
-        $this->phone = $customer->phone;
-        $this->address = $customer->address;
-        $this->rfc = $customer->rfc;
+        $this->phone = $customer->phone ?? '';
+        $this->address = $customer->address ?? '';
+        $this->rfc = $customer->rfc ?? '';
         $this->active = $customer->active;
+        $this->notes = '';
     }
 
     public function render()
     {
-        $customers = Customer::query()
-            ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('email', 'like', '%' . $this->search . '%')
-                    ->orWhere('phone', 'like', '%' . $this->search . '%')
-                    ->orWhere('address', 'like', '%' . $this->search . '%')
-                    ->orWhere('rfc', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate($this->perPage);
-
         return view('livewire.customers.tables.customers-table', [
-            'customers' => $customers,
+            'customers' => $this->customerService->searchCustomers(
+                $this->search,
+                $this->sortField,
+                $this->sortDirection,
+                $this->perPage,
+                $this->includeDeleted
+            )
         ]);
     }
 }

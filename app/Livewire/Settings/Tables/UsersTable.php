@@ -3,11 +3,9 @@
 namespace App\Livewire\Settings\Tables;
 
 use App\Models\User;
-use App\Models\Note;
+use App\Services\UserService;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
 
 class UsersTable extends Component
 {
@@ -17,6 +15,7 @@ class UsersTable extends Component
     public $perPage = 10;
     public string $sortField = 'name';
     public string $sortDirection = 'asc';
+    public bool $includeDeleted = false;
 
     // Modal states
     public bool $showCreateModal = false;
@@ -38,25 +37,25 @@ class UsersTable extends Component
     public string $password = '';
     public string $password_confirmation = '';
     public bool $active = true;
+    public string $notes = '';
 
     // Selected user for operations
     public ?User $selectedUser = null;
 
-    public function updatedSearch()
+    protected UserService $userService;
+
+    public function boot(UserService $userService)
     {
+        $this->userService = $userService;
+    }
+
+    public function toggleIncludeDeleted()
+    {
+        $this->includeDeleted = !$this->includeDeleted;
         $this->resetPage();
     }
 
-    public function sortBy($field)
-    {
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortField = $field;
-            $this->sortDirection = 'asc';
-        }
-    }
-
+    // Modal management methods
     public function openCreateModal()
     {
         $this->resetForm();
@@ -72,7 +71,7 @@ class UsersTable extends Component
 
     public function openViewModal($userId)
     {
-        $this->selectedUser = User::findOrFail($userId);
+        $this->selectedUser = User::withTrashed()->findOrFail($userId);
         $this->showViewModal = true;
     }
 
@@ -88,91 +87,99 @@ class UsersTable extends Component
         $this->showEditModal = false;
         $this->showViewModal = false;
         $this->showDeleteModal = false;
-        $this->resetForm();
         $this->selectedUser = null;
+        $this->resetForm();
     }
 
+    // CRUD operations
     public function createUser()
     {
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string', 'max:20'],
-            'curp' => ['required', 'string', 'max:18'],
-            'rfc' => ['required', 'string', 'max:13'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'emergency_contact' => ['nullable', 'string', 'max:255'],
-            'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
-            'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
-            'role' => ['required', 'string', 'in:admin,carrier,coordinator'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'active' => ['boolean'],
-            'notes' => ['nullable|string|max:1000'],
-        ]);
+        $result = $this->userService->createUser($this->getFormData());
 
-        $validated['password'] = Hash::make($validated['password']);
-
-        $user = User::create($validated);
-
-        if ($validated['notes']) {
-            Note::create([
-                'user_id' => auth()->user()->id,
-                'content' => $validated['notes'],
-                'type' => 'user',
-                'notable_id' => $user->id,
-                'notable_type' => User::class,
-            ]);
-
-            $this->dispatch('note-created');
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
         }
-
-        $this->closeModals();
-        $this->dispatch('user-created');
-        session()->flash('message', 'Usuario creado exitosamente.');
     }
 
     public function updateUser()
     {
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users')->ignore($this->selectedUser->id)],
-            'phone' => ['required', 'string', 'max:20'],
-            'curp' => ['required', 'string', 'max:18'],
-            'rfc' => ['required', 'string', 'max:13'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'emergency_contact' => ['nullable', 'string', 'max:255'],
-            'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
-            'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
-            'role' => ['required', 'string', 'in:admin,carrier,coordinator'],
-            'active' => ['boolean'],
-        ]);
-
-        if (!empty($this->password)) {
-            $this->validate([
-                'password' => ['string', 'min:8', 'confirmed'],
-            ]);
-            $validated['password'] = Hash::make($this->password);
+        if (!$this->selectedUser) {
+            session()->flash('error', 'No se ha seleccionado ningún usuario.');
+            return;
         }
 
-        $this->selectedUser->update($validated);
+        $result = $this->userService->updateUser($this->selectedUser, $this->getFormData());
 
-        $this->closeModals();
-        $this->dispatch('user-updated');
-        session()->flash('message', 'Usuario actualizado exitosamente.');
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+        } else {
+            session()->flash('error', $result['message']);
+        }
     }
 
     public function deleteUser()
     {
-        if ($this->selectedUser->id === auth()->user()->id) {
-            session()->flash('error', 'No puedes eliminar tu propio usuario.');
+        if (!$this->selectedUser) {
+            session()->flash('error', 'No se ha seleccionado ningún usuario.');
             return;
         }
 
-        $this->selectedUser->delete();
+        $result = $this->userService->deleteUser($this->selectedUser, auth()->user());
 
-        $this->closeModals();
-        $this->dispatch('user-deleted');
-        session()->flash('message', 'Usuario eliminado exitosamente.');
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    // Utility methods
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+
+    private function getFormData(): array
+    {
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'curp' => $this->curp,
+            'rfc' => $this->rfc,
+            'address' => $this->address,
+            'emergency_contact' => $this->emergency_contact,
+            'emergency_contact_phone' => $this->emergency_contact_phone,
+            'emergency_contact_relationship' => $this->emergency_contact_relationship,
+            'role' => $this->role,
+            'password' => $this->password,
+            'password_confirmation' => $this->password_confirmation,
+            'active' => $this->active,
+            'notes' => $this->notes,
+        ];
     }
 
     private function resetForm()
@@ -190,6 +197,7 @@ class UsersTable extends Component
         $this->password = '';
         $this->password_confirmation = '';
         $this->active = true;
+        $this->notes = '';
     }
 
     private function fillForm(User $user)
@@ -205,20 +213,22 @@ class UsersTable extends Component
         $this->emergency_contact_relationship = $user->emergency_contact_relationship ?? '';
         $this->role = $user->role;
         $this->active = $user->active;
+        // Don't fill password fields for security
         $this->password = '';
         $this->password_confirmation = '';
+        $this->notes = '';
     }
 
     public function render()
     {
         return view('livewire.settings.tables.users-table', [
-            'users' => User::query()
-                ->when($this->search, function ($query) {
-                    $query->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('email', 'like', '%' . $this->search . '%');
-                })
-                ->orderBy($this->sortField, $this->sortDirection)
-                ->paginate($this->perPage)
+            'users' => $this->userService->searchUsers(
+                $this->search,
+                $this->sortField,
+                $this->sortDirection,
+                $this->perPage,
+                $this->includeDeleted
+            )
         ]);
     }
 }

@@ -14,7 +14,7 @@
         </flux:field>
 
         <div class="flex justify-end gap-3 pt-4">
-            <flux:button variant="ghost" wire:click="$set('showCreateModal', false)">{{ __('Cancelar') }}</flux:button>
+            <flux:button variant="ghost" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
             <flux:button type="submit" variant="primary">{{ __('Crear Ruta') }}</flux:button>
         </div>
     </form>

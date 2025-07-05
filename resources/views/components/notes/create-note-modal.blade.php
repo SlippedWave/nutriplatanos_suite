@@ -9,7 +9,7 @@
         </flux:field>
 
         <div class="flex justify-end gap-3 pt-4">
-            <flux:button variant="ghost" wire:click="toggleCreateNoteModal">{{ __('Cancelar') }}</flux:button>
+            <flux:button variant="ghost" wire:click="closeCreateNoteModal">{{ __('Cancelar') }}</flux:button>
             <flux:button type="submit" variant="primary">{{ __('Añadir Nota') }}</flux:button>
         </div>
     </form>

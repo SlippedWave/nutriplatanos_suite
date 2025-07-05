@@ -1,13 +1,15 @@
 <div class="mt-6">
     <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Notas:</h3>
-        <flux:button 
+        @if(!method_exists($notable, 'trashed') || !$notable->trashed())
+            <flux:button 
             variant="primary" 
             class="bg-secondary-400! hover:bg-secondary-300!"
             icon="plus"
             wire:click="openCreateNoteModal">
             Añadir nota
-        </flux:button>
+            </flux:button>
+        @endif
     </div>
     <ul class="list-disc pl-5 space-y-2">
         @forelse ($query as $note)

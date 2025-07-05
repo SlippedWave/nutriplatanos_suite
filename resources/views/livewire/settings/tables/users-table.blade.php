@@ -47,6 +47,14 @@
             />
         </div>
         <div class="flex gap-2">
+            <flux:button 
+                variant="primary" 
+                wire:click="toggleIncludeDeleted"
+                class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}" 
+                aria-label="{{ $includeDeleted ? __('Ocultar usuarios eliminados') : __('Incluir usuarios eliminados') }}"
+            >
+                {{ $includeDeleted ? __('Ocultar eliminados') : __('Incluir eliminados') }}
+            </flux:button>
             <flux:select wire:model.live="perPage" class="w-20">
                 <option value="10">10</option>
                 <option value="25">25</option>
@@ -303,31 +311,47 @@
                             <!-- Actions Column -->
                             <td class="px-6 py-4 max-w-[220px] text-center">
                                 <div class="flex items-center gap-2 justify-center">
-                                    <flux:button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        icon="pencil"
-                                        wire:click="openEditModal({{ $user->id }})"
-                                        aria-label="{{ __('Editar usuario') }}"
-                                    />
-                                    
-                                    <flux:button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        icon="eye"
-                                        wire:click="openViewModal({{ $user->id }})"
-                                        aria-label="{{ __('Ver usuario') }}"
-                                    />
-                                    
-                                    @if($user->id !== auth()->id())
+                                    @if ($user->trashed())
                                         <flux:button 
                                             variant="ghost" 
                                             size="sm" 
-                                            icon="trash"
-                                            class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
-                                            wire:click="openDeleteModal({{ $user->id }})"
-                                            aria-label="{{ __('Eliminar usuario') }}"
+                                            icon="eye"
+                                            wire:click="openViewModal({{ $user->id }})"
+                                            aria-label="{{ __('Ver usuario') }}"
                                         />
+
+                                        <div class="mt-2">
+                                            <span class="inline-flex items-center py-0.5 px-2 rounded-full text-xs font-medium bg-danger-100 text-danger-800">
+                                                {{ __('Usuario eliminado') }}
+                                            </span>
+                                        </div>
+                                    @else
+                                        <flux:button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            icon="pencil"
+                                            wire:click="openEditModal({{ $user->id }})"
+                                            aria-label="{{ __('Editar usuario') }}"
+                                        />
+                                        
+                                        <flux:button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            icon="eye"
+                                            wire:click="openViewModal({{ $user->id }})"
+                                            aria-label="{{ __('Ver usuario') }}"
+                                        />
+                                        
+                                        @if($user->id !== auth()->id())
+                                            <flux:button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                icon="trash"
+                                                class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
+                                                wire:click="openDeleteModal({{ $user->id }})"
+                                                aria-label="{{ __('Eliminar usuario') }}"
+                                            />
+                                        @endif
                                     @endif
                                 </div>
                             </td>

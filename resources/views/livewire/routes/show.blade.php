@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Component;
 use App\Models\Route;
+use App\Services\RouteService;
 
 new class extends Component {
     public $route;
@@ -10,6 +11,8 @@ new class extends Component {
 
     public function mount()
     {
+        // Fetch the route ID from the request and load the route
+        // Assuming the route ID is passed as a route parameter named 'route'
         $routeId = request()->route('route');
         $this->route = Route::findOrFail($routeId);
     }
@@ -22,6 +25,45 @@ new class extends Component {
     public function openCloseRouteModal()
     {
         $this->showCloseRouteModal = true;
+    }
+
+    public function closeModals()
+    {
+        $this->showCloseRouteModal = false;
+        $this->showEditRouteModal = false;
+    }
+
+    public function updateRoute()
+    {
+        $this->validate([
+            'route.title' => 'required|string|max:255',
+        ]);
+
+        $routeService = app(RouteService::class);
+        $result = $routeService->editRoute($this->route, );
+        if ($result['success']) {
+            session()->flash('message', $result['message']);
+            $this->showEditRouteModal = false;
+            // Refresh the route data
+            $this->route = $result['route'];
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    public function closeRoute()
+    {
+        $routeService = app(RouteService::class);
+        $result = $routeService->closeRoute($this->route);
+        
+        if ($result['success']) {
+            session()->flash('message', $result['message']);
+            $this->showCloseRouteModal = false;
+            // Refresh the route data
+            $this->route = $result['route'];
+        } else {
+            session()->flash('error', $result['message']);
+        }
     }
 };
 ?>
@@ -104,7 +146,7 @@ new class extends Component {
     <!-- End Sales History Section -->
 
     
-    @include('components.routes.close-route-modal')
+    @include('components.routes.close-route-modal', ['selectedRoute' => $route])
     @include('components.routes.edit-route-modal')
 
     </x-layouts.routes.layout>

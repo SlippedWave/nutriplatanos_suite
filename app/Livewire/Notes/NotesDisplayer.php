@@ -10,6 +10,7 @@ class NotesDisplayer extends Component
     public $user_id;
     public $notable_type;
     public $notable_id;
+    public $notable;
 
     public bool $showCreateNoteModal = false;
     public $content = '';
@@ -18,6 +19,7 @@ class NotesDisplayer extends Component
     {
         $this->notable_type = $notable_type;
         $this->notable_id = $notable_id;
+        $this->notable = app($this->notable_type)->withTrashed()->find($notable_id);
         $this->user_id = auth()->user()->id;
         $this->loadNotes();
     }
@@ -59,6 +61,12 @@ class NotesDisplayer extends Component
     public function openCreateNoteModal()
     {
         $this->showCreateNoteModal = true;
+        $this->content = ''; // Reset notes input
+    }
+
+    public function closeCreateNoteModal()
+    {
+        $this->showCreateNoteModal = false;
         $this->content = ''; // Reset notes input
     }
 }

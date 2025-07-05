@@ -3,7 +3,7 @@
         <flux:heading size="lg" class="text-primary-800!">{{ __('Cerrar Ruta') }}</flux:heading>
     </div>
 
-    @if($route)
+    @if($selectedRoute)
         <div class="space-y-4">
             <div class="bg-primary-50 rounded-lg p-4">
                 <div class="flex">

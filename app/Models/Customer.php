@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Customer extends Model
 {
-    use \Illuminate\Database\Eloquent\Factories\HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -37,6 +39,7 @@ class Customer extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime', // Add this for soft deletes
         'box_balance' => 'integer', // Cast box_balance to an integer
         'active' => 'boolean', // Cast active to a boolean
     ];
@@ -47,6 +50,14 @@ class Customer extends Model
     public function sales()
     {
         return $this->hasMany(Sale::class);
+    }
+
+    /**
+     * Get the notes for this customer.
+     */
+    public function notes()
+    {
+        return $this->morphMany(Note::class, 'notable');
     }
 
     /**
@@ -67,5 +78,25 @@ class Customer extends Model
     public function boxBalance()
     {
         return $this->hasOne(BoxBalance::class);
+    }
+
+    /**
+     * Get customer initials for avatar
+     */
+    public function initials(): string
+    {
+        $words = explode(' ', $this->name);
+        if (count($words) >= 2) {
+            return strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+        }
+        return strtoupper(substr($this->name, 0, 2));
+    }
+
+    /**
+     * Check if customer is active
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
     }
 }

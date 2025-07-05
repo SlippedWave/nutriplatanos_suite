@@ -10,7 +10,7 @@ new class extends Component {
     public function mount()
     {
         $customerId = request()->route('customer');
-        $this->customer = Customer::findOrFail($customerId);
+        $this->customer = Customer::withTrashed()->findOrFail($customerId);
     }
 }; ?>
 

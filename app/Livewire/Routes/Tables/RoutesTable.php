@@ -3,6 +3,8 @@
 namespace App\Livewire\Routes\Tables;
 
 use App\Models\Route;
+use App\Models\User;
+use App\Services\RouteService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -10,53 +12,53 @@ class RoutesTable extends Component
 {
     use WithPagination;
 
-    public $user_id = null;
     public $search = '';
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
-    public $dateFilter = 'all'; // all, today, week, month
-    public $statusFilter = 'all'; // all, or specific status
-    public $startDate = null;
-    public $endDate = null;
+    public bool $includeDeleted = false;
+    public $statusFilter = '';
+    public $carrierFilter = '';
 
     // Modal states
     public bool $showCreateModal = false;
-    public bool $showUpdateModal = false;
     public bool $showDeleteModal = false;
     public bool $showViewModal = false;
+    public bool $showEditRouteModal = false;
+    public bool $showCloseRouteModal = false;
 
     // Form fields
-    public $name = '';
-    public $description = '';
-    public $active = true;
+    public $title = '';
+    public $carrier_id = '';
+    public $status = 'active';
+    public $notes = '';
 
     public ?Route $selectedRoute = null;
 
+    protected RouteService $routeService;
+
+    public function boot(RouteService $routeService)
+    {
+        $this->routeService = $routeService;
+    }
+
     protected $queryString = [
         'search' => ['except' => ''],
-        'sortField' => ['except' => 'name'],
-        'sortDirection' => ['except' => 'asc'],
+        'sortField' => ['except' => 'created_at'],
+        'sortDirection' => ['except' => 'desc'],
         'perPage' => ['except' => 10],
-        'dateFilter' => ['except' => 'all'],
-        'statusFilter' => ['except' => 'all'],
+        'statusFilter' => ['except' => ''],
+        'carrierFilter' => ['except' => ''],
     ];
-
-    public function mount($user_id = null)
-    {
-        $this->user_id = $user_id;
-        $this->applyDateFilter();
-    }
 
     public function updatedSearch()
     {
         $this->resetPage();
     }
 
-    public function updatedDateFilter()
+    public function updatedPerPage()
     {
         $this->resetPage();
-        $this->applyDateFilter();
     }
 
     public function updatedStatusFilter()
@@ -64,27 +66,15 @@ class RoutesTable extends Component
         $this->resetPage();
     }
 
-    private function applyDateFilter()
+    public function updatedCarrierFilter()
     {
-        $now = now();
+        $this->resetPage();
+    }
 
-        switch ($this->dateFilter) {
-            case 'today':
-                $this->startDate = $now->startOfDay()->toDateString();
-                $this->endDate = $now->endOfDay()->toDateString();
-                break;
-            case 'week':
-                $this->startDate = $now->startOfWeek()->toDateString();
-                $this->endDate = $now->endOfWeek()->toDateString();
-                break;
-            case 'month':
-                $this->startDate = $now->startOfMonth()->toDateString();
-                $this->endDate = $now->endOfMonth()->toDateString();
-                break;
-            default:
-                $this->startDate = null;
-                $this->endDate = null;
-        }
+    public function toggleIncludeDeleted()
+    {
+        $this->includeDeleted = !$this->includeDeleted;
+        $this->resetPage();
     }
 
     public function sortBy($field)
@@ -95,84 +85,184 @@ class RoutesTable extends Component
             $this->sortField = $field;
             $this->sortDirection = 'asc';
         }
+        $this->resetPage();
+    }
+
+    // Modal management methods
+    public function openCreateModal()
+    {
+        $this->resetFormFields();
+        $this->showCreateModal = true;
+    }
+
+    public function openEditModal($routeId)
+    {
+        $this->selectedRoute = Route::findOrFail($routeId);
+        $this->fillForm($this->selectedRoute);
+        $this->showEditRouteModal = true;
     }
 
     public function openViewModal($routeId)
     {
-        $this->selectedRoute = Route::with('carrier')->find($routeId);
+        $this->selectedRoute = Route::withTrashed()->findOrFail($routeId);
         $this->showViewModal = true;
     }
 
     public function openDeleteModal($routeId)
     {
-        $this->selectedRoute = Route::find($routeId);
+        $this->selectedRoute = Route::findOrFail($routeId);
         $this->showDeleteModal = true;
+    }
+
+    public function openCloseModal($routeId)
+    {
+        $this->selectedRoute = Route::findOrFail($routeId);
+        $this->showCloseRouteModal = true;
     }
 
     public function closeModals()
     {
         $this->showCreateModal = false;
-        $this->showUpdateModal = false;
+        $this->showEditRouteModal = false;
         $this->showDeleteModal = false;
         $this->showViewModal = false;
+        $this->showCloseRouteModal = false;
         $this->selectedRoute = null;
         $this->resetFormFields();
     }
 
-    private function resetFormFields()
+    // CRUD operations using RouteService
+    public function createRoute()
     {
-        $this->name = '';
-        $this->description = '';
-        $this->active = true;
+        $result = $this->routeService->createRoute($this->getFormData());
+
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    public function updateRoute()
+    {
+        if (!$this->selectedRoute) {
+            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
+            return;
+        }
+
+        $result = $this->routeService->editRoute($this->selectedRoute, $this->getFormData());
+
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+        } else {
+            session()->flash('error', $result['message']);
+        }
     }
 
     public function deleteRoute()
     {
-        if ($this->selectedRoute) {
-            $this->selectedRoute->delete();
-            $this->closeModals();
-            session()->flash('message', 'Ruta eliminada correctamente.');
+        if (!$this->selectedRoute) {
+            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
+            return;
         }
+
+        $result = $this->routeService->deleteRoute($this->selectedRoute);
+
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    public function closeRoute()
+    {
+        if (!$this->selectedRoute) {
+            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
+            return;
+        }
+
+        $result = $this->routeService->closeRoute($this->selectedRoute);
+
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    public function restoreRoute()
+    {
+        if (!$this->selectedRoute) {
+            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
+            return;
+        }
+
+        $result = $this->routeService->restoreRoute($this->selectedRoute);
+
+        if ($result['success']) {
+            $this->closeModals();
+            session()->flash('message', $result['message']);
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    // Utility methods
+    private function getFormData(): array
+    {
+        return [
+            'title' => $this->title,
+            'carrier_id' => $this->carrier_id,
+            'status' => $this->status,
+            'notes' => $this->notes,
+        ];
+    }
+
+    private function resetFormFields()
+    {
+        $this->title = '';
+        $this->carrier_id = auth()->user()->role === 'carrier' ? auth()->id() : '';
+        $this->status = 'active';
+        $this->notes = '';
+    }
+
+    private function fillForm(Route $route)
+    {
+        $this->title = $route->title ?? '';
+        $this->carrier_id = $route->carrier_id;
+        $this->status = $route->status;
+        $this->notes = '';
     }
 
     public function render()
     {
-        $query = Route::query()
-            ->with('carrier') // Eager load the carrier relationship
-            ->when($this->user_id, function ($query) {
-                return $query->where('carrier_id', $this->user_id);
-            })
-            ->when($this->search, function ($query) {
-                return $query->where(function ($q) {
-                    $q->whereHas('carrier', function ($userQuery) {
-                        $userQuery->where('name', 'like', '%' . $this->search . '%');
-                    })
-                        ->orWhere('title', 'like', '%' . $this->search . '%');
-                });
-            })
-            ->when($this->startDate, function ($query) {
-                return $query->whereDate('created_at', '>=', $this->startDate);
-            })
-            ->when($this->endDate, function ($query) {
-                return $query->whereDate('created_at', '<=', $this->endDate);
-            })
-            ->when($this->statusFilter !== 'all', function ($query) {
-                return $query->where('status', $this->statusFilter);
-            });
+        $carriers = collect();
 
-        // Handle sorting
-        if ($this->sortField === 'carrier_name') {
-            $query->orderByCarrierName($this->sortDirection);
-        } elseif ($this->sortField === 'route_status') {
-            $query->orderBy('status', $this->sortDirection);
-        } else {
-            $query->orderBy($this->sortField, $this->sortDirection);
+        // Only admins and coordinators can see all carriers
+        if (in_array(auth()->user()->role, ['admin', 'coordinator'])) {
+            $carriers = User::query()->get();
         }
 
-        $routes = $query->paginate($this->perPage);
-
         return view('livewire.routes.tables.routes-table', [
-            'routes' => $routes
+            'routes' => $this->routeService->searchRoutes(
+                $this->search,
+                $this->sortField,
+                $this->sortDirection,
+                $this->perPage,
+                $this->includeDeleted,
+                $this->statusFilter ?: null,
+                $this->carrierFilter ?: null
+            ),
+            'carriers' => $carriers
         ]);
     }
 }
