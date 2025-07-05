@@ -266,7 +266,7 @@ class RouteService
     {
         $rules = [
             'title' => ['nullable', 'string', 'max:255'],
-            'carrier_id' => ['required', 'exists:users,id'],
+            'carrier_id' => !$routeId ? ['required', 'exists:users,id'] : ['nullable', 'exists:users,id'],
             'status' => ['nullable', 'string', 'in:active,closed,cancelled'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
