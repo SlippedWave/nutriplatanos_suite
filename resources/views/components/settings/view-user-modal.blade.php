@@ -66,6 +66,6 @@
     @endif
 
     <div class="flex justify-end pt-4">
-        <flux:button variant="ghost" wire:click="closeModals">{{ __('Cerrar') }}</flux:button>
+        <flux:button variant="primary" wire:click="closeModals">{{ __('Cerrar') }}</flux:button>
     </div>
 </flux:modal>

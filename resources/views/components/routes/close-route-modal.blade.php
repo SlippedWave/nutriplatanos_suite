@@ -39,7 +39,7 @@
     @endif
 
     <div class="flex justify-end gap-3 pt-4">
-        <flux:button variant="ghost" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
+        <flux:button variant="outline" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
         <flux:button variant="primary" wire:click="closeRoute">{{ __('Cerrar Ruta') }}</flux:button>
     </div>
 </flux:modal>

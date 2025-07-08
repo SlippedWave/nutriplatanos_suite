@@ -38,7 +38,9 @@
         <flux:textarea wire:model="address" label="{{ __('Dirección') }}" rows="2" class="text-[var(--color-text)]!" />
 
         <flux:field>
-            <flux:textarea wire:model="notes" label="{{ __('Notas adicionales') }}" class="text-[var(--color-text)]!" />
+            <flux:textarea wire:model="notes" label="{{ __('Notas') }}"
+            placeholder="{{ __('Notas adicionales sobre el usuario') }}" rows="3"
+            class="text-[var(--color-text)]!" />
             <flux:error name="notes" />
         </flux:field>
 
@@ -56,7 +58,7 @@
         <flux:checkbox wire:model="active" label="{{ __('Usuario activo') }}" />
 
         <div class="flex justify-end gap-3 pt-4">
-            <flux:button variant="ghost" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
+            <flux:button variant="outline" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
             <flux:button type="submit" variant="primary">{{ __('Crear Usuario') }}</flux:button>
         </div>
     </form>

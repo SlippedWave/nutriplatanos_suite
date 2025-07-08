@@ -33,6 +33,8 @@ class SalesTable extends Component
     public $notes = '';
     public $saleProducts = [];
 
+    public bool $canCreateNewSale = true; // Flag to control creation of new sales
+
     // Date filtering
     public $dateFilter = 'all';
     public $startDate = null;
@@ -66,6 +68,22 @@ class SalesTable extends Component
         $this->contextRouteId = $route_id;
         $this->customer_id = $customer_id ?? '';
         $this->route_id = $route_id ?? '';
+
+        // Determine sale creation eligibility based on contextual parameters
+        $this->canCreateNewSale = match (true) {
+            // For customer context: verify customer exists and maintains active status
+            !empty($this->contextCustomerId) => Customer::where('id', $this->contextCustomerId)
+                ->where('active', true)
+                ->exists(),
+
+            // For route context: verify route exists with active operational status
+            !empty($this->contextRouteId) => Route::where('id', $this->contextRouteId)
+                ->where('status', 'active')
+                ->exists(),
+
+            // Default: require explicit context association for new sale creation
+            default => false,
+        };
 
         // Initialize products array with one empty product
         $this->addProduct();

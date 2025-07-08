@@ -174,15 +174,6 @@ new class extends Component {
         <div class="mt-2">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Historial de Ventas</h3>
-                @if($selectedRoute->isActive())
-                <flux:button 
-                    variant="primary" 
-                    class="bg-secondary-400! hover:bg-secondary-300!"
-                    icon="plus"
-                    wire:click="">
-                    Añadir venta
-                </flux:button>
-                @endif
             </div>
             @livewire('sales.tables.sales-table', ['route_id' => $selectedRoute->id])
         </div>

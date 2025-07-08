@@ -1,9 +1,14 @@
-<flux:modal wire:model="showCreateModal">
-
+<flux:modal wire:model="showCreateModal" class="space-y-6 border-0 bg-background!">
+    <div class="flex items-center justify-between">
+        <flux:heading size="lg">{{ __('Crear Nueva Venta') }}</flux:heading>
+    </div>
     
-        <div class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="space-y-4">
+        <div class="grid grid-cols-1 @if ($contextRouteId || $contextCustomerId) md:grid-cols-1 @else md:grid-cols-2
+            
+        @endif gap-4">
             <!-- Customer Selection -->
+            @if (!$contextCustomerId)
             <flux:field>
                 <flux:select wire:model="customer_id" label="{{ __('Cliente') }}" required>
                     <option value="">Seleccionar cliente...</option>
@@ -13,8 +18,10 @@
                 </flux:select>
                 <flux:error name="customer_id" />
             </flux:field>
+            @endif
 
             <!-- Route Selection -->
+            @if (!$contextRouteId)
             <flux:field>
                 <flux:select wire:model="route_id" label="{{ __('Ruta') }}" required>
                     <option value="">Seleccionar ruta...</option>
@@ -24,6 +31,7 @@
                 </flux:select>
                 <flux:error name="route_id" />
             </flux:field>
+            @endif
         </div>
 
         <!-- Payment Status -->
@@ -37,8 +45,10 @@
             <flux:error name="payment_status" />
         </flux:field>
 
+        <flux:separator class="my-6" />
+
         <!-- Products Section -->
-        <div class="border-t pt-6">
+        <div>
             <div class="flex items-center justify-between mb-4">
                 <flux:heading size="base">{{ __('Productos') }} *</flux:heading>
                 <flux:button type="button" wire:click="addProduct" size="sm" variant="outline" icon="plus">
@@ -132,7 +142,7 @@
         </div>
 
         <!-- Notes -->
-        <flux:field>
+        <flux:field class="mt-4">
             <flux:textarea 
                 wire:model="notes" 
                 label="{{ __('Notas') }}"
@@ -142,12 +152,16 @@
             />
             <flux:error name="notes" />
         </flux:field>
-
-        <flux:button wire:click="closeModals" variant="outline">
-            {{ __('Cancelar') }}
-        </flux:button>
         
-        <flux:button wire:click="createSale" variant="primary">
-            {{ __('Crear Venta') }}
-        </flux:button>
+
+        <div class="flex justify-end gap-3 pt-4">
+            <flux:button wire:click="closeModals" variant="outline">
+                {{ __('Cancelar') }}
+            </flux:button>
+            
+            <flux:button wire:click="createSale" variant="primary">
+                {{ __('Crear Venta') }}
+            </flux:button>
+        </div>
+    </div>
 </flux:modal>

@@ -73,11 +73,13 @@
                 <option value="100">100</option>
             </flux:select>
             
+            @if ($canCreateNewSale)
             <flux:button variant="primary"
                             icon="plus"
                             wire:click="openCreateModal">
                 {{ __('Nueva Venta') }}
             </flux:button>
+            @endif
         </div>
     </div>
 
@@ -208,7 +210,8 @@
                                         'cancelled' => 'Cancelado',
                                     ];
                                 @endphp
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $statusColors[$sale->payment_status] ?? 'bg-gray-100 text-gray-800' }}">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                {{ $statusColors[$sale->payment_status] ?? 'bg-gray-100 text-gray-800' }}">
                                     {{ $statusLabels[$sale->payment_status] ?? $sale->payment_status }}
                                 </span>
                             </td>
@@ -300,8 +303,11 @@
     </div>
 
     <!-- Modals -->
-    @include('components.sales.create-sale-modal')
-    @include('components.sales.update-sale-modal', ['selectedSale' => $selectedSale])
+    @include('components.sales.create-sale-modal', ['contextRouteId' => $contextRouteId, 
+    'contextCustomerId' => $contextCustomerId])
+    @include('components.sales.update-sale-modal', ['selectedSale' => $selectedSale, 
+    'contextRouteId' => $contextRouteId, 
+    'contextCustomerId' => $contextCustomerId])
     @include('components.sales.view-sale-modal', ['selectedSale' => $selectedSale])
     @include('components.sales.delete-sale-modal', ['selectedSale' => $selectedSale])
 </div>
