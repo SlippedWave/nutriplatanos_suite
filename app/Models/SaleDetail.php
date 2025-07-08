@@ -10,11 +10,14 @@ class SaleDetail extends Model
     protected $fillable = [
         'sale_id',
         'product_id',
-        'total_price',
+        'quantity',
+        'price_per_unit',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:2',
+        'price_per_unit' => 'decimal:2',
+        'total_price' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -37,12 +40,12 @@ class SaleDetail extends Model
 
     /**
      * Calculate the total price for this SaleDetail.
+     * Note: total_price is a computed column in the database
      *
-     * @return void
+     * @return float
      */
-    public function calculateTotalPrice()
+    public function getTotalPriceAttribute(): float
     {
-        $this->total_price = $this->quantity * $this->price_per_unit;
-        $this->save();
+        return $this->quantity * $this->price_per_unit;
     }
 }

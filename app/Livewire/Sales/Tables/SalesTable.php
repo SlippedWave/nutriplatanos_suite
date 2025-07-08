@@ -3,6 +3,9 @@
 namespace App\Livewire\Sales\Tables;
 
 use App\Models\Sale;
+use App\Models\Product;
+use App\Models\Customer;
+use App\Models\Route;
 use App\Services\SaleService;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -15,12 +18,29 @@ class SalesTable extends Component
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
+    public bool $includeDeleted = false;
 
-    public $context = 'sales'; // Context for the table, can be used for different views
-    public bool $showCreateSaleModal = false;
-    public bool $showDeleteSaleModal = false;
-    public bool $showViewSaleModal = false;
-    public bool $showEditSaleModal = false;
+    // Modal states
+    public bool $showCreateModal = false;
+    public bool $showUpdateModal = false;
+    public bool $showDeleteModal = false;
+    public bool $showViewModal = false;
+
+    // Form fields
+    public $customer_id = '';
+    public $route_id = '';
+    public $payment_status = 'pending';
+    public $notes = '';
+    public $saleProducts = [];
+
+    // Date filtering
+    public $dateFilter = 'all';
+    public $startDate = null;
+    public $endDate = null;
+
+    // Context variables for filtering
+    public $contextCustomerId = null;
+    public $contextRouteId = null;
 
     public ?Sale $selectedSale = null;
 
@@ -31,23 +51,27 @@ class SalesTable extends Component
         $this->saleService = $saleService;
     }
 
-    public $route_id = null;
-
-    public $customer_id = null;
-    public $dateFilter = 'all'; // all, today, week, month
-    public $startDate = null;
-    public $endDate = null;
-
     protected $queryString = [
         'search' => ['except' => ''],
         'sortField' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
         'perPage' => ['except' => 10],
         'dateFilter' => ['except' => 'all'],
-        'customerFilter' => ['except' => null],
-        'routeFilter' => ['except' => null],
-        'carrierFilter' => ['except' => null],
+        'includeDeleted' => ['except' => false],
     ];
+
+    public function mount($customer_id = null, $route_id = null)
+    {
+        $this->contextCustomerId = $customer_id;
+        $this->contextRouteId = $route_id;
+        $this->customer_id = $customer_id ?? '';
+        $this->route_id = $route_id ?? '';
+
+        // Initialize products array with one empty product
+        $this->addProduct();
+
+        $this->applyDateFilter();
+    }
 
     public function updatedSearch()
     {
@@ -59,33 +83,16 @@ class SalesTable extends Component
         $this->resetPage();
     }
 
-    public function updatedStatusFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatedSortField()
-    {
-        $this->resetPage();
-    }
-
-
-    public function mount($customer_id = null, $route_id = null, $context = 'sales')
-    {
-        $this->customer_id = $customer_id;
-        $this->route_id = $route_id;
-        $this->context = $context;
-
-        // Set default date filter
-        $this->dateFilter = 'all';
-        $this->applyDateFilter();
-    }
-
-
     public function updatedDateFilter()
     {
         $this->resetPage();
         $this->applyDateFilter();
+    }
+
+    public function toggleIncludeDeleted()
+    {
+        $this->includeDeleted = !$this->includeDeleted;
+        $this->resetPage();
     }
 
     private function applyDateFilter()
@@ -123,14 +130,70 @@ class SalesTable extends Component
         $this->resetPage();
     }
 
+    // Modal management methods
+    public function openCreateModal()
+    {
+        $this->resetFormFields();
+        $this->showCreateModal = true;
+    }
+
+    public function openEditModal($saleId)
+    {
+        $this->selectedSale = Sale::with(['saleDetails.product', 'customer', 'route'])->findOrFail($saleId);
+        $this->fillForm($this->selectedSale);
+        $this->showUpdateModal = true;
+    }
+
+    public function openViewModal($saleId)
+    {
+        $this->selectedSale = Sale::with(['saleDetails.product', 'customer', 'route', 'user'])
+            ->withTrashed()
+            ->findOrFail($saleId);
+        $this->showViewModal = true;
+    }
+
+    public function openDeleteModal($saleId)
+    {
+        $this->selectedSale = Sale::findOrFail($saleId);
+        $this->showDeleteModal = true;
+    }
+
+    public function closeModals()
+    {
+        $this->showCreateModal = false;
+        $this->showUpdateModal = false;
+        $this->showDeleteModal = false;
+        $this->showViewModal = false;
+        $this->selectedSale = null;
+        $this->resetFormFields();
+    }
+
+    // Product management methods
+    public function addProduct()
+    {
+        $this->saleProducts[] = [
+            'product_id' => '',
+            'quantity' => 1,
+            'price_per_unit' => 0,
+        ];
+    }
+
+    public function removeProduct($index)
+    {
+        if (count($this->saleProducts) > 1) {
+            unset($this->saleProducts[$index]);
+            $this->saleProducts = array_values($this->saleProducts); // Re-index array
+        }
+    }
+
+    // CRUD operations using SaleService
     public function createSale()
     {
         $result = $this->saleService->createSale($this->getFormData());
 
         if ($result['success']) {
-            session()->flash('message', 'Venta creada exitosamente!');
-            $this->showCreateSaleModal = false;
-            $this->resetFormFields();
+            $this->closeModals();
+            session()->flash('message', $result['message']);
             $this->resetPage();
         } else {
             session()->flash('error', $result['message']);
@@ -140,17 +203,15 @@ class SalesTable extends Component
     public function updateSale()
     {
         if (!$this->selectedSale) {
-            session()->flash('error', 'No se ha seleccionado ninguna venta para editar.');
+            session()->flash('error', 'No se ha seleccionado ninguna venta.');
             return;
         }
 
-        $result = $this->saleService->updateSale($this->selectedSale->id, $this->getFormData());
+        $result = $this->saleService->updateSale($this->selectedSale, $this->getFormData());
 
         if ($result['success']) {
-            session()->flash('message', 'Venta actualizada exitosamente!');
-            $this->showEditSaleModal = false;
-            $this->resetFormFields();
-            $this->resetPage();
+            $this->closeModals();
+            session()->flash('message', $result['message']);
         } else {
             session()->flash('error', $result['message']);
         }
@@ -159,74 +220,107 @@ class SalesTable extends Component
     public function deleteSale()
     {
         if (!$this->selectedSale) {
-            session()->flash('error', 'No se ha seleccionado ninguna venta para eliminar.');
+            session()->flash('error', 'No se ha seleccionado ninguna venta.');
             return;
         }
 
-        $result = $this->saleService->deleteSale($this->selectedSale->id);
+        $result = $this->saleService->deleteSale($this->selectedSale);
 
         if ($result['success']) {
-            session()->flash('message', 'Venta eliminada exitosamente!');
-            $this->showDeleteSaleModal = false;
-            $this->resetFormFields();
+            $this->closeModals();
+            session()->flash('message', $result['message']);
             $this->resetPage();
         } else {
             session()->flash('error', $result['message']);
         }
     }
 
-    private function getFormData()
+    // Utility methods
+    private function getFormData(): array
     {
+        // Filter out empty products
+        $validProducts = array_filter($this->saleProducts, function ($product) {
+            return !empty($product['product_id']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0;
+        });
+
         return [
             'customer_id' => $this->customer_id,
             'route_id' => $this->route_id,
-            'total_amount' => $this->selectedSale ? $this->selectedSale->total_amount : 0,
-            'weight_kg' => $this->selectedSale ? $this->selectedSale->weight_kg : 0,
-            'price_per_kg' => $this->selectedSale ? $this->selectedSale->price_per_kg : 0,
-            'user_id' => auth()->id(),
+            'payment_status' => $this->payment_status,
+            'notes' => $this->notes,
+            'products' => array_values($validProducts), // Re-index
         ];
     }
 
+    private function resetFormFields()
+    {
+        $this->customer_id = $this->contextCustomerId ?? '';
+        $this->route_id = $this->contextRouteId ?? '';
+        $this->payment_status = 'pending';
+        $this->notes = '';
+        $this->saleProducts = [];
+        $this->addProduct(); // Add one empty product
+    }
 
+    private function fillForm(Sale $sale)
+    {
+        $this->customer_id = $sale->customer_id;
+        $this->route_id = $sale->route_id;
+        $this->payment_status = $sale->payment_status;
+        $this->notes = '';
+
+        // Fill products
+        $this->saleProducts = $sale->saleDetails->map(function ($detail) {
+            return [
+                'product_id' => $detail->product_id,
+                'quantity' => $detail->quantity,
+                'price_per_unit' => $detail->price_per_unit,
+            ];
+        })->toArray();
+
+        if (empty($this->saleProducts)) {
+            $this->addProduct();
+        }
+    }
 
     public function render()
     {
-        $salesQuery = Sale::with(['customer', 'user'])
-            ->when($this->customer_id, function ($query) {
-                $query->where('customer_id', $this->customer_id);
-            })
-            ->when($this->route_id, function ($query) {
-                $query->where('route_id', $this->route_id);
-            })
-            ->when($this->search, function ($query) {
-                $query->whereHas('customer', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%');
-                })
-                    ->orWhereHas('user', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%');
-                    })
-                    ->orWhere('total_amount', 'like', '%' . $this->search . '%')
-                    ->orWhere('weight_kg', 'like', '%' . $this->search . '%')
-                    ->orWhere('price_per_kg', 'like', '%' . $this->search . '%');
-            })
-            ->when($this->startDate && $this->endDate, function ($query) {
-                $query->whereBetween('created_at', [
-                    $this->startDate . ' 00:00:00',
-                    $this->endDate . ' 23:59:59'
-                ]);
-            })
-            ->orderBy($this->sortField, $this->sortDirection);
+        $filters = [];
 
-        $sales = $salesQuery->paginate($this->perPage);
+        if ($this->contextCustomerId) {
+            $filters['customer_id'] = $this->contextCustomerId;
+        }
+
+        if ($this->contextRouteId) {
+            $filters['route_id'] = $this->contextRouteId;
+        }
+
+        if ($this->startDate && $this->endDate) {
+            $filters['start_date'] = $this->startDate;
+            $filters['end_date'] = $this->endDate;
+        }
+
+        $sales = $this->saleService->searchSales(
+            $this->search,
+            $this->sortField,
+            $this->sortDirection,
+            $this->perPage,
+            $this->includeDeleted,
+            $this->contextRouteId,
+            $this->contextCustomerId
+        );
 
         // Calculate total amount for current filtered results
-        $totalAmount = $salesQuery
-            ->get()
-            ->sum('total_amount');
+        $totalAmount = $sales->getCollection()->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
 
         return view('livewire.sales.tables.sales-table', [
             'sales' => $sales,
             'totalAmount' => $totalAmount,
+            'products' => Product::all(),
+            'customers' => Customer::where('active', true)->get(),
+            'routes' => Route::where('status', 'active')->get(),
         ]);
     }
 }

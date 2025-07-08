@@ -3,10 +3,14 @@
 namespace App\Services;
 
 use App\Models\Sale;
+use App\Models\SaleDetail;
+use App\Models\Product;
 use App\Models\Note;
 use App\Models\Route;
 use App\Models\Customer;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class SaleService
 {
@@ -14,30 +18,37 @@ class SaleService
     {
         try {
             $validated = $this->validateSaleData($data);
-            
-            // Calculate total amount
-            $validated['total_amount'] = $validated['weight_kg'] * $validated['price_per_kg'];
-            
-            // Set default payment status
-            $validated['payment_status'] = $validated['payment_status'] ?? Sale::PAYMENT_STATUSES['pending'];
-            
+
+            DB::beginTransaction();
+
             // Set user_id to current user if not provided
             if (!isset($validated['user_id'])) {
-                $validated['user_id'] = auth()->id();
+                $validated['user_id'] = Auth::id();
             }
 
-            $sale = Sale::create($validated);
+            // Create the sale without products data
+            $saleData = collect($validated)->except(['products', 'notes'])->toArray();
+            $sale = Sale::create($saleData);
 
+            // Create sale details if products are provided
+            if (!empty($validated['products'])) {
+                $this->createSaleDetails($sale, $validated['products']);
+            }
+
+            // Create note if provided
             if (!empty($validated['notes'])) {
                 $this->createSaleNote($sale, $validated['notes']);
             }
 
+            DB::commit();
+
             return [
                 'success' => true,
-                'sale' => $sale->load(['customer', 'route', 'user']),
+                'sale' => $sale->load(['customer', 'route', 'user', 'saleDetails.product']),
                 'message' => 'Venta creada exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear venta: ' . $e->getMessage()
@@ -57,22 +68,38 @@ class SaleService
             }
 
             $validated = $this->validateSaleData($data, $sale->id);
-            
-            // Recalculate total amount if weight or price changed
-            if (isset($validated['weight_kg']) || isset($validated['price_per_kg'])) {
-                $weight = $validated['weight_kg'] ?? $sale->weight_kg;
-                $price = $validated['price_per_kg'] ?? $sale->price_per_kg;
-                $validated['total_amount'] = $weight * $price;
+
+            DB::beginTransaction();
+
+            // Update the sale without products data
+            $saleData = collect($validated)->except(['products', 'notes'])->toArray();
+            $sale->update($saleData);
+
+            // Update sale details if products are provided
+            if (isset($validated['products'])) {
+                // Delete existing sale details
+                $sale->saleDetails()->delete();
+
+                // Create new sale details
+                if (!empty($validated['products'])) {
+                    $this->createSaleDetails($sale, $validated['products']);
+                }
             }
 
-            $sale->update($validated);
+            // Create note if provided
+            if (!empty($validated['notes'])) {
+                $this->createSaleNote($sale, $validated['notes']);
+            }
+
+            DB::commit();
 
             return [
                 'success' => true,
-                'sale' => $sale->fresh(['customer', 'route', 'user']),
+                'sale' => $sale->fresh(['customer', 'route', 'user', 'saleDetails.product']),
                 'message' => 'Venta actualizada exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al actualizar venta: ' . $e->getMessage()
@@ -184,7 +211,7 @@ class SaleService
         }
 
         // Filter by carrier for non-admin users
-        $user = auth()->user();
+        $user = Auth::user();
         if ($user->role === 'carrier') {
             $query->whereHas('route', function ($q) use ($user) {
                 $q->where('carrier_id', $user->id);
@@ -192,15 +219,20 @@ class SaleService
         }
 
         return $query
-            ->with(['customer', 'route', 'user'])
+            ->with(['customer', 'route', 'user', 'saleDetails.product'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('customer', function ($customerQuery) use ($search) {
-                        $customerQuery->where('name', 'like', '%' . $search . '%');
+                        $customerQuery->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
                     })
-                    ->orWhere('weight_kg', 'like', '%' . $search . '%')
-                    ->orWhere('total_amount', 'like', '%' . $search . '%')
-                    ->orWhere('payment_status', 'like', '%' . $search . '%');
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', '%' . $search . '%');
+                        })
+                        ->orWhereHas('saleDetails.product', function ($productQuery) use ($search) {
+                            $productQuery->where('name', 'like', '%' . $search . '%');
+                        })
+                        ->orWhere('payment_status', 'like', '%' . $search . '%');
                 });
             })
             ->orderBy($sortField, $sortDirection)
@@ -209,42 +241,87 @@ class SaleService
 
     public function getSaleStats(Sale $sale): array
     {
+        $sale->load(['saleDetails.product', 'customer', 'route', 'user']);
+
+        $totalAmount = $sale->saleDetails->sum('total_price');
+        $totalItems = $sale->saleDetails->count();
+        $totalQuantity = $sale->saleDetails->sum('quantity');
+
         return [
             'customer_name' => $sale->customer->name ?? 'Cliente eliminado',
             'route_title' => $sale->route->title ?? 'Ruta del ' . $sale->route->created_at->format('d/m/Y'),
             'user_name' => $sale->user->name ?? 'Usuario eliminado',
-            'weight_kg' => $sale->weight_kg,
-            'price_per_kg' => $sale->price_per_kg,
-            'total_amount' => $sale->total_amount,
-            'final_amount' => $sale->final_amount,
+            'total_amount' => $totalAmount,
+            'total_items' => $totalItems,
+            'total_quantity' => $totalQuantity,
             'payment_status' => $sale->payment_status,
             'created_at' => $sale->created_at,
+            'products' => $sale->saleDetails->map(function ($detail) {
+                return [
+                    'name' => $detail->product->name ?? 'Producto eliminado',
+                    'quantity' => $detail->quantity,
+                    'price_per_unit' => $detail->price_per_unit,
+                    'total_price' => $detail->total_price,
+                ];
+            }),
         ];
     }
 
     public function getRouteRevenue(int $routeId): array
     {
-        $sales = Sale::where('route_id', $routeId)->get();
-        
+        $sales = Sale::with('saleDetails')
+            ->where('route_id', $routeId)
+            ->get();
+
+        $totalRevenue = $sales->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
+
+        $paidRevenue = $sales->where('payment_status', 'paid')->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
+
+        $pendingRevenue = $sales->where('payment_status', 'pending')->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
+
+        $partialRevenue = $sales->where('payment_status', 'partial')->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
+
         return [
             'total_sales' => $sales->count(),
-            'total_weight' => $sales->sum('weight_kg'),
-            'total_revenue' => $sales->sum('total_amount'),
-            'paid_revenue' => $sales->where('payment_status', 'paid')->sum('total_amount'),
-            'pending_revenue' => $sales->where('payment_status', 'pending')->sum('total_amount'),
-            'partial_revenue' => $sales->where('payment_status', 'partial')->sum('total_amount'),
+            'total_items' => $sales->sum(function ($sale) {
+                return $sale->saleDetails->sum('quantity');
+            }),
+            'total_revenue' => $totalRevenue,
+            'paid_revenue' => $paidRevenue,
+            'pending_revenue' => $pendingRevenue,
+            'partial_revenue' => $partialRevenue,
         ];
     }
 
     public function getCustomerSales(int $customerId): array
     {
-        $sales = Sale::where('customer_id', $customerId)->get();
-        
+        $sales = Sale::with('saleDetails')
+            ->where('customer_id', $customerId)
+            ->get();
+
+        $totalSpent = $sales->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
+
+        $pendingAmount = $sales->where('payment_status', 'pending')->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
+
         return [
             'total_purchases' => $sales->count(),
-            'total_weight' => $sales->sum('weight_kg'),
-            'total_spent' => $sales->sum('total_amount'),
-            'pending_amount' => $sales->where('payment_status', 'pending')->sum('total_amount'),
+            'total_items' => $sales->sum(function ($sale) {
+                return $sale->saleDetails->sum('quantity');
+            }),
+            'total_spent' => $totalSpent,
+            'pending_amount' => $pendingAmount,
             'last_purchase' => $sales->sortByDesc('created_at')->first()?->created_at,
         ];
     }
@@ -255,10 +332,12 @@ class SaleService
             'customer_id' => ['required', 'exists:customers,id'],
             'route_id' => ['required', 'exists:routes,id'],
             'user_id' => ['nullable', 'exists:users,id'],
-            'weight_kg' => ['required', 'numeric', 'min:0.001', 'max:999999.999'],
-            'price_per_kg' => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
             'payment_status' => ['nullable', 'string', Rule::in(array_keys(Sale::PAYMENT_STATUSES))],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'products' => ['required', 'array', 'min:1'],
+            'products.*.product_id' => ['required', 'exists:products,id'],
+            'products.*.quantity' => ['required', 'numeric', 'min:0.001', 'max:999999.999'],
+            'products.*.price_per_unit' => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
         ];
 
         return validator($data, $rules)->validate();
@@ -267,7 +346,7 @@ class SaleService
     private function createSaleNote(Sale $sale, string $content): void
     {
         Note::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'content' => $content,
             'type' => 'sale',
             'notable_id' => $sale->id,
@@ -275,9 +354,21 @@ class SaleService
         ]);
     }
 
+    private function createSaleDetails(Sale $sale, array $products): void
+    {
+        foreach ($products as $productData) {
+            SaleDetail::create([
+                'sale_id' => $sale->id,
+                'product_id' => $productData['product_id'],
+                'quantity' => $productData['quantity'],
+                'price_per_unit' => $productData['price_per_unit'],
+            ]);
+        }
+    }
+
     private function canEditSale(Sale $sale): bool
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Admin can edit any sale
         if ($user->role === 'admin') {

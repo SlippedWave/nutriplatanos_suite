@@ -1,3 +1,153 @@
-<div>
-    <!-- Nothing worth having comes easy. - Theodore Roosevelt -->
-</div>
+<flux:modal wire:model="showCreateModal">
+
+    
+        <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Customer Selection -->
+            <flux:field>
+                <flux:select wire:model="customer_id" label="{{ __('Cliente') }}" required>
+                    <option value="">Seleccionar cliente...</option>
+                    @foreach($customers as $customer)
+                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                    @endforeach
+                </flux:select>
+                <flux:error name="customer_id" />
+            </flux:field>
+
+            <!-- Route Selection -->
+            <flux:field>
+                <flux:select wire:model="route_id" label="{{ __('Ruta') }}" required>
+                    <option value="">Seleccionar ruta...</option>
+                    @foreach($routes as $route)
+                        <option value="{{ $route->id }}">{{ $route->title }}</option>
+                    @endforeach
+                </flux:select>
+                <flux:error name="route_id" />
+            </flux:field>
+        </div>
+
+        <!-- Payment Status -->
+        <flux:field>
+            <flux:select wire:model="payment_status" label="{{ __('Estado de Pago') }}">
+                <option value="pending">Pendiente</option>
+                <option value="paid">Pagado</option>
+                <option value="partial">Pago Parcial</option>
+                <option value="cancelled">Cancelado</option>
+            </flux:select>
+            <flux:error name="payment_status" />
+        </flux:field>
+
+        <!-- Products Section -->
+        <div class="border-t pt-6">
+            <div class="flex items-center justify-between mb-4">
+                <flux:heading size="base">{{ __('Productos') }} *</flux:heading>
+                <flux:button type="button" wire:click="addProduct" size="sm" variant="outline" icon="plus">
+                    {{ __('Agregar Producto') }}
+                </flux:button>
+            </div>
+
+            @foreach($saleProducts as $index => $product)
+                <div class="bg-gray-50 p-4 rounded-lg mb-4" wire:key="product-{{ $index }}">
+                    <div class="flex items-start justify-between mb-3">
+                        <span class="text-sm font-medium text-gray-700">Producto {{ $index + 1 }}</span>
+                        @if(count($saleProducts) > 1)
+                            <flux:button 
+                                type="button"
+                                wire:click="removeProduct({{ $index }})" 
+                                size="sm" 
+                                variant="ghost" 
+                                icon="x-mark"
+                                class="text-red-600 hover:text-red-700"
+                            />
+                        @endif
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <!-- Product Selection -->
+                        <flux:field>
+                            <flux:select wire:model="saleProducts.{{ $index }}.product_id" label="{{ __('Producto') }}">
+                                <option value="">Seleccionar...</option>
+                                @foreach($products as $availableProduct)
+                                    <option value="{{ $availableProduct->id }}">
+                                        {{ $availableProduct->name }} - ${{ number_format($availableProduct->price, 2) }}
+                                    </option>
+                                @endforeach
+                            </flux:select>
+                            <flux:error name="saleProducts.{{ $index }}.product_id" />
+                        </flux:field>
+
+                        <!-- Quantity -->
+                        <flux:field>
+                            <flux:input 
+                                wire:model="saleProducts.{{ $index }}.quantity"
+                                label="{{ __('Cantidad') }}"
+                                type="number" 
+                                step="0.01" 
+                                min="0.01"
+                                placeholder="0.00"
+                                class="text-[var(--color-text)]!"
+                            />
+                            <flux:error name="saleProducts.{{ $index }}.quantity" />
+                        </flux:field>
+
+                        <!-- Price per Unit -->
+                        <flux:field>
+                            <flux:input 
+                                wire:model="saleProducts.{{ $index }}.price_per_unit"
+                                label="{{ __('Precio Unitario') }}"
+                                type="number" 
+                                step="0.01" 
+                                min="0.01"
+                                placeholder="0.00"
+                                class="text-[var(--color-text)]!"
+                            />
+                            <flux:error name="saleProducts.{{ $index }}.price_per_unit" />
+                        </flux:field>
+                    </div>
+
+                    @if($product['quantity'] && $product['price_per_unit'])
+                        <div class="mt-3 text-right">
+                            <span class="text-sm font-medium text-gray-900">
+                                Subtotal: ${{ number_format($product['quantity'] * $product['price_per_unit'], 2) }}
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+
+            <!-- Total -->
+            @php
+                $total = collect($saleProducts)->sum(function($product) {
+                    return ($product['quantity'] ?? 0) * ($product['price_per_unit'] ?? 0);
+                });
+            @endphp
+            @if($total > 0)
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-medium text-blue-900">Total de la Venta:</span>
+                        <span class="text-xl font-bold text-blue-900">${{ number_format($total, 2) }}</span>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        <!-- Notes -->
+        <flux:field>
+            <flux:textarea 
+                wire:model="notes" 
+                label="{{ __('Notas') }}"
+                placeholder="Notas adicionales sobre la venta..."
+                rows="3"
+                class="text-[var(--color-text)]!"
+            />
+            <flux:error name="notes" />
+        </flux:field>
+
+        <flux:button wire:click="closeModals" variant="outline">
+            {{ __('Cancelar') }}
+        </flux:button>
+        
+        <flux:button wire:click="createSale" variant="primary">
+            {{ __('Crear Venta') }}
+        </flux:button>
+</flux:modal>

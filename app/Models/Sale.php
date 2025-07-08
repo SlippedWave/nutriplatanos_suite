@@ -138,20 +138,26 @@ class Sale extends Model
     }
 
     /**
-     * Get the total adjusted amount for this sale.
+     * Calculate and return the total amount for this sale.
      */
-    public function getTotalAdjustedAmountAttribute(): float
+    public function getTotalAmountAttribute(): float
     {
-        return $this->adjustments->sum(function ($adjustment) {
-            return $adjustment->adjustment_amount;
-        });
+        return $this->saleDetails->sum('total_price');
     }
 
     /**
-     * Get the final amount after adjustments.
+     * Get the total quantity of items in this sale.
      */
-    public function getFinalAmountAttribute(): float
+    public function getTotalQuantityAttribute(): float
     {
-        return $this->total_amount - $this->total_adjusted_amount;
+        return $this->saleDetails->sum('quantity');
+    }
+
+    /**
+     * Get the total number of different products in this sale.
+     */
+    public function getTotalProductsAttribute(): int
+    {
+        return $this->saleDetails->count();
     }
 }

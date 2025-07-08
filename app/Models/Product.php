@@ -30,10 +30,18 @@ class Product extends Model
     ];
 
     /**
-     * Get the sales associated with this product.
+     * Get the sale details associated with this product.
+     */
+    public function saleDetails()
+    {
+        return $this->hasMany(SaleDetail::class);
+    }
+
+    /**
+     * Get the sales associated with this product through sale details.
      */
     public function sales()
     {
-        return $this->hasMany(Sale::class);
+        return $this->hasManyThrough(Sale::class, SaleDetail::class);
     }
 }

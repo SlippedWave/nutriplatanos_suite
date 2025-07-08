@@ -56,7 +56,7 @@ new class extends Component {
     <!-- Sales History Section -->
     <div class="mt-8">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Historial de Ventas</h3>
-        @livewire('sells.tables.sells-table', ['customer_id' => $customer->id])
+        @livewire('sales.tables.sales-table', ['customer_id' => $customer->id])
     </div>
 </section>
 

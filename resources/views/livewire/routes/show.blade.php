@@ -184,7 +184,7 @@ new class extends Component {
                 </flux:button>
                 @endif
             </div>
-            @livewire('sells.tables.sells-table', ['route_id' => $selectedRoute->id])
+            @livewire('sales.tables.sales-table', ['route_id' => $selectedRoute->id])
         </div>
     
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
