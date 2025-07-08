@@ -1,4 +1,4 @@
-<flux:modal wire:model="showUpdateModal" class="space-y-6 border-0 bg-background!">
+<flux:modal wire:model="showUpdateModal" class="space-y-4 border-0 bg-background!">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Editar Cliente') }}</flux:heading>
     </div>

@@ -1,4 +1,4 @@
-<flux:modal wire:model="showViewModal" class="space-y-6 border-0 bg-background!">
+<flux:modal wire:model="showViewModal" class="space-y-4 border-0 bg-background!">
     <div class="flex items-center justi fy-between">
         <flux:heading size="lg">{{ __('Detalles del Usuario') }}</flux:heading>
     </div>
