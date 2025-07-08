@@ -17,8 +17,9 @@ return new class extends Migration
                 'pending',
                 'paid',
                 'partial',
-                'cancelled'
             ])->default('pending');
+            $table->float('paid_amount')->default(0.00);
+            $table->float('total_amount')->default(0.00);
             $table->timestamps();
             $table->softDeletes(); // For soft delete functionality
         });

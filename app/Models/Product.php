@@ -14,8 +14,6 @@ class Product extends Model
     protected $fillable = [
         'name',
         'description',
-        'price',
-
     ];
 
     /**
@@ -24,7 +22,6 @@ class Product extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'price' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

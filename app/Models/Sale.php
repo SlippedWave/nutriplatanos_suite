@@ -22,6 +22,8 @@ class Sale extends Model
         'user_id',
         'route_id',
         'payment_status',
+        'paid_amount',
+        'total_amount',
         'notes',
     ];
 
@@ -35,6 +37,8 @@ class Sale extends Model
         'user_id' => 'integer',
         'route_id' => 'integer',
         'payment_status' => 'string',
+        'paid_amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -46,7 +50,6 @@ class Sale extends Model
         'pending' => 'pending',
         'paid' => 'paid',
         'partial' => 'partial',
-        'cancelled' => 'cancelled',
     ];
 
     /**

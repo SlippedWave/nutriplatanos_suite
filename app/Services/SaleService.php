@@ -169,7 +169,6 @@ class SaleService
                 'pending' => 'pendiente',
                 'paid' => 'pagada',
                 'partial' => 'pago parcial',
-                'cancelled' => 'cancelada'
             ];
 
             $this->createSaleNote($sale, "Estado de pago cambiado a: {$statusLabels[$paymentStatus]} el " . now()->format('d/m/Y H:i'));
@@ -333,6 +332,8 @@ class SaleService
             'route_id' => ['required', 'exists:routes,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'payment_status' => ['nullable', 'string', Rule::in(array_keys(Sale::PAYMENT_STATUSES))],
+            'total_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
+            'paid_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'products' => ['required', 'array', 'min:1'],
             'products.*.product_id' => ['required', 'exists:products,id'],

@@ -17,12 +17,10 @@ class ProductSeeder extends Seeder
         Product::create([
             'name' => 'Plátano Orgánico',
             'description' => 'Plátanos orgánicos frescos y de alta calidad.',
-            'price' => 1.50,
         ]);
         Product::create([
             'name' => 'Plátano Convencional',
             'description' => 'Plátanos convencionales, perfectos para el día a día.',
-            'price' => 1.00,
         ]);
     }
 }

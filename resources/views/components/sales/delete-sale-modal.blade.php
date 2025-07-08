@@ -5,7 +5,7 @@
     
     @if($selectedSale)
         <div class="space-y-4">
-            <div class="bg-danger-50 border border-danger-200 rounded-md p-4">
+            <div class="bg-danger-50 border border-danger-800 rounded-md p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <flux:icon.exclamation-triangle class="h-5 w-5 text-red-400" />

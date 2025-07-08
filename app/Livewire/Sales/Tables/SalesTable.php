@@ -30,6 +30,7 @@ class SalesTable extends Component
     public $customer_id = '';
     public $route_id = '';
     public $payment_status = 'pending';
+    public $paid_amount = 0.00; // New field for paid amount
     public $notes = '';
     public $saleProducts = [];
 
@@ -261,10 +262,20 @@ class SalesTable extends Component
             return !empty($product['product_id']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0;
         });
 
+        $totalAmount = array_reduce($validProducts, function ($carry, $product) {
+            return $carry + ($product['quantity'] * $product['price_per_unit']);
+        }, 0.00);
+
         return [
             'customer_id' => $this->customer_id,
             'route_id' => $this->route_id,
             'payment_status' => $this->payment_status,
+            'total_amount' => $totalAmount,
+            'paid_amount' => match ($this->payment_status) {
+                'partial' => $this->paid_amount,
+                'paid' => $totalAmount,
+                default => null,
+            },
             'notes' => $this->notes,
             'products' => array_values($validProducts), // Re-index
         ];
@@ -275,6 +286,7 @@ class SalesTable extends Component
         $this->customer_id = $this->contextCustomerId ?? '';
         $this->route_id = $this->contextRouteId ?? '';
         $this->payment_status = 'pending';
+        $this->paid_amount = 0.00;
         $this->notes = '';
         $this->saleProducts = [];
         $this->addProduct(); // Add one empty product
@@ -285,6 +297,7 @@ class SalesTable extends Component
         $this->customer_id = $sale->customer_id;
         $this->route_id = $sale->route_id;
         $this->payment_status = $sale->payment_status;
+        $this->paid_amount = $sale->paid_amount ?? 0.00;
         $this->notes = '';
 
         // Fill products

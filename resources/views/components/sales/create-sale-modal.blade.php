@@ -34,17 +34,6 @@
             @endif
         </div>
 
-        <!-- Payment Status -->
-        <flux:field>
-            <flux:select wire:model="payment_status" label="{{ __('Estado de Pago') }}">
-                <option value="pending">Pendiente</option>
-                <option value="paid">Pagado</option>
-                <option value="partial">Pago Parcial</option>
-                <option value="cancelled">Cancelado</option>
-            </flux:select>
-            <flux:error name="payment_status" />
-        </flux:field>
-
         <flux:separator class="my-6" />
 
         <!-- Products Section -->
@@ -75,11 +64,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <!-- Product Selection -->
                         <flux:field>
-                            <flux:select wire:model="saleProducts.{{ $index }}.product_id" label="{{ __('Producto') }}">
+                            <flux:select wire:model.live="saleProducts.{{ $index }}.product_id" label="{{ __('Producto') }}">
                                 <option value="">Seleccionar...</option>
                                 @foreach($products as $availableProduct)
                                     <option value="{{ $availableProduct->id }}">
-                                        {{ $availableProduct->name }} - ${{ number_format($availableProduct->price, 2) }}
+                                        {{ $availableProduct->name }}  
                                     </option>
                                 @endforeach
                             </flux:select>
@@ -89,12 +78,16 @@
                         <!-- Quantity -->
                         <flux:field>
                             <flux:input 
-                                wire:model="saleProducts.{{ $index }}.quantity"
+                                wire:model.live="saleProducts.{{ $index }}.quantity"
                                 label="{{ __('Cantidad') }}"
-                                type="number" 
-                                step="0.01" 
-                                min="0.01"
                                 placeholder="0.00"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                inputmode="decimal"
+                                pattern="[0-9]+(\.[0-9]{1,2})?"
+                                x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
+                                x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                 class="text-[var(--color-text)]!"
                             />
                             <flux:error name="saleProducts.{{ $index }}.quantity" />
@@ -103,22 +96,26 @@
                         <!-- Price per Unit -->
                         <flux:field>
                             <flux:input 
-                                wire:model="saleProducts.{{ $index }}.price_per_unit"
+                                wire:model.live="saleProducts.{{ $index }}.price_per_unit"
                                 label="{{ __('Precio Unitario') }}"
-                                type="number" 
-                                step="0.01" 
-                                min="0.01"
                                 placeholder="0.00"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                inputmode="decimal"
+                                pattern="[0-9]+(\.[0-9]{1,2})?"
+                                x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
+                                x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                 class="text-[var(--color-text)]!"
                             />
                             <flux:error name="saleProducts.{{ $index }}.price_per_unit" />
                         </flux:field>
                     </div>
 
-                    @if($product['quantity'] && $product['price_per_unit'])
+                    @if(is_numeric($product['quantity']) && is_numeric($product['price_per_unit']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0)
                         <div class="mt-3 text-right">
                             <span class="text-sm font-medium text-gray-900">
-                                Subtotal: ${{ number_format($product['quantity'] * $product['price_per_unit'], 2) }}
+                                Subtotal: ${{ number_format((float)$product['quantity'] * (float)$product['price_per_unit'], 2) }}
                             </span>
                         </div>
                     @endif
@@ -128,7 +125,9 @@
             <!-- Total -->
             @php
                 $total = collect($saleProducts)->sum(function($product) {
-                    return ($product['quantity'] ?? 0) * ($product['price_per_unit'] ?? 0);
+                    $quantity = (float) ($product['quantity'] ?? 0);
+                    $pricePerUnit = (float) ($product['price_per_unit'] ?? 0);
+                    return $quantity * $pricePerUnit;
                 });
             @endphp
             @if($total > 0)
@@ -140,6 +139,35 @@
                 </div>
             @endif
         </div>
+
+        <!-- Payment Status -->
+        <flux:field>
+            <flux:select wire:model.live="payment_status" label="{{ __('Estado de Pago') }}">
+                <option value="pending">Pendiente</option>
+                <option value="paid">Pagado</option>
+                <option value="partial">Pago Parcial</option>
+            </flux:select>
+            <flux:error name="payment_status" />
+        </flux:field>
+
+        @if ($payment_status === 'partial')
+            <flux:field>
+            <flux:input 
+                wire:model="paid_amount" 
+                label="{{ __('Monto Pagado') }}" 
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                inputmode="decimal"
+                pattern="[0-9]+(\.[0-9]{1,2})?"
+                x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
+                x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                class="text-[var(--color-text)]!"
+            />
+            <flux:error name="paid_amount" />
+            </flux:field>
+        @endif
 
         <!-- Notes -->
         <flux:field class="mt-4">

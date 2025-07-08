@@ -18,6 +18,7 @@ class Expense extends Model
      */
     protected $fillable = [
         'route_id',
+        'user_id',
         'description',
         'amount',
     ];
@@ -40,6 +41,14 @@ class Expense extends Model
     public function route(): BelongsTo
     {
         return $this->belongsTo(Route::class);
+    }
+
+    /**
+     * Get the user who created this expense.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

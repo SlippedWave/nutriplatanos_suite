@@ -56,6 +56,13 @@
                         </div>
                     </div>
 
+                    @if($selectedSale->payment_status === 'partial' && $selectedSale->paid_amount > 0)
+                        <div>
+                            <span class="text-sm font-medium text-gray-500">Monto Pagado:</span>
+                            <p class="text-sm text-gray-900">${{ number_format($selectedSale->paid_amount, 2) }}</p>
+                        </div>
+                    @endif
+
                     @if($selectedSale->trashed())
                         <div>
                             <span class="text-sm font-medium text-gray-500">Estado:</span>
@@ -74,7 +81,7 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Productos</h3>
                 
                 @if($selectedSale->saleDetails && $selectedSale->saleDetails->count() > 0)
-                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                    <div class="overflow-auto shadow ring-1 ring-gray-300 ring-opacity-5 md:rounded-lg">
                         <table class="min-w-full divide-y divide-gray-300">
                             <thead class="bg-gray-50">
                                 <tr>

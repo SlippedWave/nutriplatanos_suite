@@ -34,7 +34,7 @@
             <!-- Payment Status -->
             <div>
                 <flux:label for="payment_status">{{ __('Estado de Pago') }}</flux:label>
-                <flux:select wire:model="payment_status" name="payment_status">
+                <flux:select wire:model.live="payment_status" name="payment_status">
                     <option value="pending">Pendiente</option>
                     <option value="paid">Pagado</option>
                     <option value="partial">Pago Parcial</option>
@@ -42,6 +42,25 @@
                 </flux:select>
                 @error('payment_status') <flux:error>{{ $message }}</flux:error> @enderror
             </div>
+
+            @if ($payment_status === 'partial')
+                <div>
+                    <flux:label for="paid_amount">{{ __('Monto Pagado') }}</flux:label>
+                    <flux:input 
+                        wire:model="paid_amount" 
+                        name="paid_amount"
+                        type="number" 
+                        step="0.01" 
+                        min="0"
+                        placeholder="0.00"
+                        inputmode="decimal"
+                        pattern="[0-9]+(\.[0-9]{1,2})?"
+                        x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
+                        x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                    />
+                    @error('paid_amount') <flux:error>{{ $message }}</flux:error> @enderror
+                </div>
+            @endif
 
             <!-- Products Section -->
             <div class="border-t pt-6">
@@ -90,8 +109,12 @@
                                     name="saleProducts.{{ $index }}.quantity"
                                     type="number" 
                                     step="0.01" 
-                                    min="0.01"
+                                    min="0"
                                     placeholder="0.00"
+                                    inputmode="decimal"
+                                    pattern="[0-9]+(\.[0-9]{1,2})?"
+                                    x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
+                                    x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                 />
                                 @error('saleProducts.' . $index . '.quantity') <flux:error>{{ $message }}</flux:error> @enderror
                             </div>
@@ -104,8 +127,12 @@
                                     name="saleProducts.{{ $index }}.price_per_unit"
                                     type="number" 
                                     step="0.01" 
-                                    min="0.01"
+                                    min="0"
                                     placeholder="0.00"
+                                    inputmode="decimal"
+                                    pattern="[0-9]+(\.[0-9]{1,2})?"
+                                    x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
+                                    x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                                 />
                                 @error('saleProducts.' . $index . '.price_per_unit') <flux:error>{{ $message }}</flux:error> @enderror
                             </div>
