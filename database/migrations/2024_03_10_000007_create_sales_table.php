@@ -12,9 +12,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('total_amount', 10, 2);
-            $table->string('status'); // pendiente, completada, cancelada
-            $table->text('notes')->nullable();
+            $table->foreignId('route_id')->constrained()->onDelete('cascade');
+            $table->enum('payment_status', [
+                'pending',
+                'paid',
+                'partial',
+                'cancelled'
+            ])->default('pending');
             $table->timestamps();
             $table->softDeletes(); // For soft delete functionality
         });

@@ -19,11 +19,8 @@ class Sale extends Model
      */
     protected $fillable = [
         'customer_id',
-        'route_id',
         'user_id',
-        'weight_kg',
-        'price_per_kg',
-        'total_amount',
+        'route_id',
         'payment_status',
         'notes',
     ];
@@ -34,12 +31,12 @@ class Sale extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'weight_kg' => 'decimal:3',
-        'price_per_kg' => 'decimal:2',
-        'total_amount' => 'decimal:2',
+        'customer_id' => 'integer',
+        'user_id' => 'integer',
+        'route_id' => 'integer',
+        'payment_status' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     /**
@@ -74,6 +71,14 @@ class Sale extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the sale details for this sale.
+     */
+    public function saleDetails(): HasMany
+    {
+        return $this->hasMany(SaleDetail::class);
     }
 
     /**

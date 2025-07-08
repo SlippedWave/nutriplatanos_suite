@@ -1,12 +1,12 @@
 <?php
 
-namespace App\View\Components\Sells;
+namespace App\View\Components\Sales;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class CreateSellModal extends Component
+class CreateSaleModal extends Component
 {
     /**
      * Create a new component instance.
@@ -21,6 +21,6 @@ class CreateSellModal extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.sells.create-sell-modal');
+        return view('components.sales.create-sale-modal');
     }
 }

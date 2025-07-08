@@ -1,21 +1,39 @@
 <?php
 
-namespace App\Livewire\Sells\Tables;
+namespace App\Livewire\Sales\Tables;
 
 use App\Models\Sale;
+use App\Services\SaleService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class SellsTable extends Component
+class SalesTable extends Component
 {
     use WithPagination;
 
-    public $customer_id = null;
-    public $route_id = null;
     public $search = '';
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
+
+    public $context = 'sales'; // Context for the table, can be used for different views
+    public bool $showCreateSaleModal = false;
+    public bool $showDeleteSaleModal = false;
+    public bool $showViewSaleModal = false;
+    public bool $showEditSaleModal = false;
+
+    public ?Sale $selectedSale = null;
+
+    protected SaleService $saleService;
+
+    public function boot(SaleService $saleService)
+    {
+        $this->saleService = $saleService;
+    }
+
+    public $route_id = null;
+
+    public $customer_id = null;
     public $dateFilter = 'all'; // all, today, week, month
     public $startDate = null;
     public $endDate = null;
@@ -26,19 +44,43 @@ class SellsTable extends Component
         'sortDirection' => ['except' => 'desc'],
         'perPage' => ['except' => 10],
         'dateFilter' => ['except' => 'all'],
+        'customerFilter' => ['except' => null],
+        'routeFilter' => ['except' => null],
+        'carrierFilter' => ['except' => null],
     ];
-
-    public function mount($customer_id = null, $route_id = null)
-    {
-        $this->customer_id = $customer_id;
-        $this->route_id = $route_id;
-        $this->applyDateFilter();
-    }
 
     public function updatedSearch()
     {
         $this->resetPage();
     }
+
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedStatusFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSortField()
+    {
+        $this->resetPage();
+    }
+
+
+    public function mount($customer_id = null, $route_id = null, $context = 'sales')
+    {
+        $this->customer_id = $customer_id;
+        $this->route_id = $route_id;
+        $this->context = $context;
+
+        // Set default date filter
+        $this->dateFilter = 'all';
+        $this->applyDateFilter();
+    }
+
 
     public function updatedDateFilter()
     {
@@ -81,6 +123,72 @@ class SellsTable extends Component
         $this->resetPage();
     }
 
+    public function createSale()
+    {
+        $result = $this->saleService->createSale($this->getFormData());
+
+        if ($result['success']) {
+            session()->flash('message', 'Venta creada exitosamente!');
+            $this->showCreateSaleModal = false;
+            $this->resetFormFields();
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    public function updateSale()
+    {
+        if (!$this->selectedSale) {
+            session()->flash('error', 'No se ha seleccionado ninguna venta para editar.');
+            return;
+        }
+
+        $result = $this->saleService->updateSale($this->selectedSale->id, $this->getFormData());
+
+        if ($result['success']) {
+            session()->flash('message', 'Venta actualizada exitosamente!');
+            $this->showEditSaleModal = false;
+            $this->resetFormFields();
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    public function deleteSale()
+    {
+        if (!$this->selectedSale) {
+            session()->flash('error', 'No se ha seleccionado ninguna venta para eliminar.');
+            return;
+        }
+
+        $result = $this->saleService->deleteSale($this->selectedSale->id);
+
+        if ($result['success']) {
+            session()->flash('message', 'Venta eliminada exitosamente!');
+            $this->showDeleteSaleModal = false;
+            $this->resetFormFields();
+            $this->resetPage();
+        } else {
+            session()->flash('error', $result['message']);
+        }
+    }
+
+    private function getFormData()
+    {
+        return [
+            'customer_id' => $this->customer_id,
+            'route_id' => $this->route_id,
+            'total_amount' => $this->selectedSale ? $this->selectedSale->total_amount : 0,
+            'weight_kg' => $this->selectedSale ? $this->selectedSale->weight_kg : 0,
+            'price_per_kg' => $this->selectedSale ? $this->selectedSale->price_per_kg : 0,
+            'user_id' => auth()->id(),
+        ];
+    }
+
+
+
     public function render()
     {
         $salesQuery = Sale::with(['customer', 'user'])
@@ -116,7 +224,7 @@ class SellsTable extends Component
             ->get()
             ->sum('total_amount');
 
-        return view('livewire.sells.tables.sells-table', [
+        return view('livewire.sales.tables.sales-table', [
             'sales' => $sales,
             'totalAmount' => $totalAmount,
         ]);
