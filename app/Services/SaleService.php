@@ -45,13 +45,23 @@ class SaleService
             return [
                 'success' => true,
                 'sale' => $sale->load(['customer', 'route', 'user', 'saleDetails.product']),
-                'message' => 'Venta creada exitosamente.'
+                'message' => 'Venta creada exitosamente.',
+                'type' => 'success'
+            ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados.',
+                'errors' => $e->errors(),
+                'type' => 'validation'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al crear venta: ' . $e->getMessage()
+                'message' => 'Error al crear venta: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }
@@ -63,7 +73,8 @@ class SaleService
             if (!$this->canEditSale($sale)) {
                 return [
                     'success' => false,
-                    'message' => 'No se puede editar esta venta.'
+                    'message' => 'No se puede editar esta venta.',
+                    'type' => 'authorization'
                 ];
             }
 
@@ -96,13 +107,23 @@ class SaleService
             return [
                 'success' => true,
                 'sale' => $sale->fresh(['customer', 'route', 'user', 'saleDetails.product']),
-                'message' => 'Venta actualizada exitosamente.'
+                'message' => 'Venta actualizada exitosamente.',
+                'type' => 'success'
+            ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados.',
+                'errors' => $e->errors(),
+                'type' => 'validation'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al actualizar venta: ' . $e->getMessage()
+                'message' => 'Error al actualizar venta: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }

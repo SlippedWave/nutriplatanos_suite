@@ -101,6 +101,14 @@ class Sale extends Model
     }
 
     /**
+     * Get all payments for this sale.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(SalePayment::class);
+    }
+
+    /**
      * Scope to get paid sales.
      */
     public function scopePaid($query)
@@ -162,5 +170,94 @@ class Sale extends Model
     public function getTotalProductsAttribute(): int
     {
         return $this->saleDetails->count();
+    }
+
+    /**
+     * Calculate the total amount paid for this sale.
+     */
+    public function getTotalPaidAttribute(): float
+    {
+        return $this->payments()->sum('amount');
+    }
+
+    /**
+     * Calculate the remaining balance for this sale.
+     */
+    public function getRemainingBalanceAttribute(): float
+    {
+        $totalAmount = $this->saleDetails->sum('total_price');
+        $totalPaid = $this->total_paid;
+        return max(0, $totalAmount - $totalPaid);
+    }
+
+    /**
+     * Check if the sale is fully paid.
+     */
+    public function isFullyPaid(): bool
+    {
+        return $this->remaining_balance <= 0.01; // Using small threshold for float comparison
+    }
+
+    /**
+     * Check if the sale has been overpaid.
+     */
+    public function isOverpaid(): bool
+    {
+        $totalAmount = $this->saleDetails->sum('total_price');
+        return $this->total_paid > $totalAmount + 0.01; // Using small threshold for float comparison
+    }
+
+    /**
+     * Get the overpaid amount.
+     */
+    public function getOverpaidAmountAttribute(): float
+    {
+        if (!$this->isOverpaid()) {
+            return 0.0;
+        }
+
+        $totalAmount = $this->saleDetails->sum('total_price');
+        return $this->total_paid - $totalAmount;
+    }
+
+    /**
+     * Update payment status based on payments received.
+     */
+    public function updatePaymentStatus(): void
+    {
+        $this->loadMissing(['payments', 'saleDetails']);
+
+        if ($this->payments->isEmpty()) {
+            $this->payment_status = 'pending';
+        } elseif ($this->isFullyPaid()) {
+            $this->payment_status = 'paid';
+        } else {
+            $this->payment_status = 'partial';
+        }
+
+        // Update the legacy paid_amount field for backwards compatibility
+        $this->paid_amount = $this->total_paid;
+
+        $this->save();
+    }
+
+    /**
+     * Scope to get sales with outstanding balances.
+     */
+    public function scopeWithOutstandingBalance($query)
+    {
+        return $query->whereHas('saleDetails')
+            ->where(function ($q) {
+                $q->where('payment_status', 'pending')
+                    ->orWhere('payment_status', 'partial');
+            });
+    }
+
+    /**
+     * Scope to get sales that can receive payments.
+     */
+    public function scopeCanReceivePayments($query)
+    {
+        return $query->where('payment_status', '!=', 'cancelled');
     }
 }

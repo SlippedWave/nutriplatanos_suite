@@ -1,6 +1,6 @@
 <div class="space-y-6">
     <!-- Flash Messages -->
-    @if (session()->has('message'))
+    @if (session()->has('message') && !$this->hasOpenModal())
         <div x-data="{ show: true }" 
              x-init="setTimeout(() => show = false, 4000)" 
              x-show="show"
@@ -19,7 +19,7 @@
         </div>
     @endif
 
-    @if (session()->has('error'))
+    @if (session()->has('error') && !$this->hasOpenModal())
         <div x-data="{ show: true }" 
              x-init="setTimeout(() => show = false, 4000)" 
              x-show="show"

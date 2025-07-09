@@ -1,4 +1,4 @@
-<flux:modal wire:model="showDeleteModal" class="space-y-4 border-0 bg-background!">
+<flux:modal wire:model="showDeleteSaleModal" class="space-y-4 border-0 bg-background!">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Eliminar Venta') }}</flux:heading>
     </div>

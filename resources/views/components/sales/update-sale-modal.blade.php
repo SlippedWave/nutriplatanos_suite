@@ -1,7 +1,38 @@
-<flux:modal wire:model="showUpdateModal" class="space-y-4 border-0 bg-background!">
+<flux:modal wire:model="showUpdateSaleModal" class="space-y-4 border-0 bg-background!">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Actualizar Venta') }}</flux:heading>
     </div>
+    
+    @if ($showUpdateSaleModal && session()->has('error'))
+        <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-medium text-red-800">
+                        Error al procesar la venta
+                    </h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p>{{ session('error') }}</p>
+                    </div>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button 
+                        type="button" 
+                        wire:click="clearErrorsForModal('update')"
+                        class="text-red-400 hover:text-red-600"
+                    >
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
     
     @if($selectedSale)
         <div class="space-y-6">
@@ -179,12 +210,23 @@
     @endif
 
     <div class="flex justify-end gap-3 pt-4">
-        <flux:button wire:click="closeModals" variant="outline">
+        <flux:button 
+            wire:click="closeModals" 
+            variant="outline"
+            wire:loading.attr="disabled"
+            wire:target="updateSale"
+        >
             {{ __('Cancelar') }}
         </flux:button>
         
-        <flux:button wire:click="updateSale" variant="primary">
-            {{ __('Actualizar Venta') }}
+        <flux:button 
+            wire:click="updateSale" 
+            variant="primary" 
+            wire:loading.attr="disabled"
+            wire:target="updateSale"
+        >
+            <span wire:loading.remove wire:target="updateSale">{{ __('Actualizar Venta') }}</span>
+            <span wire:loading wire:target="updateSale">Actualizando...</span>
         </flux:button>
     </div>
 </flux:modal>
