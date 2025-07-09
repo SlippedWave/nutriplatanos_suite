@@ -23,7 +23,7 @@
                     <div class="ml-auto pl-3">
                         <button 
                             type="button" 
-                            wire:click="clearErrors"
+                            wire:click="clearErrorsForModal('create')"
                             class="text-red-400 hover:text-red-600"
                         >
                             <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

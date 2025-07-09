@@ -81,19 +81,11 @@ class SalesTable extends Component
     protected $rules = [
         'customer_id' => 'required|exists:customers,id',
         'route_id' => 'required|exists:routes,id',
-        'payment_status' => 'required|in:pending,paid,partial,cancelled',
         'paid_amount' => 'nullable|numeric|min:0|max:999999.99',
         'notes' => 'nullable|string|max:1000',
         'saleProducts.*.product_id' => 'required|exists:products,id',
         'saleProducts.*.quantity' => 'required|numeric|min:0.001|max:999999.999',
         'saleProducts.*.price_per_unit' => 'required|numeric|min:0.01|max:999999.99',
-        // Payment validation rules
-        'payment_amount' => 'required|numeric|min:0.01|max:999999.99',
-        'payment_date' => 'required|date|before_or_equal:today',
-        'payment_method' => 'required|in:cash,transfer,check,card,other',
-        'payment_route_id' => 'nullable|exists:routes,id',
-        'payment_notes' => 'nullable|string|max:1000',
-
     ];
 
     protected $messages = [
@@ -101,8 +93,6 @@ class SalesTable extends Component
         'customer_id.exists' => 'El cliente seleccionado no es válido.',
         'route_id.required' => 'La ruta es obligatoria.',
         'route_id.exists' => 'La ruta seleccionada no es válida.',
-        'payment_status.required' => 'El estado de pago es obligatorio.',
-        'payment_status.in' => 'El estado de pago seleccionado no es válido.',
         'paid_amount.numeric' => 'El monto pagado debe ser un número.',
         'paid_amount.min' => 'El monto pagado no puede ser negativo.',
         'paid_amount.max' => 'El monto pagado es demasiado alto.',
@@ -114,20 +104,42 @@ class SalesTable extends Component
         'saleProducts.*.price_per_unit.required' => 'El precio unitario es obligatorio.',
         'saleProducts.*.price_per_unit.numeric' => 'El precio unitario debe ser un número.',
         'saleProducts.*.price_per_unit.min' => 'El precio unitario debe ser mayor que 0.',
-        // Payment validation messages
-        'payment_amount.required' => 'El monto del pago es obligatorio.',
-        'payment_amount.numeric' => 'El monto del pago debe ser un número.',
-        'payment_amount.min' => 'El monto del pago debe ser mayor que 0.',
-        'payment_amount.max' => 'El monto del pago es demasiado alto.',
-        'payment_date.required' => 'La fecha de pago es obligatoria.',
-        'payment_date.date' => 'La fecha de pago debe ser una fecha válida.',
-        'payment_date.before_or_equal' => 'La fecha de pago no puede ser futura.',
-        'payment_method.required' => 'El método de pago es obligatorio.',
-        'payment_method.in' => 'El método de pago seleccionado no es válido.',
-        'payment_route_id.exists' => 'La ruta seleccionada no es válida.',
-        'payment_notes.string' => 'Las notas deben ser texto.',
-        'payment_notes.max' => 'Las notas no pueden exceder 1000 caracteres.',
     ];
+
+    /**
+     * Get payment validation rules.
+     */
+    protected function getPaymentRules(): array
+    {
+        return [
+            'payment_amount' => 'required|numeric|min:0.01|max:999999.99',
+            'payment_date' => 'required|date|before_or_equal:today',
+            'payment_method' => 'required|in:cash,transfer,check,card,other',
+            'payment_route_id' => 'nullable|exists:routes,id',
+            'payment_notes' => 'nullable|string|max:1000',
+        ];
+    }
+
+    /**
+     * Get payment validation messages.
+     */
+    protected function getPaymentMessages(): array
+    {
+        return [
+            'payment_amount.required' => 'El monto del pago es obligatorio.',
+            'payment_amount.numeric' => 'El monto del pago debe ser un número.',
+            'payment_amount.min' => 'El monto del pago debe ser mayor que 0.',
+            'payment_amount.max' => 'El monto del pago es demasiado alto.',
+            'payment_date.required' => 'La fecha de pago es obligatoria.',
+            'payment_date.date' => 'La fecha de pago debe ser una fecha válida.',
+            'payment_date.before_or_equal' => 'La fecha de pago no puede ser futura.',
+            'payment_method.required' => 'El método de pago es obligatorio.',
+            'payment_method.in' => 'El método de pago seleccionado no es válido.',
+            'payment_route_id.exists' => 'La ruta seleccionada no es válida.',
+            'payment_notes.string' => 'Las notas deben ser texto.',
+            'payment_notes.max' => 'Las notas no pueden exceder 1000 caracteres.',
+        ];
+    }
 
     public function mount($customer_id = null, $route_id = null)
     {
@@ -338,6 +350,24 @@ class SalesTable extends Component
             $result = $this->saleService->createSale($this->getFormData());
 
             if ($result['success']) {
+                $sale = $result['sale'] ?? null;
+
+                // Create a payment record if the sale has a paid amount
+                if ($sale && ($this->payment_status === 'paid' || $this->payment_status === 'partial')) {
+                    $paymentAmount = $this->payment_status === 'paid' ? $sale->total_amount : $this->paid_amount;
+
+                    $paymentData = [
+                        'sale_id' => $sale->id,
+                        'amount' => $paymentAmount,
+                        'payment_date' => now()->toDateString(),
+                        'payment_method' => 'cash', // Default payment method
+                        'route_id' => $this->route_id ?: null,
+                        'notes' => 'Pago inicial registrado con la venta',
+                    ];
+
+                    $this->salePaymentService->addPayment($sale, $paymentData);
+                }
+
                 $this->closeModals();
                 session()->flash('message', $result['message']);
                 $this->resetPage();
@@ -369,7 +399,7 @@ class SalesTable extends Component
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Livewire validation failed, don't close modal
-            session()->flash('error', 'Por favor, corrige los errores antes de continuar.');
+            session()->flash('error', $e->getMessage());
         }
     }
 
@@ -383,6 +413,10 @@ class SalesTable extends Component
         try {
             // Validate form data first
             $this->validate();
+
+            // Debug: Print form data to console
+            $formData = $this->getFormData();
+            logger('Form Data Debug:', $formData);
 
             $result = $this->saleService->updateSale($this->selectedSale, $this->getFormData());
 
@@ -461,13 +495,7 @@ class SalesTable extends Component
 
         try {
             // Validate payment data
-            $this->validate([
-                'payment_amount' => 'required|numeric|min:0.01|max:999999.99',
-                'payment_date' => 'required|date|before_or_equal:today',
-                'payment_method' => 'required|in:cash,transfer,check,card,other',
-                'payment_route_id' => 'nullable|exists:routes,id',
-                'payment_notes' => 'nullable|string|max:1000',
-            ]);
+            $this->validate($this->getPaymentRules(), $this->getPaymentMessages());
 
             $result = $this->salePaymentService->addPayment($this->selectedSale, $this->getPaymentFormData());
 

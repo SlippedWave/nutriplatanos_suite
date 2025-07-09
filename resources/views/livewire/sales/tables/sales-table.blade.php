@@ -231,6 +231,30 @@
                                     />
                                     
                                     @if(!$sale->trashed())
+                                        <!-- Payment Actions (only for unpaid/partial sales) -->
+                                        @if(in_array($sale->payment_status, ['pending', 'partial']))
+                                            <flux:button 
+                                                size="sm" 
+                                                variant="ghost" 
+                                                wire:click="openAddPaymentModal({{ $sale->id }})"
+                                                icon="credit-card"
+                                                aria-label="Agregar pago"
+                                                class="text-green-600 hover:text-green-700"
+                                            />
+                                        @endif
+                                        
+                                        <!-- Payment History (for all sales with payments) -->
+                                        @if($sale->payments && $sale->payments->count() > 0)
+                                            <flux:button 
+                                                size="sm" 
+                                                variant="ghost" 
+                                                wire:click="openPaymentHistoryModal({{ $sale->id }})"
+                                                icon="clock"
+                                                aria-label="Historial de pagos"
+                                                class="text-blue-600 hover:text-blue-700"
+                                            />
+                                        @endif
+                                        
                                         <flux:button 
                                             size="sm" 
                                             variant="ghost" 
@@ -310,4 +334,6 @@
     'contextCustomerId' => $contextCustomerId])
     @include('components.sales.view-sale-modal', ['selectedSale' => $selectedSale])
     @include('components.sales.delete-sale-modal', ['selectedSale' => $selectedSale])
+    @include('components.sales.add-payment-modal', ['selectedSale' => $selectedSale])
+    @include('components.sales.payment-history-modal', ['selectedSale' => $selectedSale])
 </div>
