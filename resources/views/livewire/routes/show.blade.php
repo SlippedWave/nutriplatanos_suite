@@ -63,13 +63,12 @@ new class extends Component {
     public function closeRoute()
     {
         $routeService = app(RouteService::class);
-        $result = $routeService->closeRoute($this->route);
+        $result = $routeService->closeRoute($this->selectedRoute);
         
         if ($result['success']) {
             session()->flash('message', $result['message']);
             $this->showCloseRouteModal = false;
-            // Refresh the route data
-            $this->route = $result['route'];
+            return redirect()->route('routes.index');
         } else {
             session()->flash('error', $result['message']);
         }

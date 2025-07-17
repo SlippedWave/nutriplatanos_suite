@@ -198,24 +198,6 @@ class RoutesTable extends Component
         }
     }
 
-    public function restoreRoute()
-    {
-        if (!$this->selectedRoute) {
-            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
-            return;
-        }
-
-        $result = $this->routeService->restoreRoute($this->selectedRoute);
-
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
-    }
-
     // Utility methods
     private function getFormData(): array
     {

@@ -340,7 +340,8 @@ class SalesTable extends Component
             unset($this->saleProducts[$index]);
             $this->saleProducts = array_values($this->saleProducts); // Re-index array
         }
-    }    // CRUD operations using SaleService
+    }
+
     public function createSale()
     {
         try {
@@ -360,7 +361,7 @@ class SalesTable extends Component
                         'sale_id' => $sale->id,
                         'amount' => $paymentAmount,
                         'payment_date' => now()->toDateString(),
-                        'payment_method' => 'cash', // Default payment method
+                        'payment_method' => $this->payment_method, // Default payment method
                         'route_id' => $this->route_id ?: null,
                         'notes' => 'Pago inicial registrado con la venta',
                     ];

@@ -199,6 +199,19 @@
             </flux:field>
         @endif
 
+        @if ($payment_status === 'paid' || $payment_status === 'partial')
+        <flux:field>
+            <flux:select wire:model="payment_method" label="{{ __('Método de Pago') }}" required>
+                <option value="">Seleccionar método de pago...</option>
+                @foreach($paymentMethods as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                @endforeach
+            </flux:select>
+            <flux:error name="payment_method" />
+        </flux:field>
+        @endif
+
+
         <!-- Notes -->
         <flux:field class="mt-4">
             <flux:textarea 

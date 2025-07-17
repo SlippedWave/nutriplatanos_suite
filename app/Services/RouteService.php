@@ -154,28 +154,6 @@ class RouteService
     }
 
     /**
-     * Restore a deleted route
-     */
-    public function restoreRoute(Route $route): array
-    {
-        try {
-            $route->restore();
-
-            $this->createRouteNote($route, "Ruta restaurada el " . now()->format('d/m/Y H:i'));
-
-            return [
-                'success' => true,
-                'message' => 'Ruta restaurada exitosamente.'
-            ];
-        } catch (\Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Error al restaurar ruta: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    /**
      * Search routes with filters
      */
     public function searchRoutes(string $search = '', string $sortField = 'created_at', string $sortDirection = 'desc', int $perPage = 10, bool $includeDeleted = false, ?string $statusFilter = null, ?int $carrierId = null)

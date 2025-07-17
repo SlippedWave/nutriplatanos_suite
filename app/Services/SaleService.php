@@ -207,8 +207,16 @@ class SaleService
         }
     }
 
-    public function searchSales(string $search = '', string $sortField = 'created_at', string $sortDirection = 'desc', int $perPage = 10, bool $includeDeleted = false, ?int $routeId = null, ?int $customerId = null, ?string $paymentStatusFilter = null)
-    {
+    public function searchSales(
+        string $search = '',
+        string $sortField = 'created_at',
+        string $sortDirection = 'desc',
+        int $perPage = 10,
+        bool $includeDeleted = false,
+        ?int $routeId = null,
+        ?int $customerId = null,
+        ?string $paymentStatusFilter = null
+    ) {
         $query = Sale::query();
 
         if ($includeDeleted) {

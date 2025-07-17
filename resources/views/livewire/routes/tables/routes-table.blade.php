@@ -183,25 +183,7 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center gap-2 justify-center">
-                                    @if ($route->trashed())
-                                        <flux:button 
-                                            variant="ghost" 
-                                            size="sm" 
-                                            icon="eye"
-                                            wire:click="openViewModal({{ $route->id }})"
-                                        />
-                                        <flux:button 
-                                            variant="ghost" 
-                                            size="sm" 
-                                            icon="arrow-path"
-                                            class="text-success-600 hover:text-success-700 hover:bg-success-50"
-                                            wire:click="restoreRoute"
-                                        />
-                                        <span class="inline-flex items-center py-0.5 px-2 rounded-full text-xs font-medium bg-danger-100 text-danger-800">
-                                            Eliminada
-                                        </span>
-                                    @else
-                                        <flux:button 
+                                    <flux:button 
                                             variant="ghost" 
                                             size="sm" 
                                             icon="eye"
@@ -224,6 +206,11 @@
                                             />
                                         @endif
                                         
+                                        @if ($route->trashed())
+                                        <span class="inline-flex items-center py-0.5 px-2 rounded-full text-xs font-medium bg-danger-100 text-danger-800">
+                                            Eliminada
+                                        </span>
+                                        @else
                                         <flux:button 
                                             variant="ghost" 
                                             size="sm" 
