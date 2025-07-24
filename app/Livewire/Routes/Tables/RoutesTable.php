@@ -194,6 +194,7 @@ class RoutesTable extends Component
             session()->flash('message', $result['message']);
             $this->resetPage();
         } else {
+            $this->closeModals();
             session()->flash('error', $result['message']);
         }
     }

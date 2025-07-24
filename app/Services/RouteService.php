@@ -136,6 +136,14 @@ class RouteService
                 ];
             }
 
+            // Ensure the route is closed before deleting
+            if ($route->isActive()) {
+                return [
+                    'success' => false,
+                    'message' => 'La ruta debe estar cerrada antes de eliminarla.'
+                ];
+            }
+
             // Soft delete the route
             $route->delete();
 

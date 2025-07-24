@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Component;
 use App\Models\Route;
+use App\Models\Note;
 
 new class extends Component {
     public $role;
@@ -19,8 +20,6 @@ new class extends Component {
         $this->user = auth()->user();
         $this->role = $this->user->role ?? 'guest';
         $this->activeRoute = $this->user->routes->where('status', 'active')->first();
-
-
 
         $this->title = 'Ruta del día ' . now()->format('d M Y');
 
