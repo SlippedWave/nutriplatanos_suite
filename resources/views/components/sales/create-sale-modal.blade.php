@@ -179,25 +179,38 @@
             </flux:select>
             <flux:error name="payment_status" />
         </flux:field>
+        
+        <!-- Register box movement -->
+        <flux:field>
+            <flux:input 
+                wire:model="box_movement" 
+                label="{{ __('Movimiento de Caja') }}" 
+                type="text"
+                placeholder="Descripción del movimiento"
+                class="text-[var(--color-text)]!"
+            />
+            <flux:error name="box_movement" />
+        </flux:field>
 
         @if ($payment_status === 'partial')
             <flux:field>
-            <flux:input 
-                wire:model="paid_amount" 
-                label="{{ __('Monto Pagado') }}" 
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                inputmode="decimal"
-                pattern="[0-9]+(\.[0-9]{1,2})?"
-                x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
-                x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
-                class="text-[var(--color-text)]!"
-            />
-            <flux:error name="paid_amount" />
+                <flux:input 
+                    wire:model="paid_amount" 
+                    label="{{ __('Monto Pagado') }}" 
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    inputmode="decimal"
+                    pattern="[0-9]+(\.[0-9]{1,2})?"
+                    x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
+                    x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                    class="text-[var(--color-text)]!"
+                />
+                <flux:error name="paid_amount" />
             </flux:field>
         @endif
+
 
         @if ($payment_status === 'paid' || $payment_status === 'partial')
         <flux:field>

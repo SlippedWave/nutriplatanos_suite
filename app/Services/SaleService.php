@@ -223,17 +223,14 @@ class SaleService
             $query->withTrashed();
         }
 
-        // Filter by route
         if ($routeId && !$showPendingAndPartialSales) {
             $query->where('route_id', $routeId);
         }
 
-        // Filter by customer
         if ($customerId) {
             $query->where('customer_id', $customerId);
         }
 
-        // Filter by carrier for non-admin users
         $user = Auth::user();
         if ($user->role === 'carrier' && !$showPendingAndPartialSales) {
             $query->whereHas('route', function ($q) use ($user) {
@@ -241,8 +238,7 @@ class SaleService
             });
         }
 
-        // Filter by pending and partial sales if requested
-        if ($showPendingAndPartialSales) {
+        if ($showPendingAndPartialSales || !$customerId) {
             $query->whereIn('payment_status', ['pending', 'partial']);
         }
 

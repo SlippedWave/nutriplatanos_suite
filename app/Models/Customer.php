@@ -40,7 +40,6 @@ class Customer extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime', // Add this for soft deletes
-        'box_balance' => 'integer', // Cast box_balance to an integer
         'active' => 'boolean', // Cast active to a boolean
     ];
 
@@ -114,5 +113,17 @@ class Customer extends Model
     public function pendingAmount(): float
     {
         return $this->pendingAndPartialSales()->sum('total_amount') - $this->pendingAndPartialSales()->sum('paid_amount');
+    }
+
+    public function boxMovements()
+    {
+        return $this->hasManyThrough(
+            BoxMovement::class,
+            Sale::class,
+            'customer_id', // Foreign key on Sales table
+            'sale_id',     // Foreign key on BoxMovements table
+            'id',          // Local key on Customers table
+            'id'           // Local key on Sales table
+        );
     }
 }
