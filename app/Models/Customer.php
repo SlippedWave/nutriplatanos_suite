@@ -99,4 +99,20 @@ class Customer extends Model
     {
         return $this->active;
     }
+
+    /** 
+     * Get the pending and partial sales for this customer.
+     */
+    public function pendingAndPartialSales()
+    {
+        return $this->sales()->where('payment_status', 'pending')->orWhere('payment_status', 'partial');
+    }
+
+    /**
+     * Get the pending amount for this customer.
+     */
+    public function pendingAmount(): float
+    {
+        return $this->pendingAndPartialSales()->sum('total_amount') - $this->pendingAndPartialSales()->sum('paid_amount');
+    }
 }

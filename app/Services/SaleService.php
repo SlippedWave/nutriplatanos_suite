@@ -215,7 +215,7 @@ class SaleService
         bool $includeDeleted = false,
         ?int $routeId = null,
         ?int $customerId = null,
-        ?string $paymentStatusFilter = null
+        ?bool $showPendingAndPartialSales = false
     ) {
         $query = Sale::query();
 
@@ -224,7 +224,7 @@ class SaleService
         }
 
         // Filter by route
-        if ($routeId) {
+        if ($routeId && !$showPendingAndPartialSales) {
             $query->where('route_id', $routeId);
         }
 
@@ -233,20 +233,20 @@ class SaleService
             $query->where('customer_id', $customerId);
         }
 
-        // Filter by payment status
-        if ($paymentStatusFilter) {
-            $query->where('payment_status', $paymentStatusFilter);
-        }
-
         // Filter by carrier for non-admin users
         $user = Auth::user();
-        if ($user->role === 'carrier') {
+        if ($user->role === 'carrier' && !$showPendingAndPartialSales) {
             $query->whereHas('route', function ($q) use ($user) {
                 $q->where('carrier_id', $user->id);
             });
         }
 
-        return $query
+        // Filter by pending and partial sales if requested
+        if ($showPendingAndPartialSales) {
+            $query->whereIn('payment_status', ['pending', 'partial']);
+        }
+
+        $query = $query
             ->with(['customer', 'route', 'user', 'saleDetails.product'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -265,6 +265,8 @@ class SaleService
             })
             ->orderBy($sortField, $sortDirection)
             ->paginate($perPage);
+
+        return $query;
     }
 
     public function getSaleStats(Sale $sale): array

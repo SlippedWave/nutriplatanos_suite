@@ -23,6 +23,7 @@ class SalesTable extends Component
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
     public bool $includeDeleted = false;
+    public bool $showPendingAndPartialSales = false;
 
     // Modal states
     public bool $showCreateSaleModal = false;
@@ -189,6 +190,12 @@ class SalesTable extends Component
     public function toggleIncludeDeleted()
     {
         $this->includeDeleted = !$this->includeDeleted;
+        $this->resetPage();
+    }
+
+    public function togglePendingAndPartialSales()
+    {
+        $this->showPendingAndPartialSales = !$this->showPendingAndPartialSales;
         $this->resetPage();
     }
 
@@ -565,7 +572,7 @@ class SalesTable extends Component
             'paid_amount' => match ($this->payment_status) {
                 'partial' => $this->paid_amount,
                 'paid' => $totalAmount,
-                default => null,
+                default => 0,
             },
             'notes' => $this->notes,
             'products' => array_values($validProducts), // Re-index
@@ -660,7 +667,8 @@ class SalesTable extends Component
             $this->perPage,
             $this->includeDeleted,
             $this->contextRouteId,
-            $this->contextCustomerId
+            $this->contextCustomerId,
+            $this->showPendingAndPartialSales,
         );
 
         // Calculate total amount for current filtered results

@@ -48,30 +48,29 @@
             >
             </flux:input>
         </div>
-        
-        <div class="flex gap-2">
 
-        <flux:button 
-            variant="primary" 
-            wire:click="toggleIncludeDeleted"
-            class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}" 
-            aria-label="{{ $includeDeleted ? __('Ocultar clientes eliminados') : __('Incluir clientes eliminados') }}"
-        >
-            {{ $includeDeleted ? __('Ocultar eliminados') : __('Incluir eliminados') }}
-        </flux:button>
-
-            <flux:select wire:model.live="perPage" class="w-20">
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </flux:select>
-            
-            <flux:button variant="primary"
-                            icon="plus"
-                            wire:click="openCreateModal">
-                {{ __('Agregar Cliente') }}
+        <div class="flex flex-col gap-4  sm:flex-row sm:items-center">
+            <flux:button 
+                variant="primary" 
+                wire:click="toggleIncludeDeleted"
+                class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}" 
+                aria-label="{{ $includeDeleted ? __('Ocultar clientes eliminados') : __('Incluir clientes eliminados') }}"
+            >
+                {{ $includeDeleted ? __('Ocultar eliminados') : __('Incluir eliminados') }}
             </flux:button>
+
+                <flux:select wire:model.live="perPage" class="w-20">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </flux:select>
+                
+                <flux:button variant="primary"
+                                icon="plus"
+                                wire:click="openCreateModal">
+                    {{ __('Agregar Cliente') }}
+                </flux:button>
         </div>
     </div>
 

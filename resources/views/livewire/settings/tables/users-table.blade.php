@@ -39,14 +39,15 @@
     @endif
 
     <!-- Search and Filters -->
-    <div class="flex items-center gap-4">
-        <div class="flex-1">
+    <div class="flex flex-col gap-4">
+        <div class="w-full">
             <flux:input 
                 wire:model.live.debounce.300ms="search"
                 placeholder="{{ __('Buscar usuarios...') }}"
             />
         </div>
-        <div class="flex gap-2">
+
+        <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
             <flux:button 
                 variant="primary" 
                 wire:click="toggleIncludeDeleted"

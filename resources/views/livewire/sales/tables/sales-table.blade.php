@@ -38,48 +38,71 @@
         </div>
     @endif
 
-    <!-- Header with Search and Actions -->
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex-1">
-            <flux:input 
-                wire:model.live.debounce.300ms="search" 
-                placeholder="Buscar ventas..."
-                type="search"
-            />
-        </div>
+    <div class="flex flex-col gap-4">
         
-        <div class="flex gap-2">
-            <!-- Date Filter -->
-            <flux:select wire:model.live="dateFilter">
-                <option value="all">Todas las fechas</option>
-                <option value="today">Hoy</option>
-                <option value="week">Esta semana</option>
-                <option value="month">Este mes</option>
-            </flux:select>
+        <!-- Controls Section -->
+        <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+            <!-- Filters Group -->
+            <div class="flex flex-col xs:flex-row gap-2 flex-1">
+                <!-- Search Bar (Full Width) -->
+                <div class="w-full">
+                    <flux:input 
+                        wire:model.live.debounce.300ms="search" 
+                        placeholder="Buscar ventas..."
+                        type="search"
+                        class="w-full"
+                    />
+                </div>
+                <!-- Date Filter -->
+                <flux:select wire:model.live="dateFilter" class="flex-1 xs:min-w-[140px]">
+                    <option value="all">Todas las fechas</option>
+                    <option value="today">Hoy</option>
+                    <option value="week">Esta semana</option>
+                    <option value="month">Este mes</option>
+                </flux:select>
 
-            <flux:button 
-                variant="primary" 
-                wire:click="toggleIncludeDeleted"
-                class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}" 
-                aria-label="{{ $includeDeleted ? __('Ocultar ventas eliminadas') : __('Incluir ventas eliminadas') }}"
-            >
-                {{ $includeDeleted ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}
-            </flux:button>
+                <!-- Per Page -->
+                <flux:select wire:model.live="perPage" class="xs:w-16 flex-none">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </flux:select>
+            </div>
             
-            <flux:select wire:model.live="perPage" class="w-20">
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </flux:select>
-            
-            @if ($canCreateNewSale)
-            <flux:button variant="primary"
-                            icon="plus"
-                            wire:click="openCreateModal">
-                {{ __('Nueva Venta') }}
-            </flux:button>
-            @endif
+            <!-- Action Buttons Group -->
+            <div class="flex flex-col xs:flex-row gap-2 xs:items-center">
+                <flux:button 
+                    variant="primary" 
+                    wire:click="toggleIncludeDeleted"
+                    class="{{ $includeDeleted ? 'bg-danger-100! text-danger-900!' : 'bg-background! text-danger-500! hover:bg-danger-50!' }}" 
+                    aria-label="{{ $includeDeleted ? __('Ocultar ventas eliminadas') : __('Incluir ventas eliminadas') }}"
+                    size="sm"
+                >
+                    <span class="hidden sm:inline">{{ $includeDeleted ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}</span>
+                    <span class="sm:hidden">{{ $includeDeleted ? __('Ocultar') : __('Eliminadas') }}</span>
+                </flux:button>
+
+                <flux:button 
+                    variant="primary"
+                    wire:click="togglePendingAndPartialSales"
+                    class="bg-secondary-400! hover:bg-secondary-300!"
+                    size="sm"
+                >
+                    <span class="hidden sm:inline">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }} ventas pendientes y parciales</span>
+                    <span class="sm:hidden">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }} Pendientes/Parciales</span>
+                </flux:button>
+                
+                @if ($canCreateNewSale)
+                <flux:button variant="primary"
+                                icon="plus"
+                                wire:click="openCreateModal"
+                                class="w-full xs:w-auto">
+                    <span class="hidden sm:inline">{{ __('Nueva Venta') }}</span>
+                    <span class="sm:hidden">{{ __('Nueva') }}</span>
+                </flux:button>
+                @endif
+            </div>
         </div>
     </div>
 

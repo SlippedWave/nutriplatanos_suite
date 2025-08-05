@@ -49,7 +49,7 @@
                 />
             </div>
             
-            <div class="flex gap-2">
+            <div class="flex-1 gap-4">
                 <flux:button 
                     variant="primary" 
                     wire:click="toggleIncludeDeleted"
