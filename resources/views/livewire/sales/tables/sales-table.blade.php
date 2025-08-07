@@ -83,6 +83,7 @@
                     <span class="sm:hidden">{{ $includeDeleted ? __('Ocultar') : __('Eliminadas') }}</span>
                 </flux:button>
 
+                @if($contextCustomerId === null && $canCreateNewSale)
                 <flux:button 
                     variant="primary"
                     wire:click="togglePendingAndPartialSales"
@@ -92,10 +93,11 @@
                     <span class="hidden sm:inline">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }} ventas pendientes y parciales</span>
                     <span class="sm:hidden">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }} Pendientes/Parciales</span>
                 </flux:button>
-                
+                @endif
+
                 @if ($canCreateNewSale)
                 <flux:button variant="primary"
-                                icon="plus"
+                                icon="plus" 
                                 wire:click="openCreateModal"
                                 class="w-full xs:w-auto">
                     <span class="hidden sm:inline">{{ __('Nueva Venta') }}</span>

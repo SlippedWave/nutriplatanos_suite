@@ -223,7 +223,7 @@ class SaleService
             $query->withTrashed();
         }
 
-        if ($routeId && !$showPendingAndPartialSales) {
+        if ($routeId) {
             $query->where('route_id', $routeId);
         }
 
@@ -232,14 +232,23 @@ class SaleService
         }
 
         $user = Auth::user();
-        if ($user->role === 'carrier' && !$showPendingAndPartialSales) {
+        if ($user->role === 'carrier') {
             $query->whereHas('route', function ($q) use ($user) {
                 $q->where('carrier_id', $user->id);
             });
         }
 
-        if ($showPendingAndPartialSales || !$customerId) {
-            $query->whereIn('payment_status', ['pending', 'partial']);
+        if ($showPendingAndPartialSales && $customerId === null) {
+            $secondaryQuery = Sale::query()
+                ->where('payment_status', 'pending')
+                ->orWhere('payment_status', 'partial');
+            if ($user->role === 'carrier') {
+                $secondaryQuery->whereHas('route', function ($q) use ($user) {
+                    $q->where('carrier_id', $user->id);
+                });
+            }
+
+            $query = $query->union($secondaryQuery);
         }
 
         $query = $query
