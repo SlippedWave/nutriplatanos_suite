@@ -6,6 +6,7 @@ use App\Models\Route;
 use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class RouteService
 {
@@ -17,6 +18,9 @@ class RouteService
         try {
             $validated = $this->validateRouteData($data);
 
+            DB::beginTransaction();
+
+
             // Set the carrier_id to current user if not provided
             if (!isset($validated['carrier_id'])) {
                 $validated['carrier_id'] = auth()->id();
@@ -25,11 +29,19 @@ class RouteService
             // Set default status
             $validated['status'] = $validated['status'] ?? Route::STATUS_ACTIVE;
 
-            $route = Route::create($validated);
+            $routeData = collect($validated)->except('boxMovements', 'notes')->toArray();
+            $route = Route::create($routeData);
+
+            // Create box movements if provided
+            if (!empty($validated['boxMovements'])) {
+                $this->createBoxMovements($route, $validated['boxMovements']);
+            }
 
             if (!empty($validated['notes'])) {
                 $this->createRouteNote($route, $validated['notes']);
             }
+
+            DB::commit();
 
             return [
                 'success' => true,
@@ -41,6 +53,30 @@ class RouteService
                 'success' => false,
                 'message' => 'Error al crear ruta: ' . $e->getMessage()
             ];
+        }
+    }
+
+    public function createBoxMovements(Route $route, array $boxMovements): void
+    {
+        $boxMovementService = app(BoxMovementService::class);
+
+        // Remove the duplicate foreach loop
+        foreach ($boxMovements as $movementData) {
+            // Create the box movement
+            $result = $boxMovementService->createBoxMovement([
+                'route_id' => $route->id,
+                'camera_id' => $movementData['camera_id'] ?? 1,
+                'movement_type' => $movementData['movement_type'],
+                'quantity' => $movementData['quantity'],
+                'box_content_status' => $movementData['box_content_status'],
+                'moved_at' => now(),
+                'notes' => $movementData['notes'] ?? null,
+            ]);
+
+            // Log any errors but don't stop the process
+            if (!$result['success']) {
+                \Log::error('Failed to create box movement: ' . $result['message']);
+            }
         }
     }
 

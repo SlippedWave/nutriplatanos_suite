@@ -18,7 +18,7 @@ build: install
 
 # Clean build artifacts
 .PHONY: clean
-clean:
+clean:s
 	@echo "Cleaning build artifacts..."
 	rm -rf public/build
 	rm -rf node_modules

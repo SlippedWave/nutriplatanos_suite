@@ -17,7 +17,6 @@ class BoxMovement extends Model
         'quantity',
         'box_content_status',
         'moved_at',
-        'notes',
     ];
 
     protected $casts = [

@@ -65,7 +65,7 @@
                     <option value="100">100</option>
                 </flux:select>
                 
-                <flux:button variant="primary" icon="plus" wire:click="openCreateModal">
+                <flux:button variant="primary" icon="plus" wire:click="$dispatch('open-create-route-modal')">
                     {{ __('Nueva Ruta') }}
                 </flux:button>
             </div>
@@ -236,7 +236,7 @@
                                         @endif
                                     </p>
                                     @if(!$search)
-                                        <flux:button variant="primary" wire:click="openCreateModal">
+                                        <flux:button variant="primary" wire:click="$dispatch('open-create-route-modal')">
                                             <flux:icon.plus class="size-4" />
                                             Nueva Ruta
                                         </flux:button>
@@ -272,7 +272,7 @@
     </div>
 
     <!-- Modals -->
-    @include('components.routes.create-route-modal')
+    <livewire:routes.create-route-modal />
     @include('components.routes.edit-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.view-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.delete-route-modal', ['selectedRoute' => $selectedRoute])

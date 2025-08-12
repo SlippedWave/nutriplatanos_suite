@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             CustomerSeeder::class,
             RouteSeeder::class,
             ProductSeeder::class,
+            CameraSeeder::class,
         ]);
     }
 }
