@@ -61,6 +61,22 @@ class SalesTable extends Component
 
     public ?Sale $selectedSale = null;
 
+    protected function showSalesTableMessage($result)
+    {
+        $this->closeModals();
+        $this->flashSalesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
+        $this->resetPage();
+    }
+
+    protected function flashSalesTableMessage(string $message, string $type): void
+    {
+        session()->flash('message', [
+            'header' => 'sales-table',
+            'text' => $message,
+            'type' => $type,
+        ]);
+    }
+
     protected SaleService $saleService;
     protected SalePaymentService $salePaymentService;
 
@@ -376,9 +392,7 @@ class SalesTable extends Component
                     $this->salePaymentService->addPayment($sale, $paymentData);
                 }
 
-                $this->closeModals();
-                session()->flash('message', $result['message']);
-                $this->resetPage();
+                $this->showSalesTableMessage($result);
             } else {
                 // Handle different types of errors
                 switch ($result['type'] ?? 'error') {
@@ -390,31 +404,24 @@ class SalesTable extends Component
                                 $this->addError($field, implode(' ', $messages));
                             }
                         }
-                        session()->flash('error', $result['message']);
+                        $this->flashSalesTableMessage($result['message'], 'error');
                         break;
-
-                    case 'authorization':
-                        // Close modal for authorization errors
-                        $this->closeModals();
-                        session()->flash('error', $result['message']);
-                        break;
-
                     default:
                         // Don't close modal for other errors, let user retry
-                        session()->flash('error', $result['message']);
+                        $this->showSalesTableMessage($result);
                         break;
                 }
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Livewire validation failed, don't close modal
-            session()->flash('error', $e->getMessage());
+            $this->flashSalesTableMessage($e->getMessage(), 'error');
         }
     }
 
     public function updateSale()
     {
         if (!$this->selectedSale) {
-            session()->flash('error', 'No se ha seleccionado ninguna venta.');
+            $this->flashSalesTableMessage('No se ha seleccionado ninguna venta.', 'error');
             return;
         }
 
@@ -429,8 +436,7 @@ class SalesTable extends Component
             $result = $this->saleService->updateSale($this->selectedSale, $this->getFormData());
 
             if ($result['success']) {
-                $this->closeModals();
-                session()->flash('message', $result['message']);
+                $this->showSalesTableMessage($result);
             } else {
                 // Handle different types of errors
                 switch ($result['type'] ?? 'error') {
@@ -442,52 +448,47 @@ class SalesTable extends Component
                                 $this->addError($field, implode(' ', $messages));
                             }
                         }
-                        session()->flash('error', $result['message']);
+                        $this->flashSalesTableMessage($result['message'], 'error');
                         break;
-
-                    case 'authorization':
-                        // Close modal for authorization errors
-                        $this->closeModals();
-                        session()->flash('error', $result['message']);
-                        break;
-
                     default:
                         // Don't close modal for other errors, let user retry
-                        session()->flash('error', $result['message']);
+                        $this->showSalesTableMessage($result);
                         break;
                 }
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Livewire validation failed, don't close modal
-            session()->flash('error', 'Por favor, corrige los errores antes de continuar.');
+            $this->flashSalesTableMessage($e->getMessage(), 'error');
         }
     }
 
     public function deleteSale()
     {
         if (!$this->selectedSale) {
-            session()->flash('error', 'No se ha seleccionado ninguna venta.');
+            $this->flashSalesTableMessage('No se ha seleccionado ninguna venta.', 'error');
             return;
         }
 
         $result = $this->saleService->deleteSale($this->selectedSale);
 
         if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
+            $this->showSalesTableMessage($result);
         } else {
             // Handle different types of errors
             switch ($result['type'] ?? 'error') {
-                case 'authorization':
-                    // Close modal for authorization errors
-                    $this->closeModals();
-                    session()->flash('error', $result['message']);
+                case 'validation':
+                    // Don't close modal for validation errors
+                    if (isset($result['errors'])) {
+                        // Set validation errors for display
+                        foreach ($result['errors'] as $field => $messages) {
+                            $this->addError($field, implode(' ', $messages));
+                        }
+                    }
+                    $this->flashSalesTableMessage($result['message'], 'error');
                     break;
-
                 default:
                     // Don't close modal for other errors, let user retry
-                    session()->flash('error', $result['message']);
+                    $this->showSalesTableMessage($result);
                     break;
             }
         }
@@ -497,7 +498,7 @@ class SalesTable extends Component
     public function addPayment()
     {
         if (!$this->selectedSale) {
-            session()->flash('error', 'No se ha seleccionado ninguna venta.');
+            $this->flashSalesTableMessage('No se ha seleccionado ninguna venta.', 'error');
             return;
         }
 
@@ -508,33 +509,29 @@ class SalesTable extends Component
             $result = $this->salePaymentService->addPayment($this->selectedSale, $this->getPaymentFormData());
 
             if ($result['success']) {
-                $this->closeModals();
-                session()->flash('message', $result['message']);
-                $this->resetPage();
+                $this->showSalesTableMessage($result);
             } else {
                 // Handle different types of errors
                 switch ($result['type'] ?? 'error') {
                     case 'validation':
+                        // Don't close modal for validation errors
                         if (isset($result['errors'])) {
+                            // Set validation errors for display
                             foreach ($result['errors'] as $field => $messages) {
                                 $this->addError($field, implode(' ', $messages));
                             }
                         }
-                        session()->flash('error', $result['message']);
+                        $this->flashSalesTableMessage($result['message'], 'error');
                         break;
-
-                    case 'authorization':
-                        $this->closeModals();
-                        session()->flash('error', $result['message']);
-                        break;
-
                     default:
-                        session()->flash('error', $result['message']);
+                        // Don't close modal for other errors, let user retry
+                        $this->showSalesTableMessage($result);
                         break;
                 }
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
-            session()->flash('error', 'Por favor, corrige los errores antes de continuar.');
+            // Livewire validation failed, don't close modal
+            $this->flashSalesTableMessage($e->getMessage(), 'error');
         }
     }
 
@@ -544,12 +541,7 @@ class SalesTable extends Component
 
         $result = $this->salePaymentService->markAsFullyPaid($sale);
 
-        if ($result['success']) {
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showSalesTableMessage($result);
     }
 
     // Utility methods

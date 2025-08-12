@@ -49,6 +49,22 @@ class UsersTable extends Component
         $this->userService = $userService;
     }
 
+    protected function showUsersTableMessage($result)
+    {
+        $this->closeModals();
+        $this->flashUsersTableMessage($result['message'], $result['success'] ? 'success' : 'error');
+        $this->resetPage();
+    }
+
+    protected function flashUsersTableMessage(string $text, string $type = 'success'): void
+    {
+        session()->flash('message', [
+            'header' => 'users-table',
+            'text' => $text,
+            'type' => $type,
+        ]);
+    }
+
     public function toggleIncludeDeleted()
     {
         $this->includeDeleted = !$this->includeDeleted;
@@ -96,13 +112,7 @@ class UsersTable extends Component
     {
         $result = $this->userService->createUser($this->getFormData());
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showUsersTableMessage($result);
     }
 
     public function updateUser()
@@ -114,12 +124,7 @@ class UsersTable extends Component
 
         $result = $this->userService->updateUser($this->selectedUser, $this->getFormData());
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showUsersTableMessage($result);
     }
 
     public function deleteUser()
@@ -131,13 +136,7 @@ class UsersTable extends Component
 
         $result = $this->userService->deleteUser($this->selectedUser, auth()->user());
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showUsersTableMessage($result);
     }
 
     // Utility methods

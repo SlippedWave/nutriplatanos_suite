@@ -41,6 +41,22 @@ class CustomersTable extends Component
         $this->customerService = $customerService;
     }
 
+    protected function showCustomersTableMessage($result)
+    {
+        $this->closeModals();
+        $this->flashCustomersTableMessage($result['message'], $result['success'] ? 'success' : 'error');
+        $this->resetPage();
+    }
+
+    protected function flashCustomersTableMessage($message, $type)
+    {
+        session()->flash('message', [
+            'header' => 'customers-table',
+            'text' => $message,
+            'type' => $type,
+        ]);
+    }
+
     protected $queryString = [
         'search' => ['except' => ''],
         'sortField' => ['except' => 'name'],
@@ -116,13 +132,7 @@ class CustomersTable extends Component
     {
         $result = $this->customerService->createCustomer($this->getFormData());
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showCustomersTableMessage($result);
     }
 
     public function updateCustomer()
@@ -134,12 +144,7 @@ class CustomersTable extends Component
 
         $result = $this->customerService->updateCustomer($this->selectedCustomer, $this->getFormData());
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showCustomersTableMessage($result);
     }
 
     public function deleteCustomer()
@@ -151,13 +156,7 @@ class CustomersTable extends Component
 
         $result = $this->customerService->deleteCustomer($this->selectedCustomer);
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showCustomersTableMessage($result);
     }
 
     // Utility methods

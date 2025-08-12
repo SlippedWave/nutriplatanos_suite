@@ -42,6 +42,22 @@ class RoutesTable extends Component
         $this->routeService = $routeService;
     }
 
+    protected function showRoutesTableMessage($result)
+    {
+        $this->closeModals();
+        $this->flashRoutesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
+        $this->resetPage();
+    }
+
+    protected function flashRoutesTableMessage(string $text, string $type = 'success'): void
+    {
+        session()->flash('message', [
+            'header' => 'routes-table',
+            'text' => $text,
+            'type' => $type,
+        ]);
+    }
+
     protected $queryString = [
         'search' => ['except' => ''],
         'sortField' => ['except' => 'created_at'],
@@ -154,30 +170,19 @@ class RoutesTable extends Component
 
         $result = $this->routeService->editRoute($this->selectedRoute, $this->getFormData());
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showRoutesTableMessage($result);
     }
 
     public function deleteRoute()
     {
         if (!$this->selectedRoute) {
-            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
+            $this->flashRoutesTableMessage('No se ha seleccionado ninguna ruta.', 'error');
             return;
         }
 
         $result = $this->routeService->deleteRoute($this->selectedRoute);
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->showRoutesTableMessage($result);
     }
 
     public function closeRoute()
@@ -189,14 +194,7 @@ class RoutesTable extends Component
 
         $result = $this->routeService->closeRoute($this->selectedRoute);
 
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            $this->closeModals();
-            session()->flash('error', $result['message']);
-        }
+        $this->showRoutesTableMessage($result);
     }
 
     // Utility methods
