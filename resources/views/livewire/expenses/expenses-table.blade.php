@@ -308,7 +308,7 @@
 
     <!-- Modals -->
     @include('components.expenses.create-expense-modal', ['contextRouteId' => $contextRouteId, 
-    'contextCustomerId' => null])
+    'contextUserId' => $contextUserId])
     @include('components.expenses.update-expense-modal', ['selectedexpense' => null, 
     'contextRouteId' => $contextRouteId, 
     'contextCustomerId' => null])

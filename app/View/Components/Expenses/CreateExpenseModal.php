@@ -21,6 +21,11 @@ class CreateExpenseModal extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.expenses.create-expense-modal');
+        $routes = \App\Models\Route::all();
+        $users = \App\Models\User::all();
+        return view('components.expenses.create-expense-modal', [
+            'routes' => $routes,
+            'users' => $users,
+        ]);
     }
 }

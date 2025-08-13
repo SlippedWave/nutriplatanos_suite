@@ -52,6 +52,11 @@ class ExpensesTable extends Component
         $this->resetPage();
     }
 
+    public function boot(ExpenseService $expenseService)
+    {
+        $this->expenseService = $expenseService;
+    }
+
     public function mount($route_id = null, $user_id = null)
     {
         $this->contextRouteId = $route_id;

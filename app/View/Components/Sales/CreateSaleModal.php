@@ -21,6 +21,8 @@ class CreateSaleModal extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.sales.create-sale-modal');
+        $routes = \App\Models\Route::all();
+        $users = \App\Models\User::all();
+        return view('components.sales.create-sale-modal', compact('routes', 'users'));
     }
 }
