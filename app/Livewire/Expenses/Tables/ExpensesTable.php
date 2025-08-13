@@ -3,10 +3,12 @@
 namespace App\Livewire\Expenses\Tables;
 
 use App\Models\Expense;
+use App\Models\Route;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 use App\Services\ExpenseService;
+use Illuminate\Support\Facades\Auth;
 
 class ExpensesTable extends Component
 {
@@ -16,7 +18,7 @@ class ExpensesTable extends Component
     public $perPage = 10;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
-    public bool $includeDeleted = false;
+    public bool $includeDeletedExpenses = false;
 
     public bool $showCreateExpenseModal = false;
     public bool $showEditExpenseModal = false;
@@ -30,7 +32,7 @@ class ExpensesTable extends Component
     public $route_id;
     public $notes;
 
-    public bool $canCreateExpense = false;
+    public bool $canCreateNewExpense = false;
 
     public $dateFilter = 'all';
     public $startDate;
@@ -57,9 +59,9 @@ class ExpensesTable extends Component
 
         $this->expenseService = new ExpenseService();
 
-        if ($route_id) {
-            $this->canCreateExpense = auth()->user()->can('create', Expense::class);
-        }
+        $this->canCreateNewExpense = !empty($this->contextRouteId)
+            && Route::where('id', $this->contextRouteId)->where('status', 'active')->exists()
+            && (Auth::user()->role === 'admin' || Route::where('id', $this->contextRouteId)->where('user_id', Auth::id())->exists());
     }
 
     public function updatedSearch()
@@ -80,7 +82,7 @@ class ExpensesTable extends Component
 
     public function toggleIncludeDeleted()
     {
-        $this->includeDeleted = !$this->includeDeleted;
+        $this->includeDeletedExpenses = !$this->includeDeletedExpenses;
         $this->resetPage();
     }
 
@@ -188,6 +190,18 @@ class ExpensesTable extends Component
 
     public function render()
     {
-        return view('livewire.expenses.expenses-table');
+        $expenses = $this->expenseService->searchExpenses(
+            search: $this->search,
+            sortField: $this->sortField,
+            sortDirection: $this->sortDirection,
+            perPage: $this->perPage,
+            includeDeletedExpenses: $this->includeDeletedExpenses,
+            user_id: $this->contextUserId,
+            route_id: $this->contextRouteId
+        );
+
+        $totalAmount = $expenses->sum('amount');
+
+        return view('livewire.expenses.expenses-table', compact('expenses', 'totalAmount'));
     }
 }

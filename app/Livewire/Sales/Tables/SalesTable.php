@@ -637,21 +637,6 @@ class SalesTable extends Component
 
     public function render()
     {
-        $filters = [];
-
-        if ($this->contextCustomerId) {
-            $filters['customer_id'] = $this->contextCustomerId;
-        }
-
-        if ($this->contextRouteId) {
-            $filters['route_id'] = $this->contextRouteId;
-        }
-
-        if ($this->startDate && $this->endDate) {
-            $filters['start_date'] = $this->startDate;
-            $filters['end_date'] = $this->endDate;
-        }
-
         $sales = $this->saleService->searchSales(
             $this->search,
             $this->sortField,

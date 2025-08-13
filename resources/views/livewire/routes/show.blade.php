@@ -172,11 +172,20 @@ new class extends Component {
         <!-- Sales History Section -->
         <div class="mt-2">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-medium text-gray-900">Historial de Ventas</h3>
+                <h3 class="text-lg font-medium text-gray-900">Historial de Ventas en Ruta
+                </h3>
             </div>
             @livewire('sales.tables.sales-table', ['route_id' => $selectedRoute->id])
         </div>
-    
+    <flux:separator class="my-6" />
+
+        <div class="mt-2">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Historial de Gastos en Ruta</h3>
+            </div>
+            @livewire('expenses.tables.expenses-table', ['route_id' => $selectedRoute->id])
+        </div>
+
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.edit-route-modal')
 

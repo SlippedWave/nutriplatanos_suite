@@ -66,4 +66,38 @@ class ExpenseService
             'type' => 'expense',
         ]);
     }
+
+    public function searchExpenses(
+        string $search,
+        string $sortField = 'created_at',
+        string $sortDirection = 'desc',
+        int $perPage = 10,
+        bool $includeDeletedExpenses = false,
+        ?int $user_id = null,
+        ?int $route_id = null
+    ) {
+        $query = Expense::query();
+
+        if ($includeDeletedExpenses) {
+            $query->withTrashed();
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                    ->orWhere('amount', 'like', "%{$search}%");
+            });
+        }
+
+        if ($user_id) {
+            $query->where('user_id', $user_id);
+        }
+
+        if ($route_id) {
+            $query->where('route_id', $route_id);
+        }
+
+        return $query->with(['route', 'user'])->orderBy($sortField, $sortDirection)
+            ->paginate($perPage);
+    }
 }
