@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Customer;
 use App\Models\Note;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerService
 {
@@ -176,7 +177,7 @@ class CustomerService
     private function createCustomerNote(Customer $customer, string $content): void
     {
         Note::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'content' => $content,
             'type' => 'customer',
             'notable_id' => $customer->id,

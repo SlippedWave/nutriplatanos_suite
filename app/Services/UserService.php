@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Note;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class UserService
 {
@@ -191,7 +192,7 @@ class UserService
     private function createUserNote(User $user, string $content): void
     {
         Note::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'content' => $content,
             'type' => 'user',
             'notable_id' => $user->id,

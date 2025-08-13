@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\BoxMovement;
 use App\Models\Note;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class BoxMovementService
 {
@@ -25,7 +26,7 @@ class BoxMovementService
                 Note::create([
                     'notable_id' => $boxMovement->id,
                     'notable_type' => BoxMovement::class,
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                     'content' => $validated['notes'],
                 ]);
             }

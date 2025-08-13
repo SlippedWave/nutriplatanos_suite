@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Models\Route;
 use App\Models\Note;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class RouteService
 {
@@ -23,7 +23,7 @@ class RouteService
 
             // Set the carrier_id to current user if not provided
             if (!isset($validated['carrier_id'])) {
-                $validated['carrier_id'] = auth()->id();
+                $validated['carrier_id'] = Auth::id();
             }
 
             // Set default status
@@ -209,7 +209,7 @@ class RouteService
         }
 
         // Filter by carrier for non-admin users
-        $user = auth()->user();
+        $user = Auth::user();
         if ($user->role === 'carrier') {
             $query->where('carrier_id', $user->id);
         } elseif ($carrierId) {
@@ -302,7 +302,7 @@ class RouteService
     private function createRouteNote(Route $route, string $content): void
     {
         Note::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'content' => $content,
             'type' => 'route',
             'notable_id' => $route->id,

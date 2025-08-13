@@ -18,7 +18,7 @@ class ExpenseService
 
             // Set the user_id to current user if not provided
             if (!isset($validated['user_id'])) {
-                $validated['user_id'] = auth()->id();
+                $validated['user_id'] = Auth::id();
             }
 
             $expense = Expense::create($validated);
@@ -27,7 +27,6 @@ class ExpenseService
                 // Handle notes if provided
                 $this->createExpenseNote($expense, $validated['notes']);
             }
-
 
             return [
                 'success' => true,
