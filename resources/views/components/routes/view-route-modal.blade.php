@@ -1,4 +1,4 @@
-<flux:modal wire:model="showViewModal" class="space-y-4 border-0 bg-background!">
+<flux:modal wire:model="showViewModal" class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-sm md:max-w-md lg:max-w-xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Detalles de la Ruta') }}</flux:heading>
     </div> 

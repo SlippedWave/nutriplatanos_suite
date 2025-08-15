@@ -1,4 +1,4 @@
-<flux:modal wire:model="showAddPaymentModal" class="space-y-6 border-0 bg-background!">
+<flux:modal wire:model="showAddPaymentModal" class="space-y-6 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Agregar Pago') }}</flux:heading>
     </div>
@@ -39,10 +39,10 @@
             <!-- Sale Information Summary -->
             <div class="bg-blue-50 p-4 rounded-lg">
                 <h3 class="text-sm font-medium text-blue-900 mb-2">Información de la Venta</h3>
-                <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
                         <span class="text-blue-700">Cliente:</span>
-                        <span class="text-blue-900 font-medium">{{ $selectedSale->customer->name ?? 'N/A' }}</span>
+                        <span class="text-blue-900 font-medium break-words">{{ $selectedSale->customer->name ?? 'N/A' }}</span>
                     </div>
                     <div>
                         <span class="text-blue-700">Fecha:</span>
@@ -132,7 +132,7 @@
             </flux:field>
 
             <!-- Quick Payment Buttons -->
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
                 <flux:button 
                     type="button"
                     wire:click="$set('payment_amount', {{ $selectedSale->remaining_balance }})"
@@ -166,12 +166,13 @@
             </div>
         @endif
 
-        <div class="flex justify-end gap-3 pt-4">
+        <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-2 sm:pt-4">
             <flux:button 
                 wire:click="closeModals"
                 variant="outline"
                 wire:loading.attr="disabled"
                 wire:target="addPayment"
+                class="w-full sm:w-auto"
             >
                 {{ __('Cancelar') }}
             </flux:button>
@@ -181,6 +182,7 @@
                 variant="primary"
                 wire:loading.attr="disabled"
                 wire:target="addPayment"
+                class="w-full sm:w-auto"
             >
                 <span wire:loading.remove wire:target="addPayment">{{ __('Agregar Pago') }}</span>
                 <span wire:loading wire:target="addPayment">Procesando...</span>

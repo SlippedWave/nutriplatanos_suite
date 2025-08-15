@@ -179,7 +179,7 @@
                             @if(!$contextRouteId)        
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="text-sm font-medium text-gray-900">
-                                    {{ $expense->route->name ?? 'Ruta eliminada' }}
+                                    {{ $expense->route->title ?? 'Ruta eliminada' }}
                                 </div>
                             </td>
                             @endif

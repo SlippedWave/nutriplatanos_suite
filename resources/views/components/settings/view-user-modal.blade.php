@@ -1,5 +1,5 @@
-<flux:modal wire:model="showViewModal" class="space-y-4 border-0 bg-background!">
-    <div class="flex items-center justi fy-between">
+<flux:modal wire:model="showViewModal" class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-sm md:max-w-md lg:max-w-xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
+    <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Detalles del Usuario') }}</flux:heading>
     </div>
 
@@ -65,7 +65,7 @@
         </div>
     @endif
 
-    <div class="flex justify-end pt-4">
-        <flux:button variant="primary" wire:click="closeModals">{{ __('Cerrar') }}</flux:button>
+    <div class="flex justify-end pt-4 flex-col sm:flex-row">
+        <flux:button variant="primary" wire:click="closeModals" class="w-full sm:w-auto">{{ __('Cerrar') }}</flux:button>
     </div>
 </flux:modal>

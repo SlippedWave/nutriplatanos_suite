@@ -1,4 +1,4 @@
-<flux:modal wire:model="showCloseRouteModal" class="space-y-4 border-0 bg-background!">
+<flux:modal wire:model="showCloseRouteModal" class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
         <flux:heading size="lg" class="text-primary-800!">{{ __('Cerrar Ruta') }}</flux:heading>
     </div>
@@ -38,8 +38,8 @@
         </div>
     @endif
 
-    <div class="flex justify-end gap-3 pt-4">
-        <flux:button variant="outline" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
-        <flux:button variant="primary" wire:click="closeRoute">{{ __('Cerrar Ruta') }}</flux:button>
+    <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
+        <flux:button variant="outline" wire:click="closeModals" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
+        <flux:button variant="primary" wire:click="closeRoute" class="w-full sm:w-auto">{{ __('Cerrar Ruta') }}</flux:button>
     </div>
 </flux:modal>

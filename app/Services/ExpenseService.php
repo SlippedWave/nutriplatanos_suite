@@ -142,8 +142,8 @@ class ExpenseService
     protected function validateExpenseData(array $data): array
     {
         return validator($data, [
-            'user_id' => ['nullable', 'exists:users,id'],
-            'route_id' => ['nullable', 'exists:routes,id'],
+            'user_id' => ['required', 'exists:users,id'],
+            'route_id' => ['required', 'exists:routes,id'],
             'amount' => ['required', 'numeric', 'min:0'],
             'description' => ['required', 'string', 'max:255'],
             'date' => ['nullable', 'date'],

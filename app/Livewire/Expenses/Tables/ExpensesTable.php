@@ -26,8 +26,8 @@ class ExpensesTable extends Component
     public bool $showViewExpenseModal = false;
 
     protected $rules = [
-        'user_id' => 'nullable|exists:users,id',
-        'route_id' => 'nullable|exists:routes,id',
+        'user_id' => 'required|exists:users,id',
+        'route_id' => 'required|exists:routes,id',
         'description' => 'required|string|max:255',
         'amount' => 'required|numeric|min:0',
         'notes' => 'nullable|string|max:500',
@@ -67,6 +67,8 @@ class ExpensesTable extends Component
 
     public function mount($route_id = null, $user_id = null)
     {
+        $this->route_id = $route_id;
+        $this->user_id = $user_id ?? Auth::user()->id;
         $this->contextRouteId = $route_id;
         $this->contextUserId = $user_id;
 
@@ -74,7 +76,8 @@ class ExpensesTable extends Component
 
         $this->canCreateNewExpense = !empty($this->contextRouteId)
             && Route::where('id', $this->contextRouteId)->where('status', 'active')->exists()
-            && (Auth::user()->role === 'admin' || Route::where('id', $this->contextRouteId)->where('user_id', Auth::id())->exists());
+            && (Auth::user()->role === 'admin' || Route::where('id', $this->contextRouteId)->where('user_id', Auth::id())->exists())
+            || empty($this->contextRouteId) && empty($this->contextUserId);
     }
 
     public function updatedSearch()
@@ -169,7 +172,7 @@ class ExpensesTable extends Component
 
     private function resetFormFields()
     {
-        $this->user_id = $this->contextUserId ?? null;
+        $this->user_id = $this->contextUserId ?? Auth::user()->id;
         $this->description = '';
         $this->amount = null;
         $this->route_id = $this->contextRouteId ?? null;
@@ -280,10 +283,10 @@ class ExpensesTable extends Component
     private function getFormData(): array
     {
         return [
-            'user_id' => $this->user_id,
+            'user_id' => $this->contextUserId ?? $this->user_id,
             'description' => $this->description,
             'amount' => $this->amount,
-            'route_id' => $this->route_id,
+            'route_id' => $this->contextRouteId ?? $this->route_id,
             'notes' => $this->notes,
         ];
     }

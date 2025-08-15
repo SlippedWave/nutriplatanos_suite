@@ -121,14 +121,16 @@ new class extends Component {
                         class="bg-secondary-400! hover:bg-secondary-300!"
                         icon="pencil"
                         wire:click="openEditRouteModal">
-                        Editar ruta
+                        <span class="hidden sm:inline">Editar ruta</span>
+                        <span class="sm:hidden">Editar</span>
                     </flux:button>
                     <flux:button 
                         variant="primary"
                         icon="folder"
                         class="hover:bg-primary-200!" 
                         wire:click="openCloseRouteModal">
-                        Cerrar ruta
+                        <span class="hidden sm:inline">Cerrar ruta</span>
+                        <span class="sm:hidden">Cerrar</span>
                     </flux:button>
                 </flux:button.group>
             </div>

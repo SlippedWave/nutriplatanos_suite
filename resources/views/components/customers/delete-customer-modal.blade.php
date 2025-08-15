@@ -1,4 +1,4 @@
-<flux:modal wire:model="showDeleteModal" class="space-y-4 border-0 bg-background!">
+<flux:modal wire:model="showDeleteModal" class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
         <flux:heading size="lg" class="text-danger-800!">{{ __('Eliminar Cliente') }}</flux:heading>
     </div>
@@ -36,8 +36,8 @@
         </div>
     @endif
 
-    <div class="flex justify-end gap-3 pt-4">
-        <flux:button variant="ghost" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
-        <flux:button variant="danger" class="text-background!" wire:click="deleteCustomer">{{ __('Eliminar Cliente') }}</flux:button>
+    <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
+        <flux:button variant="ghost" wire:click="closeModals" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
+        <flux:button variant="danger" class="text-background! w-full sm:w-auto" wire:click="deleteCustomer">{{ __('Eliminar Cliente') }}</flux:button>
     </div>
 </flux:modal>

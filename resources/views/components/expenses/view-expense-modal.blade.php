@@ -1,4 +1,4 @@
-<flux:modal wire:model="showViewExpenseModal" class="space-y-4 border-0 bg-background! w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xl p-3 mx-4">
+<flux:modal wire:model="showViewExpenseModal" class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-sm md:max-w-md lg:max-w-xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
        <flux:heading size="lg" class="text-base sm:text-lg">{{ __('Detalles de la Venta') }}</flux:heading>
     </div>
@@ -27,8 +27,8 @@
        </div>
     @endif
 
-    <div class="flex justify-end gap-2 sm:gap-3 pt-4">
-       <flux:button wire:click="closeModals" variant="primary" class="text-sm sm:text-base">
+    <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
+       <flux:button wire:click="closeModals" variant="primary" class="w-full sm:w-auto text-sm sm:text-base">
           {{ __('Cerrar') }}
        </flux:button>
     </div>

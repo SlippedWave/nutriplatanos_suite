@@ -1,4 +1,4 @@
-<flux:modal wire:model="showCreateSaleModal" class="space-y-6 border-0 bg-background!">
+<flux:modal wire:model="showCreateSaleModal" class="space-y-6 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-2xl md:max-w-3xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Crear Nueva Venta') }}</flux:heading>
     </div>
@@ -238,12 +238,13 @@
         </flux:field>
         
 
-        <div class="flex justify-end gap-3 pt-4">
+        <div class="flex justify-end gap-3 pt-4 flex-col sm:flex-row">
             <flux:button 
                 wire:click="closeModals" 
                 variant="outline"
                 wire:loading.attr="disabled"
                 wire:target="createSale"
+                class="w-full sm:w-auto"
             >
                 {{ __('Cancelar') }}
             </flux:button>
@@ -253,6 +254,7 @@
                 variant="primary" 
                 wire:loading.attr="disabled"
                 wire:target="createSale"
+                class="w-full sm:w-auto"
             >
                 <span wire:loading.remove wire:target="createSale">{{ __('Crear Venta') }}</span>
                 <span wire:loading wire:target="createSale">Creando...</span>
