@@ -23,22 +23,117 @@ class ExpenseService
 
             $expense = Expense::create($validated);
 
-            if (!empty($validated['notes'])) {
+            if (!empty($data['notes'])) {
                 // Handle notes if provided
-                $this->createExpenseNote($expense, $validated['notes']);
+                $this->createExpenseNote($expense, $data['notes']);
             }
 
             return [
                 'success' => true,
                 'expense' => $expense,
-                'message' => 'Gasto creado exitosamente.'
+                'message' => 'Gasto creado exitosamente.',
+                'type' => 'success'
+            ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return [
+                'success' => false,
+                'message' => 'Error de validación.',
+                'type' => 'validation',
+                'errors' => $e->errors()
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error al crear gasto: ' . $e->getMessage()
+                'message' => 'Error al crear gasto: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
+    }
+
+    /**
+     * Update an existing expense
+     */
+    public function updateExpense(int $id, array $data): array
+    {
+        try {
+            $validated = $this->validateExpenseData($data);
+
+            $expense = Expense::findOrFail($id);
+            $expense->update($validated);
+
+            return [
+                'success' => true,
+                'expense' => $expense,
+                'message' => 'Gasto actualizado exitosamente.',
+                'type' => 'success'
+            ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return [
+                'success' => false,
+                'message' => 'Error de validación.',
+                'type' => 'validation',
+                'errors' => $e->errors()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al crear gasto: ' . $e->getMessage(),
+                'type' => 'error'
+            ];
+        }
+    }
+
+    /**
+     * Delete an existing expense
+     */
+    public function deleteExpense(int $id): array
+    {
+        try {
+            $expense = Expense::findOrFail($id);
+            $expense->delete();
+
+            return [
+                'success' => true,
+                'message' => 'Gasto eliminado exitosamente.',
+                'type' => 'success'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al eliminar gasto: ' . $e->getMessage(),
+                'type' => 'error'
+            ];
+        }
+    }
+
+    public function getTotalAmount(
+        string $search = '',
+        bool $includeDeletedExpenses = false,
+        ?int $user_id = null,
+        ?int $route_id = null
+    ): float {
+        $query = Expense::query();
+
+        if ($includeDeletedExpenses) {
+            $query->withTrashed();
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                    ->orWhere('amount', 'like', "%{$search}%");
+            });
+        }
+
+        if ($user_id) {
+            $query->where('user_id', $user_id);
+        }
+
+        if ($route_id) {
+            $query->where('route_id', $route_id);
+        }
+
+        return $query->sum('amount');
     }
 
     /**
@@ -47,9 +142,11 @@ class ExpenseService
     protected function validateExpenseData(array $data): array
     {
         return validator($data, [
+            'user_id' => ['nullable', 'exists:users,id'],
+            'route_id' => ['nullable', 'exists:routes,id'],
             'amount' => ['required', 'numeric', 'min:0'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'date' => ['required', 'date'],
+            'description' => ['required', 'string', 'max:255'],
+            'date' => ['nullable', 'date'],
         ])->validate();
     }
 

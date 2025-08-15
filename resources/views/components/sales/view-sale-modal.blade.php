@@ -1,4 +1,4 @@
-<flux:modal wire:model="showViewSaleModal" class="space-y-4 border-0 bg-background!">
+<flux:modal wire:model="showViewSaleModal"  class="space-y-4 border-0 bg-background! w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-xl p-3 mx-4">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Detalles de la Venta') }}</flux:heading>
     </div>

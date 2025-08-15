@@ -25,11 +25,19 @@ class ExpensesTable extends Component
     public bool $showDeleteExpenseModal = false;
     public bool $showViewExpenseModal = false;
 
+    protected $rules = [
+        'user_id' => 'nullable|exists:users,id',
+        'route_id' => 'nullable|exists:routes,id',
+        'description' => 'required|string|max:255',
+        'amount' => 'required|numeric|min:0',
+        'notes' => 'nullable|string|max:500',
+    ];
+
     //Form fields
     public $user_id;
+    public $route_id;
     public $description;
     public $amount;
-    public $route_id;
     public $notes;
 
     public bool $canCreateNewExpense = false;
@@ -85,7 +93,7 @@ class ExpensesTable extends Component
         $this->applyDateFilter();
     }
 
-    public function toggleIncludeDeleted()
+    public function toggleIncludeDeletedExpenses()
     {
         $this->includeDeletedExpenses = !$this->includeDeletedExpenses;
         $this->resetPage();
@@ -136,11 +144,19 @@ class ExpensesTable extends Component
 
     public function openEditExpenseModal($saleId)
     {
-        $this->selectedExpense = Expense::with('user', 'description', 'amount', 'route')->find($saleId);
+        $this->selectedExpense = Expense::with('user', 'route')->find($saleId);
         $this->fillForm();
         $this->resetValidation();
         session()->forget('message');
         $this->showEditExpenseModal = true;
+    }
+
+    public function openViewExpenseModal($saleId)
+    {
+        $this->selectedExpense = Expense::with('user', 'route')->find($saleId);
+        $this->resetValidation();
+        session()->forget('message');
+        $this->showViewExpenseModal = true;
     }
 
     public function openDeleteExpenseModal($saleId)
@@ -182,13 +198,101 @@ class ExpensesTable extends Component
         session()->forget('message');
     }
 
+    public function createExpense()
+    {
+        // Validate on the Livewire side first so errors render in the modal
+        $this->resetValidation();
+        $this->validate($this->rules);
 
+        try {
+            $result = $this->expenseService->createExpense($this->getFormData());
+
+            if ($result['success']) {
+                $this->showExpensesTableMessage($result);
+            } else {
+                switch ($result['type'] ?? 'error') {
+                    case 'validation':
+                        // Populate any extra backend validation errors into the modal
+                        if (isset($result['errors'])) {
+                            foreach ($result['errors'] as $field => $messages) {
+                                $this->addError($field, implode(' ', $messages));
+                            }
+                        }
+                        $this->flashExpensesTableMessage($result['message'], 'error');
+                        break;
+                    default:
+                        $this->showExpensesTableMessage($result);
+                        break;
+                }
+            }
+        } catch (\Exception $e) {
+            $this->flashExpensesTableMessage('Error al crear el gasto: ' . $e->getMessage(), 'error');
+            return;
+        }
+    }
+
+    public function updateExpense()
+    {
+        $this->resetValidation();
+        $this->validate($this->rules);
+
+        try {
+            $result = $this->expenseService->updateExpense($this->selectedExpense->id, $this->getFormData());
+
+            if ($result['success']) {
+                $this->showExpensesTableMessage($result);
+            } else {
+                switch ($result['type'] ?? 'error') {
+                    case 'validation':
+                        if (isset($result['errors'])) {
+                            foreach ($result['errors'] as $field => $messages) {
+                                $this->addError($field, implode(' ', $messages));
+                            }
+                        }
+                        $this->flashExpensesTableMessage($result['message'], 'error');
+                        break;
+                    default:
+                        $this->showExpensesTableMessage($result);
+                        break;
+                }
+            }
+        } catch (\Exception $e) {
+            $this->flashExpensesTableMessage('Error al editar el gasto: ' . $e->getMessage(), 'error');
+            return;
+        }
+    }
+
+    public function deleteExpense()
+    {
+        try {
+            $result = $this->expenseService->deleteExpense($this->selectedExpense->id);
+
+            if ($result['success']) {
+                $this->showExpensesTableMessage($result);
+            } else {
+                $this->flashExpensesTableMessage($result['message'], 'error');
+            }
+        } catch (\Exception $e) {
+            $this->flashExpensesTableMessage('Error al eliminar el gasto: ' . $e->getMessage(), 'error');
+        }
+    }
+
+    private function getFormData(): array
+    {
+        return [
+            'user_id' => $this->user_id,
+            'description' => $this->description,
+            'amount' => $this->amount,
+            'route_id' => $this->route_id,
+            'notes' => $this->notes,
+        ];
+    }
 
     protected function flashExpensesTableMessage(string $message, string $type)
     {
         session()->flash('message', [
             'header' => 'expenses-table',
-            'body' => $message,
+            'text' => $message,
             'type' => $type
         ]);
     }
@@ -205,7 +309,13 @@ class ExpensesTable extends Component
             route_id: $this->contextRouteId
         );
 
-        $totalAmount = $expenses->sum('amount');
+        // Calculate total amount from non-deleted expenses using a separate query
+        $totalAmount = $this->expenseService->getTotalAmount(
+            search: $this->search,
+            includeDeletedExpenses: false,
+            user_id: $this->contextUserId,
+            route_id: $this->contextRouteId
+        );
 
         return view('livewire.expenses.expenses-table', compact('expenses', 'totalAmount'));
     }

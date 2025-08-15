@@ -649,7 +649,9 @@ class SalesTable extends Component
         );
 
         // Calculate total amount for current filtered results
-        $totalAmount = $sales->getCollection()->sum(function ($sale) {
+        $totalAmount = $sales->getCollection()->filter(function ($sale) {
+            return !$sale->trashed();
+        })->sum(function ($sale) {
             return $sale->saleDetails->sum('total_price');
         });
 

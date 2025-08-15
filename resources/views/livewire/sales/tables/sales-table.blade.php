@@ -335,7 +335,7 @@
     <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
         <div class="flex justify-between items-center">
             <span class="text-sm font-medium text-blue-900">
-                Total de ventas mostradas:
+                Total de ventas:
             </span>
             <span class="text-lg font-bold text-blue-900">
                 ${{ number_format($totalAmount, 2) }}

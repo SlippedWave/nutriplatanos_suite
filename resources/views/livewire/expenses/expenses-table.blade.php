@@ -66,7 +66,7 @@
             <div class="flex flex-col xs:flex-row gap-2 xs:items-center">
                 <flux:button 
                     variant="primary" 
-                    wire:click="toggleincludeDeletedExpenses"
+                    wire:click="toggleIncludeDeletedExpenses"
                     class="{{ $includeDeletedExpenses ? 'bg-danger-100! text-danger-900!' : 'bg-background! text-danger-500! hover:bg-danger-50!' }}" 
                     aria-label="{{ $includeDeletedExpenses ? __('Ocultar gastos eliminados') : __('Incluir gastos eliminados') }}"
                     size="sm"
@@ -205,40 +205,17 @@
                                     <flux:button 
                                         size="sm" 
                                         variant="ghost" 
-                                        wire:click="openViewModal({{ $expense->id }})"
+                                        wire:click="openViewExpenseModal({{ $expense->id }})"
                                         icon="eye"
                                         aria-label="Ver venta"
                                     />
                                     
                                     @if(!$expense->trashed())
-                                        <!-- Payment Actions (only for unpaid/partial expenses) -->
-                                        @if(in_array($expense->payment_status, ['pending', 'partial']))
-                                            <flux:button 
-                                                size="sm" 
-                                                variant="ghost" 
-                                                wire:click="openAddPaymentModal({{ $expense->id }})"
-                                                icon="credit-card"
-                                                aria-label="Agregar pago"
-                                                class="text-green-600 hover:text-green-700"
-                                            />
-                                        @endif
-                                        
-                                        <!-- Payment History (for all expenses with payments) -->
-                                        @if($expense->payments && $expense->payments->count() > 0)
-                                            <flux:button 
-                                                size="sm" 
-                                                variant="ghost" 
-                                                wire:click="openPaymentHistoryModal({{ $expense->id }})"
-                                                icon="clock"
-                                                aria-label="Historial de pagos"
-                                                class="text-blue-600 hover:text-blue-700"
-                                            />
-                                        @endif
                                         
                                         <flux:button 
                                             size="sm" 
                                             variant="ghost" 
-                                            wire:click="openEditModal({{ $expense->id }})"
+                                            wire:click="openEditExpenseModal({{ $expense->id }})"
                                             icon="pencil"
                                             aria-label="Editar venta"
                                         />
@@ -246,7 +223,7 @@
                                         <flux:button 
                                             size="sm" 
                                             variant="ghost" 
-                                            wire:click="openDeleteModal({{ $expense->id }})"
+                                            wire:click="openDeleteExpenseModal({{ $expense->id }})"
                                             icon="trash"
                                             aria-label="Eliminar venta"
                                         />
@@ -298,7 +275,7 @@
     <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
         <div class="flex justify-between items-center">
             <span class="text-sm font-medium text-blue-900">
-                Total de gastos mostrados:
+                Total de gastos:
             </span>
             <span class="text-lg font-bold text-blue-900">
                 ${{ number_format($totalAmount, 2) }}
@@ -307,11 +284,14 @@
     </div>
 
     <!-- Modals -->
-    @include('components.expenses.create-expense-modal', ['contextRouteId' => $contextRouteId, 
-    'contextUserId' => $contextUserId])
-    @include('components.expenses.update-expense-modal', ['selectedexpense' => null, 
-    'contextRouteId' => $contextRouteId, 
-    'contextCustomerId' => null])
+    <x-expenses.create-expense-modal
+        :context-user-id="$contextUserId"
+        :context-route-id="$contextRouteId"
+    />
+    <x-expenses.update-expense-modal
+        :context-user-id="$contextUserId"
+        :context-route-id="$contextRouteId"
+    />
     @include('components.expenses.view-expense-modal', ['selectedexpense' => null])
     @include('components.expenses.delete-expense-modal', ['selectedexpense' => null])
 </div>
