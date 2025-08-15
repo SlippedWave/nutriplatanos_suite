@@ -44,10 +44,21 @@ $role = auth()->user()->role ?? 'guest';
                 :current="request()->routeIs('routes.*')"
                 icon="map" 
                 :href="route('routes.index')"
+                :current="request()->routeIs('routes.*')"
                 wire:navigate
             >
                 {{ __('Rutas') }}
             </flux:navbar.item>
+            @if($role == 'admin' || $role == 'coordinator')
+            <flux:navbar.item 
+                icon="currency-dollar" 
+                :href="route('expenses.index')" 
+                :current="request()->routeIs('expenses.*')"
+                wire:navigate
+            >
+                {{ __('Gastos') }}
+            </flux:navbar.item>
+            @endif
         </flux:navbar>
         <flux:spacer />
         <!-- User Menu -->
@@ -139,6 +150,24 @@ $role = auth()->user()->role ?? 'guest';
                     >
                         {{ __('Clientes') }}
                     </flux:navlist.item>
+                @endif
+                <flux:navlist.item 
+                    icon="map" 
+                    :href="route('routes.index')"
+                    :current="request()->routeIs('routes.*')"
+                    wire:navigate
+                >
+                    {{ __('Rutas') }}
+                </flux:navlist.item>
+                @if($role == 'admin' || $role == 'coordinator')
+                    <flux:navbar.item 
+                        icon="currency-dollar" 
+                        :href="route('expenses.index')" 
+                        :current="request()->routeIs('expenses.*')"
+                        wire:navigate
+                    >
+                        {{ __('Gastos') }}
+                    </flux:navbar.item>
                 @endif
             </flux:navlist>
         </div>

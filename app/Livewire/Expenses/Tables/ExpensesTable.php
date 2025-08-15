@@ -317,6 +317,6 @@ class ExpensesTable extends Component
             route_id: $this->contextRouteId
         );
 
-        return view('livewire.expenses.expenses-table', compact('expenses', 'totalAmount'));
+        return view('livewire.expenses.tables.expenses-table', compact('expenses', 'totalAmount'));
     }
 }
