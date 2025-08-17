@@ -87,10 +87,10 @@ class SaleService
             $sale->update($saleData);
             $this->createSaleNote($sale, "Venta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
+            $sale->saleDetails()->delete();
             // Update sale details if products are provided
             if (isset($validated['products'])) {
                 // Delete existing sale details
-                $sale->saleDetails()->delete();
 
                 // Create new sale details
                 if (!empty($validated['products'])) {

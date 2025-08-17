@@ -40,25 +40,8 @@ new class extends Component {
     public function closeModals()
     {
         $this->showCloseRouteModal = false;
-        $this->showEditRouteModal = false;
     }
 
-    public function updateRoute()
-    {
-        if (!$this->selectedRoute) {
-            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
-            return;
-        }
-
-        $result = $this->routeService->editRoute($this->selectedRoute, ['title' => $this->title]);
-
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-        } else {
-            session()->flash('error', $result['message']);
-        }
-    }
 
     public function closeRoute()
     {
@@ -117,13 +100,7 @@ new class extends Component {
             @if($selectedRoute->isActive())
             <div>
                 <flux:button.group>
-                    <flux:button variant="primary" 
-                        class="bg-secondary-400! hover:bg-secondary-300!"
-                        icon="pencil"
-                        wire:click="openEditRouteModal">
-                        <span class="hidden sm:inline">Editar ruta</span>
-                        <span class="sm:hidden">Editar</span>
-                    </flux:button>
+                    <livewire:routes.update-route-modal :route="$selectedRoute" />
                     <flux:button 
                         variant="primary"
                         icon="folder"
@@ -189,7 +166,6 @@ new class extends Component {
         </div>
 
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
-    @include('components.routes.edit-route-modal')
-
+=
     </x-layouts.routes.layout>
 </section>

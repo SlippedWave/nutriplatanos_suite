@@ -18,7 +18,6 @@ class CreateRouteModal extends Component
     public ?string $notes = null;
 
     public $user;
-    public $role;
 
     protected RouteService $routeService;
 
@@ -30,7 +29,6 @@ class CreateRouteModal extends Component
     public function mount()
     {
         $this->user = Auth::user();
-        $this->role = $this->user->role ?? 'guest';
 
         $this->title = 'Ruta del día ' . now()->format('d M Y');
 
@@ -73,7 +71,7 @@ class CreateRouteModal extends Component
 
     public function removeBoxMovement(int $index): void
     {
-        if (count($this->boxMovements) > 1) {
+        if (count($this->boxMovements) >= 1) {
             unset($this->boxMovements[$index]);
             $this->boxMovements = array_values($this->boxMovements);
         }

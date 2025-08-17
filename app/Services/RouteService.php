@@ -91,7 +91,7 @@ class RouteService
     /**
      * Edit a route with proper validation and permissions
      */
-    public function editRoute(Route $route, array $data): array
+    public function updateRoute(Route $route, array $data): array
     {
         // Check permissions
         if (!$this->canEditRoute($route)) {
@@ -108,8 +108,9 @@ class RouteService
 
             $routeData = collect($validated)->except('boxMovements', 'notes')->toArray();
             $route->update($routeData);
-            $this->createRouteNote($route, "Ruta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
+            $this->createRouteNote($route, "Ruta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
+            $route->boxMovements()->delete();
             // Update box movements if provided
             if (!empty($validated['boxMovements'])) {
                 $boxMovementService = app(BoxMovementService::class);

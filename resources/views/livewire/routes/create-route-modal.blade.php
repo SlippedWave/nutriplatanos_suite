@@ -26,7 +26,7 @@
                 <div class="bg-gray-50 p-4 rounded-lg mb-4" wire:key="box-movement-{{ $index }}">
                     <div class="flex items-start justify-between mb-3">
                         <span class="text-sm font-medium text-gray-700">{{ __('Movimiento de caja') }} {{ $index + 1 }}</span>
-                        @if(count($boxMovements) > 1)
+                        @if(count($boxMovements) >= 1)
                             <flux:button type="button" size="xs" variant="ghost" class="text-danger-600!" wire:click="removeBoxMovement({{ $index }})">
                                 {{ __('Eliminar') }}
                             </flux:button>

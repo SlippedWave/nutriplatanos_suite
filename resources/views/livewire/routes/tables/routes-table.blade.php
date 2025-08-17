@@ -262,9 +262,7 @@
     </div>
 
     <!-- Modals -->
-    @include('components.routes.edit-route-modal', ['selectedRoute' => $selectedRoute])
-{{--     @include('components.routes.create-route-modal', ['showCreateModal' => $showCreateModal])
- --}}    @include('components.routes.view-route-modal', ['selectedRoute' => $selectedRoute])
+    @include('components.routes.view-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.delete-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
 </div>
