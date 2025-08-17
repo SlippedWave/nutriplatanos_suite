@@ -104,20 +104,6 @@ class RoutesTable extends Component
         $this->resetPage();
     }
 
-    // Modal management methods
-    public function openCreateModal()
-    {
-        $this->resetFormFields();
-        $this->showCreateModal = true;
-    }
-
-    public function openEditModal($routeId)
-    {
-        $this->selectedRoute = Route::findOrFail($routeId);
-        $this->fillForm($this->selectedRoute);
-        $this->showEditRouteModal = true;
-    }
-
     public function openViewModal($routeId)
     {
         $this->selectedRoute = Route::withTrashed()->findOrFail($routeId);
@@ -161,16 +147,11 @@ class RoutesTable extends Component
         }
     }
 
-    public function updateRoute()
+    public function openEditModal($routeId): void
     {
-        if (!$this->selectedRoute) {
-            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
-            return;
-        }
-
-        $result = $this->routeService->editRoute($this->selectedRoute, $this->getFormData());
-
-        $this->showRoutesTableMessage($result);
+        // Livewire v3 cross-component event
+        $this->selectedRoute = Route::findOrFail($routeId);
+        $this->dispatch('open-update-route-modal');
     }
 
     public function deleteRoute()

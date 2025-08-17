@@ -7,6 +7,8 @@ use App\Models\Camera;
 use App\Services\RouteService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
+
 
 class UpdateRouteModal extends Component
 {
@@ -27,6 +29,12 @@ class UpdateRouteModal extends Component
     public function boot()
     {
         $this->routeService = app(RouteService::class);
+    }
+
+    #[On('open-update-route-modal')]
+    public function openUpdateRouteModal()
+    {
+        $this->showUpdateModal = true;
     }
 
     public function mount(Route $route)

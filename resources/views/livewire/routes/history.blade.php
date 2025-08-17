@@ -13,12 +13,10 @@ new class extends Component {
             : __('Consulta las rutas que has realizado.');
             
     }
-    
 };
 ?>
 
 <section class="w-full">
-    
     <x-layouts.routes.layout :heading="__('Rutas')" :subheading="$subheading">
         <div class="mt-5 w-full max-w-full">
             @livewire('routes.tables.routes-table', ['user_id' => ($role == 'admin' || $role=='coordinator') ? null : auth()->user()->id ])

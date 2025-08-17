@@ -265,4 +265,7 @@
     @include('components.routes.view-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.delete-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
+
+    <livewire:routes.update-route-modal :route="$selectedRoute" />
+
 </div>

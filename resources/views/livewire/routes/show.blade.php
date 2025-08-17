@@ -28,8 +28,7 @@ new class extends Component {
 
     public function openEditRouteModal()
     {
-        $this->title = $this->selectedRoute->title; // Pre-fill the title with the current route title
-        $this->showEditRouteModal = true;
+        $this->dispatch('open-update-route-modal');
     }
 
     public function openCloseRouteModal()
@@ -100,7 +99,13 @@ new class extends Component {
             @if($selectedRoute->isActive())
             <div>
                 <flux:button.group>
-                    <livewire:routes.update-route-modal :route="$selectedRoute" />
+                    <flux:button variant="primary" 
+                        class="bg-secondary-400! hover:bg-secondary-300!"
+                        icon="pencil"
+                        wire:click="openEditRouteModal()">
+                        <span class="hidden sm:inline">Editar ruta</span>
+                        <span class="sm:hidden">Editar</span>
+                    </flux:button>
                     <flux:button 
                         variant="primary"
                         icon="folder"
@@ -168,4 +173,6 @@ new class extends Component {
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
 =
     </x-layouts.routes.layout>
+    <livewire:routes.update-route-modal :route="$selectedRoute" />
+
 </section>

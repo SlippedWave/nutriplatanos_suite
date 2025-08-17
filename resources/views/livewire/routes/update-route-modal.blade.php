@@ -1,14 +1,4 @@
 <div class="w-full">
-    <div class="flex flex-col items-center w-full">
-        <flux:button variant="primary" 
-                class="bg-secondary-400! hover:bg-secondary-300!"
-                icon="pencil"
-                wire:click="$set('showUpdateModal', true)">
-                <span class="hidden sm:inline">Editar ruta</span>
-                <span class="sm:hidden">Editar</span>
-        </flux:button>
-        
-    </div>
 
     <flux:modal wire:model="showUpdateModal" class="space-y-6 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-2xl md:max-w-3xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
         <div class="flex items-center justify-between">
