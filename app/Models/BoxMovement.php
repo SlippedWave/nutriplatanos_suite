@@ -26,15 +26,17 @@ class BoxMovement extends Model
     ];
 
     const MOVEMENT_TYPES = [
-        'warehouse_to_route' => 'warehouse_to_route',     // Boxes from warehouse to route
-        'route_to_warehouse' => 'route_to_warehouse',     // Boxes from route back to warehouse
-        'route_to_route' => 'route_to_route',             // Boxes carried over to next route
-        'truck_inventory' => 'truck_inventory',           // Boxes remaining on truck
+        'warehouse_to_route' => 'Cámara a ruta',     // Boxes from warehouse to route
+        'route_to_warehouse' => 'Ruta a cámara',     // Boxes from route back to warehouse
+        'route_to_route' => 'Ruta a ruta',             // Boxes carried over to next route
+        'truck_inventory' => 'Inventario de camión',           // Boxes remaining on truck
     ];
 
+    public $timestamps = false;
+
     const BOX_CONTENT_STATUSES = [
-        'empty' => 'empty',
-        'full' => 'full',
+        'full' => 'Lleno',
+        'empty' => 'Vacío',
     ];
 
     public function camera(): BelongsTo

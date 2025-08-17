@@ -74,6 +74,7 @@ class UserService
             }
 
             $user->update($validated);
+            $this->createUserNote($user, "Usuario actualizado el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
             return [
                 'success' => true,

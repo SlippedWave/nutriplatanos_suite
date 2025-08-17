@@ -39,6 +39,11 @@ class CustomerService
             $validated = $this->validateCustomerData($data, $customer->id);
 
             $customer->update($validated);
+            $this->createCustomerNote($customer, "Cliente actualizado el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
+
+            if (!empty($validated['notes'])) {
+                $this->createCustomerNote($customer, $validated['notes']);
+            }
 
             return [
                 'success' => true,

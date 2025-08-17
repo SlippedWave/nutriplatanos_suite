@@ -4,20 +4,27 @@ namespace App\Services;
 
 use App\Models\BoxMovement;
 use App\Models\Note;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class BoxMovementService
 {
-    /**
-     * Create a new box movement entry
-     */
     public function createBoxMovement(array $data): array
     {
         try {
-            $validated = $this->validateBoxMovementData($data);
+            if (empty($data['moved_at'])) {
+                $data['moved_at'] = now();
+            }
 
-            DB::beginTransaction();
+            try {
+                $validated = $this->validateBoxMovementData($data);
+            } catch (\Illuminate\Validation\ValidationException $ve) {
+                return [
+                    'success' => false,
+                    'message' => 'Datos inválidos para el movimiento de caja.',
+                    'errors' => $ve->errors(),
+                    'type' => 'error',
+                ];
+            }
 
             $boxMovementData = collect($validated)->except('notes')->toArray();
             $boxMovement = BoxMovement::create($boxMovementData);
@@ -38,7 +45,6 @@ class BoxMovementService
                 'type' => 'success'
             ];
         } catch (\Exception $e) {
-            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear movimiento de caja: ' . $e->getMessage(),
@@ -52,29 +58,13 @@ class BoxMovementService
         $rules = [
             'camera_id' => 'required|exists:cameras,id',
             'route_id' => 'required|exists:routes,id',
-            'movement_type' => 'required|in:' . implode(',', BoxMovement::MOVEMENT_TYPES),
+            'movement_type' => 'required|in:' . implode(',', array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES)),
             'quantity' => 'required|integer|min:1',
-            'box_content_status' => 'required|in:' . implode(',', BoxMovement::BOX_CONTENT_STATUSES),
+            'box_content_status' => 'required|in:' . implode(',', array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES)),
             'moved_at' => 'required|date',
+            'notes' => 'nullable|string|max:1000',
         ];
 
         return validator($data, $rules)->validate();
-    }
-
-    /**
-     * Update an existing box movement entry
-     */
-    public function updateBoxMovement(BoxMovement $boxMovement, array $data): BoxMovement
-    {
-        $boxMovement->update($data);
-        return $boxMovement;
-    }
-
-    /**
-     * Delete a box movement entry
-     */
-    public function deleteBoxMovement(BoxMovement $boxMovement): void
-    {
-        $boxMovement->delete();
     }
 }

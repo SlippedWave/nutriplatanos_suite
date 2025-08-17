@@ -429,10 +429,6 @@ class SalesTable extends Component
             // Validate form data first
             $this->validate();
 
-            // Debug: Print form data to console
-            $formData = $this->getFormData();
-            logger('Form Data Debug:', $formData);
-
             $result = $this->saleService->updateSale($this->selectedSale, $this->getFormData());
 
             if ($result['success']) {

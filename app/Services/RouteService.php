@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BoxMovement;
 use App\Models\Route;
 use App\Models\Note;
 use Illuminate\Validation\Rule;
@@ -16,7 +17,16 @@ class RouteService
     public function createRoute(array $data): array
     {
         try {
-            $validated = $this->validateRouteData($data);
+            // Validate input and surface field-level errors when possible
+            try {
+                $validated = $this->validateRouteData($data);
+            } catch (\Illuminate\Validation\ValidationException $ve) {
+                return [
+                    'success' => false,
+                    'message' => 'Datos inválidos para crear la ruta.',
+                    'errors' => $ve->errors(),
+                ];
+            }
 
             DB::beginTransaction();
 
@@ -34,7 +44,21 @@ class RouteService
 
             // Create box movements if provided
             if (!empty($validated['boxMovements'])) {
-                $this->createBoxMovements($route, $validated['boxMovements']);
+                $boxMovementService = app(BoxMovementService::class);
+                foreach ($validated['boxMovements'] as $movementData) {
+                    $movementData['route_id'] = $route->id;
+                    $movementData['moved_at'] = $movementData['moved_at'] ?? now();
+
+                    $result = $boxMovementService->createBoxMovement($movementData);
+                    if (!($result['success'] ?? false)) {
+                        DB::rollBack();
+                        return [
+                            'success' => false,
+                            'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
+                            'errors' => $result['errors'] ?? null,
+                        ];
+                    }
+                }
             }
 
             if (!empty($validated['notes'])) {
@@ -49,34 +73,18 @@ class RouteService
                 'message' => 'Ruta creada exitosamente.'
             ];
         } catch (\Exception $e) {
+            // Ensure transaction is rolled back on any exception
+            try {
+                if (\Illuminate\Support\Facades\DB::transactionLevel() > 0) {
+                    DB::rollBack();
+                }
+            } catch (\Throwable $te) {
+                // Ignore rollback errors
+            }
             return [
                 'success' => false,
                 'message' => 'Error al crear ruta: ' . $e->getMessage()
             ];
-        }
-    }
-
-    public function createBoxMovements(Route $route, array $boxMovements): void
-    {
-        $boxMovementService = app(BoxMovementService::class);
-
-        // Remove the duplicate foreach loop
-        foreach ($boxMovements as $movementData) {
-            // Create the box movement
-            $result = $boxMovementService->createBoxMovement([
-                'route_id' => $route->id,
-                'camera_id' => $movementData['camera_id'] ?? 1,
-                'movement_type' => $movementData['movement_type'],
-                'quantity' => $movementData['quantity'],
-                'box_content_status' => $movementData['box_content_status'],
-                'moved_at' => now(),
-                'notes' => $movementData['notes'] ?? null,
-            ]);
-
-            // Log any errors but don't stop the process
-            if (!$result['success']) {
-                \Log::error('Failed to create box movement: ' . $result['message']);
-            }
         }
     }
 
@@ -94,8 +102,37 @@ class RouteService
         }
 
         try {
-            $validated = $this->validateRouteData($data, $route->id);
-            $route->update($validated);
+            $validated = $this->validateRouteData($data);
+
+            DB::beginTransaction();
+
+            $routeData = collect($validated)->except('boxMovements', 'notes')->toArray();
+            $route->update($routeData);
+            $this->createRouteNote($route, "Ruta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
+
+            // Update box movements if provided
+            if (!empty($validated['boxMovements'])) {
+                $boxMovementService = app(BoxMovementService::class);
+                foreach ($validated['boxMovements'] as $movementData) {
+                    $movementData['route_id'] = $route->id;
+                    $movementData['moved_at'] = $movementData['moved_at'] ?? now();
+
+                    $result = $boxMovementService->createBoxMovement($movementData);
+                    if (!($result['success'] ?? false)) {
+                        DB::rollBack();
+                        return [
+                            'success' => false,
+                            'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
+                        ];
+                    }
+                }
+            }
+
+            if (!empty($validated['notes'])) {
+                $this->createRouteNote($route, $validated['notes']);
+            }
+
+            DB::commit();
 
             return [
                 'success' => true,
@@ -284,13 +321,18 @@ class RouteService
     /**
      * Validate route data
      */
-    private function validateRouteData(array $data, ?int $routeId = null): array
+    private function validateRouteData(array $data): array
     {
         $rules = [
             'title' => ['nullable', 'string', 'max:255'],
-            'carrier_id' => !$routeId ? ['required', 'exists:users,id'] : ['nullable', 'exists:users,id'],
+            'carrier_id' => ['required', 'exists:users,id'],
             'status' => ['nullable', 'string', 'in:active,closed,cancelled'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'boxMovements' => ['nullable', 'array'],
+            'boxMovements.*.camera_id' => ['required_with:boxMovements', 'exists:cameras,id'],
+            'boxMovements.*.movement_type' => ['required_with:boxMovements', \Illuminate\Validation\Rule::in(array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES))],
+            'boxMovements.*.quantity' => ['required_with:boxMovements', 'integer', 'min:1'],
+            'boxMovements.*.box_content_status' => ['required_with:boxMovements', \Illuminate\Validation\Rule::in(array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES))],
         ];
 
         return validator($data, $rules)->validate();

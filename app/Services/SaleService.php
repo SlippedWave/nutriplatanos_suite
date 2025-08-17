@@ -78,13 +78,14 @@ class SaleService
                 ];
             }
 
-            $validated = $this->validateSaleData($data, $sale->id);
+            $validated = $this->validateSaleData($data);
 
             DB::beginTransaction();
 
             // Update the sale without products data
             $saleData = collect($validated)->except(['products', 'notes'])->toArray();
             $sale->update($saleData);
+            $this->createSaleNote($sale, "Venta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
             // Update sale details if products are provided
             if (isset($validated['products'])) {
@@ -361,7 +362,7 @@ class SaleService
         ];
     }
 
-    private function validateSaleData(array $data, ?int $saleId = null): array
+    private function validateSaleData(array $data): array
     {
         $rules = [
             'customer_id' => ['required', 'exists:customers,id'],

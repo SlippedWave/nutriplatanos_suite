@@ -60,6 +60,11 @@ class ExpenseService
 
             $expense = Expense::findOrFail($id);
             $expense->update($validated);
+            $this->createExpenseNote($expense, "Gasto actualizado el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
+
+            if (!empty($data['notes'])) {
+                $this->createExpenseNote($expense, $data['notes']);
+            }
 
             return [
                 'success' => true,
