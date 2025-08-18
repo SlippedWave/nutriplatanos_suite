@@ -32,19 +32,24 @@ class UpdateRouteModal extends Component
     }
 
     #[On('open-update-route-modal')]
-    public function openUpdateRouteModal()
+    public function openForRoute(int $id): void
     {
+        $route = Route::with('boxMovements')->findOrFail($id);
+        $this->fillFromRoute($route);
         $this->showUpdateModal = true;
     }
 
-    public function mount(Route $route)
+    public function fillFromRoute(Route $route): void
     {
         $this->route = $route;
         $this->user = Auth::user();
-        // Load cameras for select options
-        $this->cameras = Camera::select('id', 'name')->orderBy('name')->get();
         $this->boxMovements = $route->boxMovements->toArray();
         $this->title = $route->title;
+    }
+
+    public function mount()
+    {
+        $this->cameras = Camera::select('id', 'name')->orderBy('name')->get();
     }
 
     protected function rules(): array
@@ -120,6 +125,7 @@ class UpdateRouteModal extends Component
                 $this->showUpdateModal = false;
                 $this->resetFormFields();
                 session()->flash('message', $result['message'] ?? 'Ruta actualizada exitosamente.');
+                $this->dispatch('route-updated');
             } else {
                 session()->flash('error', $result['message'] ?? 'Error al actualizar la ruta.');
             }

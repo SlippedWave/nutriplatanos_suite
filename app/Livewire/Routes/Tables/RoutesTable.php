@@ -5,8 +5,10 @@ namespace App\Livewire\Routes\Tables;
 use App\Models\Route;
 use App\Models\User;
 use App\Services\RouteService;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 
 class RoutesTable extends Component
 {
@@ -19,6 +21,12 @@ class RoutesTable extends Component
     public bool $includeDeleted = false;
     public $statusFilter = '';
     public $carrierFilter = '';
+
+    #[On('route-updated')]
+    public function onRouteUpdated(): void
+    {
+        $this->resetPage();
+    }
 
     // Modal states
     public bool $showCreateModal = false;
@@ -192,7 +200,7 @@ class RoutesTable extends Component
     private function resetFormFields()
     {
         $this->title = '';
-        $this->carrier_id = auth()->user()->role === 'carrier' ? auth()->id() : '';
+        $this->carrier_id = Auth::user()->role === 'carrier' ? Auth::id() : '';
         $this->status = 'active';
         $this->notes = '';
     }
@@ -210,7 +218,7 @@ class RoutesTable extends Component
         $carriers = collect();
 
         // Only admins and coordinators can see all carriers
-        if (in_array(auth()->user()->role, ['admin', 'coordinator'])) {
+        if (in_array(Auth::user()->role, ['admin', 'coordinator'])) {
             $carriers = User::query()->get();
         }
 

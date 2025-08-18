@@ -185,7 +185,7 @@
                                                 variant="ghost" 
                                                 size="sm" 
                                                 icon="pencil"
-                                                wire:click="openEditModal({{ $route->id }})"
+                                                wire:click="$dispatch('open-update-route-modal', { id: {{ $route->id }} })"
                                             />
                                             <flux:button 
                                                 variant="ghost" 
@@ -266,6 +266,6 @@
     @include('components.routes.delete-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
 
-    <livewire:routes.update-route-modal :route="$selectedRoute" />
+    <livewire:routes.update-route-modal />
 
 </div>

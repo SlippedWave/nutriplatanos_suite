@@ -3,6 +3,7 @@
 use Livewire\Volt\Component;
 use App\Models\Route;
 use App\Services\RouteService;
+use Livewire\Attributes\On;
 
 new class extends Component {
     public $selectedRoute;
@@ -12,6 +13,13 @@ new class extends Component {
     public $title = '';
 
     protected RouteService $routeService;
+
+    #[On('route-updated')]
+    public function onRouteUpdated(): void
+    {
+        $this->selectedRoute->refresh();
+        $this->js('window.location.reload()');
+    }
 
     public function boot(RouteService $routeService)
     {
@@ -102,7 +110,7 @@ new class extends Component {
                     <flux:button variant="primary" 
                         class="bg-secondary-400! hover:bg-secondary-300!"
                         icon="pencil"
-                        wire:click="openEditRouteModal()">
+                        wire:click="$dispatch('open-update-route-modal', { id: {{ $selectedRoute->id }} })">
                         <span class="hidden sm:inline">Editar ruta</span>
                         <span class="sm:hidden">Editar</span>
                     </flux:button>
@@ -173,6 +181,6 @@ new class extends Component {
     @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
 =
     </x-layouts.routes.layout>
-    <livewire:routes.update-route-modal :route="$selectedRoute" />
+    <livewire:routes.update-route-modal />
 
 </section>
