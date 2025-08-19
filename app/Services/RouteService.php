@@ -11,6 +11,27 @@ use Illuminate\Support\Facades\Auth;
 
 class RouteService
 {
+    public function createBoxMovements(Route $route, array $data)
+    {
+        if (!empty($data)) {
+            $boxMovementService = app(BoxMovementService::class);
+            foreach ($data as $movementData) {
+                $movementData['route_id'] = $route->id;
+                $movementData['moved_at'] = $movementData['moved_at'] ?? now();
+
+                $result = $boxMovementService->createBoxMovement($movementData);
+                if (!($result['success'] ?? false)) {
+                    DB::rollBack();
+                    return [
+                        'success' => false,
+                        'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
+                        'errors' => $result['errors'] ?? null,
+                    ];
+                }
+            }
+        }
+    }
+
     /**
      * Create a new route with proper validation and permissions
      */
@@ -43,23 +64,7 @@ class RouteService
             $route = Route::create($routeData);
 
             // Create box movements if provided
-            if (!empty($validated['boxMovements'])) {
-                $boxMovementService = app(BoxMovementService::class);
-                foreach ($validated['boxMovements'] as $movementData) {
-                    $movementData['route_id'] = $route->id;
-                    $movementData['moved_at'] = $movementData['moved_at'] ?? now();
-
-                    $result = $boxMovementService->createBoxMovement($movementData);
-                    if (!($result['success'] ?? false)) {
-                        DB::rollBack();
-                        return [
-                            'success' => false,
-                            'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
-                            'errors' => $result['errors'] ?? null,
-                        ];
-                    }
-                }
-            }
+            $this->createBoxMovements($route, $validated['boxMovements'] ?? []);
 
             if (!empty($validated['notes'])) {
                 $this->createRouteNote($route, $validated['notes']);
@@ -110,24 +115,9 @@ class RouteService
             $route->update($routeData);
 
             $this->createRouteNote($route, "Ruta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
-            $route->boxMovements()->delete();
             // Update box movements if provided
-            if (!empty($validated['boxMovements'])) {
-                $boxMovementService = app(BoxMovementService::class);
-                foreach ($validated['boxMovements'] as $movementData) {
-                    $movementData['route_id'] = $route->id;
-                    $movementData['moved_at'] = $movementData['moved_at'] ?? now();
-
-                    $result = $boxMovementService->createBoxMovement($movementData);
-                    if (!($result['success'] ?? false)) {
-                        DB::rollBack();
-                        return [
-                            'success' => false,
-                            'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
-                        ];
-                    }
-                }
-            }
+            $route->boxMovements()->delete();
+            $this->createBoxMovements($route, $validated['boxMovements'] ?? []);
 
             if (!empty($validated['notes'])) {
                 $this->createRouteNote($route, $validated['notes']);
@@ -151,7 +141,7 @@ class RouteService
     /**
      * Close a route with proper validation and permissions
      */
-    public function closeRoute(Route $route): array
+    public function closeRoute(Route $route, array $data): array
     {
         // Check permissions
         if (!$this->canEditRoute($route)) {
@@ -174,6 +164,7 @@ class RouteService
                 'closed_at' => now(),
             ]);
 
+            $this->createBoxMovements($route, $data['boxMovements'] ?? []);
             $this->createRouteNote($route, "Ruta cerrada el " . now()->format('d/m/Y H:i'));
 
             return [

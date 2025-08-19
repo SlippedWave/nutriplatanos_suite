@@ -192,7 +192,7 @@
                                                 size="sm" 
                                                 icon="stop"
                                                 class="text-warning-600 hover:text-warning-700 hover:bg-warning-50"
-                                                wire:click="openCloseModal({{ $route->id }})"
+                                                wire:click="$dispatch('open-close-route-modal', { id: {{ $route->id }} })"
                                             />
                                         @endif
                                         
@@ -264,8 +264,6 @@
     <!-- Modals -->
     @include('components.routes.view-route-modal', ['selectedRoute' => $selectedRoute])
     @include('components.routes.delete-route-modal', ['selectedRoute' => $selectedRoute])
-    @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
-
     <livewire:routes.update-route-modal />
-
+    <livewire:routes.close-route-modal />
 </div>

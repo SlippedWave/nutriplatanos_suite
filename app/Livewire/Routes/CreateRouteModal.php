@@ -33,10 +33,6 @@ class CreateRouteModal extends Component
         $this->title = 'Ruta del día ' . now()->format('d M Y');
 
         $this->cameras = Camera::select('id', 'name')->orderBy('name')->get();
-
-        if (empty($this->boxMovements)) {
-            $this->addBoxMovement();
-        }
     }
 
     protected function rules()
@@ -51,38 +47,11 @@ class CreateRouteModal extends Component
         ];
     }
 
-    public function addBoxMovement(): void
-    {
-        $defaultCameraId = null;
-        if ($this->cameras instanceof \Illuminate\Support\Collection) {
-            $defaultCameraId = optional($this->cameras->first())->id;
-        } elseif (is_array($this->cameras) && !empty($this->cameras)) {
-            $first = $this->cameras[0];
-            $defaultCameraId = is_array($first) ? ($first['id'] ?? null) : ($first->id ?? null);
-        }
-
-        $this->boxMovements[] = [
-            'camera_id' => $defaultCameraId,
-            'movement_type' => array_key_first(\App\Models\BoxMovement::MOVEMENT_TYPES) ?? 'warehouse_to_route',
-            'quantity' => 1,
-            'box_content_status' => array_key_first(\App\Models\BoxMovement::BOX_CONTENT_STATUSES) ?? 'full',
-        ];
-    }
-
-    public function removeBoxMovement(int $index): void
-    {
-        if (count($this->boxMovements) >= 1) {
-            unset($this->boxMovements[$index]);
-            $this->boxMovements = array_values($this->boxMovements);
-        }
-    }
-
     private function resetFormFields(): void
     {
         $this->title = 'Ruta del día ' . now()->format('d M Y');
         $this->notes = null;
         $this->boxMovements = [];
-        $this->addBoxMovement();
     }
 
     private function getFormData(): array

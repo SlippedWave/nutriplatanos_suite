@@ -118,7 +118,7 @@ new class extends Component {
                         variant="primary"
                         icon="folder"
                         class="hover:bg-primary-200!" 
-                        wire:click="openCloseRouteModal">
+                        wire:click="$dispatch('open-close-route-modal', { id: {{ $selectedRoute->id }} })">
                         <span class="hidden sm:inline">Cerrar ruta</span>
                         <span class="sm:hidden">Cerrar</span>
                     </flux:button>
@@ -178,9 +178,7 @@ new class extends Component {
             @livewire('expenses.tables.expenses-table', ['route_id' => $selectedRoute->id])
         </div>
 
-    @include('components.routes.close-route-modal', ['selectedRoute' => $selectedRoute])
-=
+        <livewire:routes.update-route-modal />
+        <livewire:routes.close-route-modal />
     </x-layouts.routes.layout>
-    <livewire:routes.update-route-modal />
-
 </section>
