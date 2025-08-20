@@ -2,10 +2,17 @@
 
 use Livewire\Volt\Component;
 use App\Models\Customer;
+use Livewire\Attributes\On;
 
 new class extends Component {
     //
     public $customer;
+
+    #[On('box-balance-uploaded')]
+    public function onBoxBalanceUploaded()
+    {
+        $this->js('window.location.reload()');
+    }
 
     public function mount()
     {
@@ -48,10 +55,25 @@ new class extends Component {
                 <p class="text-sm font-medium text-gray-500">Cliente desde:</p>
                 <p class="mt-1 text-sm text-gray-900">{{ $customer->created_at->format('d/m/Y') }}</p>
             </div>
+
+            <div>
+                <p class="text-sm font-medium text-gray-500">Saldo de Cajas:</p>
+                <p class="mt-1 text-sm text-gray-900">{{ $customer->getBoxBalance() }}</p>
+                <div class="mt-2">
+                    <button
+                        type="button"
+                        wire:click="$dispatch('open-update-box-balance-modal', { customerId: {{ $customer->id }} })"
+                        class="text-sm text-blue-600 hover:underline"
+                    >
+                        Actualizar Saldo
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     @livewire('notes.notes-displayer', ['notable_type' => Customer::class, 'notable_id' => $customer->id])
+    <livewire:customers.update-box-balance />
     
     <!-- Sales History Section -->
     <div class="mt-8">
