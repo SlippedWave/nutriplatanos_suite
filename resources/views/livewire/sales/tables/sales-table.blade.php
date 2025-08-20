@@ -31,7 +31,6 @@
     @endif
 
     <div class="flex flex-col gap-4">
-        
         <!-- Controls Section -->
         <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
             <!-- Filters Group -->

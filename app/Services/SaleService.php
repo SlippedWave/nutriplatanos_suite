@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BoxBalance;
 use App\Models\Sale;
 use App\Models\SaleDetail;
 use App\Models\Product;
@@ -40,6 +41,20 @@ class SaleService
                 $this->createSaleNote($sale, $validated['notes']);
             }
 
+            if (!empty($validated['box_balance_delivered'])) {
+                $res = $this->createOrUpdateBoxBalance($validated['customer_id'], $validated['box_balance_delivered'], 'delivered');
+                if (!($res['success'] ?? false)) {
+                    throw new \RuntimeException($res['message'] ?? 'Error al actualizar saldo de caja (delivered)');
+                }
+            }
+
+            if (!empty($validated['box_balance_returned'])) {
+                $res = $this->createOrUpdateBoxBalance($validated['customer_id'], $validated['box_balance_returned'], 'returned');
+                if (!($res['success'] ?? false)) {
+                    throw new \RuntimeException($res['message'] ?? 'Error al actualizar saldo de caja (returned)');
+                }
+            }
+
             DB::commit();
 
             return [
@@ -62,6 +77,38 @@ class SaleService
                 'success' => false,
                 'message' => 'Error al crear venta: ' . $e->getMessage(),
                 'type' => 'error'
+            ];
+        }
+    }
+
+    public function createOrUpdateBoxBalance($customer_id, $box_balance, $mode)
+    {
+        try {
+
+            // Ensure one aggregate record per customer
+            $boxBalance = BoxBalance::firstOrCreate(
+                ['customer_id' => $customer_id],
+                ['delivered_boxes' => 0, 'returned_boxes' => 0]
+            );
+
+            if ($mode === 'delivered') {
+                // Boxes loaned to customer
+                $boxBalance->addDeliveredBoxes((int) $box_balance);
+            } elseif ($mode === 'returned') {
+                // Boxes collected back from customer
+                $boxBalance->addReturnedBoxes((int) $box_balance);
+            } else {
+                throw new \InvalidArgumentException('Modo inválido para saldo de cajas.');
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Saldo de caja actualizado exitosamente.'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error al actualizar saldo de caja: ' . $e->getMessage()
             ];
         }
     }
@@ -376,6 +423,8 @@ class SaleService
             'products.*.product_id' => ['required', 'exists:products,id'],
             'products.*.quantity' => ['required', 'numeric', 'min:0.001', 'max:999999.999'],
             'products.*.price_per_unit' => ['required', 'numeric', 'min:0.01', 'max:999999.99'],
+            'box_balance_returned' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
+            'box_balance_delivered' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
         ];
 
         return validator($data, $rules)->validate();

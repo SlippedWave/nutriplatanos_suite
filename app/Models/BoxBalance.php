@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BoxBalance extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
-        'customer_id',
+        'customer_id',.
         'delivered_boxes',
         'returned_boxes',
     ];

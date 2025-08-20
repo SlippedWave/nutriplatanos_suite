@@ -183,13 +183,24 @@
         <!-- Register box movement -->
         <flux:field>
             <flux:input 
-                wire:model="box_movement" 
-                label="{{ __('Movimiento de Caja') }}" 
+                wire:model="box_balance_delivered" 
+                label="{{ __('Cajas dejadas') }}" 
                 type="text"
-                placeholder="Descripción del movimiento"
+                placeholder=""
                 class="text-[var(--color-text)]!"
             />
-            <flux:error name="box_movement" />
+            <flux:error name="box_balance_delivered" />
+        </flux:field>
+
+        <flux:field>
+            <flux:input 
+                wire:model="box_balance_returned" 
+                label="{{ __('Cajas recogidas') }}" 
+                type="text"
+                placeholder=""
+                class="text-[var(--color-text)]!"
+            />
+            <flux:error name="box_balance_returned" />
         </flux:field>
 
         @if ($payment_status === 'partial')

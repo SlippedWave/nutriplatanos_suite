@@ -35,11 +35,13 @@ class SalesTable extends Component
 
     // Form fields
     public $customer_id = '';
-    public $route_id = '';
+    public $route_id = null;
     public $payment_status = 'pending';
     public $paid_amount = 0.00; // New field for paid amount
     public $notes = '';
     public $saleProducts = [];
+    public int $box_balance_delivered = 0;
+    public int $box_balance_returned = 0;
 
     // Payment form fields
     public $payment_amount = 0.00;
@@ -76,7 +78,6 @@ class SalesTable extends Component
             'type' => $type,
         ]);
     }
-
     protected SaleService $saleService;
     protected SalePaymentService $salePaymentService;
 
@@ -101,8 +102,11 @@ class SalesTable extends Component
         'paid_amount' => 'nullable|numeric|min:0|max:999999.99',
         'notes' => 'nullable|string|max:1000',
         'saleProducts.*.product_id' => 'required|exists:products,id',
-        'saleProducts.*.quantity' => 'required|numeric|min:0.001|max:999999.999',
+        // Require integer quantities (only whole numbers). Adjust min/max as needed.
+        'saleProducts.*.quantity' => 'required|integer|min:1|max:999999',
         'saleProducts.*.price_per_unit' => 'required|numeric|min:0.01|max:999999.99',
+        'box_balance_delivered' => 'nullable|integer|min:0',
+        'box_balance_returned' => 'nullable|integer|min:0',
     ];
 
     protected $messages = [
@@ -116,16 +120,12 @@ class SalesTable extends Component
         'saleProducts.*.product_id.required' => 'Debe seleccionar un producto.',
         'saleProducts.*.product_id.exists' => 'El producto seleccionado no es válido.',
         'saleProducts.*.quantity.required' => 'La cantidad es obligatoria.',
-        'saleProducts.*.quantity.numeric' => 'La cantidad debe ser un número.',
+        'saleProducts.*.quantity.integer' => 'La cantidad debe ser un número entero.',
         'saleProducts.*.quantity.min' => 'La cantidad debe ser mayor que 0.',
         'saleProducts.*.price_per_unit.required' => 'El precio unitario es obligatorio.',
         'saleProducts.*.price_per_unit.numeric' => 'El precio unitario debe ser un número.',
         'saleProducts.*.price_per_unit.min' => 'El precio unitario debe ser mayor que 0.',
     ];
-
-    /**
-     * Get payment validation rules.
-     */
     protected function getPaymentRules(): array
     {
         return [
@@ -162,6 +162,7 @@ class SalesTable extends Component
     {
         $this->contextCustomerId = $customer_id;
         $this->contextRouteId = $route_id;
+
         $this->customer_id = $customer_id ?? '';
         $this->route_id = $route_id ?? '';
 
@@ -564,6 +565,8 @@ class SalesTable extends Component
             },
             'notes' => $this->notes,
             'products' => array_values($validProducts), // Re-index
+            'box_balance_returned' => $this->box_balance_returned,
+            'box_balance_delivered' => $this->box_balance_delivered,
         ];
     }
 

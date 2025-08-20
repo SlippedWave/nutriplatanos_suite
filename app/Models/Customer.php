@@ -68,7 +68,7 @@ class Customer extends Model
         // Check if BoxBalance record exists for this customer
         $boxBalance = $this->boxBalance()->first();
         // Return the current balance if exists, otherwise 0
-        return $boxBalance ? $boxBalance->currentBalance() : 0;
+        return $boxBalance ? $boxBalance->getCurrentBalance() : 0;
     }
 
     /**
