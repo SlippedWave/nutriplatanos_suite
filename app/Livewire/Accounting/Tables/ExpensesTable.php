@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Expenses\Tables;
+namespace App\Livewire\Accounting\Tables;
 
 use App\Models\Expense;
 use App\Models\Route;
@@ -320,6 +320,6 @@ class ExpensesTable extends Component
             route_id: $this->contextRouteId
         );
 
-        return view('livewire.expenses.tables.expenses-table', compact('expenses', 'totalAmount'));
+        return view('livewire.accounting.tables.expenses-table', compact('expenses', 'totalAmount'));
     }
 }

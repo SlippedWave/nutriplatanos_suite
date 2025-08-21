@@ -72,6 +72,11 @@ class User extends Authenticatable
         return $this->hasMany(Route::class, 'carrier_id');
     }
 
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
+
     /**
      * Get the active route for the user.
      */

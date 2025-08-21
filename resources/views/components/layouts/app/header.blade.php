@@ -52,11 +52,11 @@ $role = auth()->user()->role ?? 'guest';
             @if($role == 'admin' || $role == 'coordinator')
             <flux:navbar.item 
                 icon="currency-dollar" 
-                :href="route('expenses.index')" 
-                :current="request()->routeIs('expenses.*')"
+                :href="route('accounting.index')" 
+                :current="request()->routeIs('accounting.*')"
                 wire:navigate
             >
-                {{ __('Gastos') }}
+                {{ __('Contabilidad') }}
             </flux:navbar.item>
             @endif
         </flux:navbar>
@@ -162,11 +162,11 @@ $role = auth()->user()->role ?? 'guest';
                 @if($role == 'admin' || $role == 'coordinator')
                     <flux:navbar.item 
                         icon="currency-dollar" 
-                        :href="route('expenses.index')" 
-                        :current="request()->routeIs('expenses.*')"
+                        :href="route('accounting.index')" 
+                        :current="request()->routeIs('accounting.*')"
                         wire:navigate
                     >
-                        {{ __('Gastos') }}
+                        {{ __('Contabilidad') }}
                     </flux:navbar.item>
                 @endif
             </flux:navlist>

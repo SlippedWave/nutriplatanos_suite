@@ -18,6 +18,7 @@ class Camera extends Model
     protected $fillable = [
         'name',
         'location',
+        'box_stock',
     ];
 
     /**
@@ -28,6 +29,7 @@ class Camera extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'box_stock' => 'integer',
     ];
 
     /**
@@ -36,5 +38,25 @@ class Camera extends Model
     public function boxMovements(): HasMany
     {
         return $this->hasMany(BoxMovement::class);
+    }
+
+    /**
+     * Get the sales for this camera.
+     */
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function addBoxStock(int $quantity): void
+    {
+        $this->box_stock += $quantity;
+        $this->save();
+    }
+
+    public function removeBoxStock(int $quantity): void
+    {
+        $this->box_stock -= $quantity;
+        $this->save();
     }
 }
