@@ -4,6 +4,7 @@ namespace App\Livewire\Settings\Tables;
 
 use App\Models\User;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -134,7 +135,7 @@ class UsersTable extends Component
             return;
         }
 
-        $result = $this->userService->deleteUser($this->selectedUser, auth()->user());
+        $result = $this->userService->deleteUser($this->selectedUser, Auth::user());
 
         $this->showUsersTableMessage($result);
     }

@@ -40,7 +40,7 @@
                 <div class="w-full">
                     <flux:input 
                         wire:model.live.debounce.300ms="search" 
-                        placeholder="Buscar ventas..."
+                        placeholder="Buscar gastos..."
                         type="search"
                         class="w-full"
                     />
@@ -238,9 +238,9 @@
                         <tr>
                             <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
                                 @if($search)
-                                    No se encontraron ventas que coincidan con "{{ $search }}".
+                                    No se encontraron gastos que coincidan con "{{ $search }}".
                                 @else
-                                    No hay ventas registradas.
+                                    No hay gastos registrados.
                                 @endif
                             </td>
                         </tr>
@@ -261,7 +261,7 @@
     <div class="flex items-center justify-between text-sm text-gray-500">
         <div>
             Mostrando {{ $expenses->firstItem() ?? 0 }} - {{ $expenses->lastItem() ?? 0 }} 
-            de {{ $expenses->total() }} ventas
+            de {{ $expenses->total() }} gastos
         </div>
         
         @if($search)

@@ -420,4 +420,23 @@ class SalePaymentService
 
         return false;
     }
+
+    public function searchPayments(
+        ?string $startDate = null,
+        ?string $endDate = null,
+        string $sortField = 'created_at',
+        string $sortDirection = 'desc',
+        int $perPage = 10
+    ) {
+        $query = SalePayment::query();
+
+        if ($startDate) {
+            $query->where('payment_date', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('payment_date', '<=', $endDate);
+        }
+
+        return $query->orderBy($sortField, $sortDirection)->paginate($perPage);
+    }
 }

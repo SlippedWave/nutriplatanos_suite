@@ -331,6 +331,7 @@ class ExpensesTable extends Component
             startDate: $this->startDate,
             endDate: $this->endDate,
         );
+        $this->dispatch('expensesTotalUpdated', $totalAmount);
 
         return view('livewire.accounting.tables.expenses-table', compact('expenses', 'totalAmount'));
     }
