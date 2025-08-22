@@ -9,16 +9,18 @@ use Livewire\WithPagination;
 
 use App\Services\ExpenseService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Modelable;
 
 class ExpensesTable extends Component
 {
     use WithPagination;
 
     public $search = '';
-    public $perPage = 10;
+    public $perPage = 5;
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
     public bool $includeDeletedExpenses = false;
+    public bool $hideFilters = false;
 
     public bool $showCreateExpenseModal = false;
     public bool $showEditExpenseModal = false;
@@ -42,6 +44,7 @@ class ExpensesTable extends Component
 
     public bool $canCreateNewExpense = false;
 
+    #[Modelable]
     public $dateFilter = 'all';
     public $startDate;
     public $endDate;
@@ -65,12 +68,14 @@ class ExpensesTable extends Component
         $this->expenseService = $expenseService;
     }
 
-    public function mount($route_id = null, $user_id = null)
+    public function mount($route_id = null, $user_id = null, $hideFilters = false, $dateFilter = 'all')
     {
         $this->route_id = $route_id;
         $this->user_id = $user_id ?? Auth::user()->id;
         $this->contextRouteId = $route_id;
         $this->contextUserId = $user_id;
+        $this->hideFilters = $hideFilters;
+        $this->dateFilter = $dateFilter;
 
         $this->expenseService = new ExpenseService();
 

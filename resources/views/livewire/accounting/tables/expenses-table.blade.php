@@ -30,8 +30,8 @@
         </div>
     @endif
 
+    @if(!$hideFilters)
     <div class="flex flex-col gap-4">
-        
         <!-- Controls Section -->
         <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
             <!-- Filters Group -->
@@ -88,6 +88,7 @@
         </div>
     </div>
 
+
     <!-- Date Range Indicator -->
     @if($dateFilter !== 'all' && $startDate && $endDate)
     <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
@@ -115,9 +116,11 @@
         </div>
     </div>
     @endif
+    @endif
 
     <!-- Table -->
     <div class="overflow-hidden bg-white shadow-sm ring-1 ring-gray-200 rounded-lg">
+        
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
