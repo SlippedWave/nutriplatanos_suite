@@ -78,6 +78,9 @@ class ExpensesTable extends Component
             && Route::where('id', $this->contextRouteId)->where('status', 'active')->exists()
             && (Auth::user()->role === 'admin' || Route::where('id', $this->contextRouteId)->where('user_id', Auth::id())->exists())
             || empty($this->contextRouteId) && empty($this->contextUserId);
+
+        // Initialize date filter window
+        $this->applyDateFilter();
     }
 
     public function updatedSearch()
@@ -309,7 +312,9 @@ class ExpensesTable extends Component
             perPage: $this->perPage,
             includeDeletedExpenses: $this->includeDeletedExpenses,
             user_id: $this->contextUserId,
-            route_id: $this->contextRouteId
+            route_id: $this->contextRouteId,
+            startDate: $this->startDate,
+            endDate: $this->endDate,
         );
 
         // Calculate total amount from non-deleted expenses using a separate query
@@ -317,7 +322,9 @@ class ExpensesTable extends Component
             search: $this->search,
             includeDeletedExpenses: false,
             user_id: $this->contextUserId,
-            route_id: $this->contextRouteId
+            route_id: $this->contextRouteId,
+            startDate: $this->startDate,
+            endDate: $this->endDate,
         );
 
         return view('livewire.accounting.tables.expenses-table', compact('expenses', 'totalAmount'));

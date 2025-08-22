@@ -645,14 +645,20 @@ class SalesTable extends Component
             $this->contextRouteId,
             $this->contextCustomerId,
             $this->showPendingAndPartialSales,
+            $this->startDate,
+            $this->endDate,
         );
 
-        // Calculate total amount for current filtered results
-        $totalAmount = $sales->getCollection()->filter(function ($sale) {
-            return !$sale->trashed();
-        })->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
-        });
+        // Calculate total amount across filtered dataset (not only current page)
+        $totalAmount = $this->saleService->getTotalAmount(
+            search: $this->search,
+            includeDeleted: false,
+            routeId: $this->contextRouteId,
+            customerId: $this->contextCustomerId,
+            showPendingAndPartialSales: $this->showPendingAndPartialSales,
+            startDate: $this->startDate,
+            endDate: $this->endDate,
+        );
 
         return view('livewire.sales.tables.sales-table', [
             'sales' => $sales,

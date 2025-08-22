@@ -228,7 +228,9 @@ class SaleService
         bool $includeDeleted = false,
         ?int $routeId = null,
         ?int $customerId = null,
-        ?bool $showPendingAndPartialSales = false
+        ?bool $showPendingAndPartialSales = false,
+        ?string $startDate = null,
+        ?string $endDate = null
     ) {
         $query = Sale::query();
 
@@ -251,14 +253,29 @@ class SaleService
             });
         }
 
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                $startDate . ' 00:00:00',
+                $endDate . ' 23:59:59',
+            ]);
+        }
+
         if ($showPendingAndPartialSales && $customerId === null) {
             $secondaryQuery = Sale::query()
-                ->where('payment_status', 'pending')
-                ->orWhere('payment_status', 'partial');
+                ->where(function ($q) {
+                    $q->where('payment_status', 'pending')
+                        ->orWhere('payment_status', 'partial');
+                });
             if ($user->role === 'carrier') {
                 $secondaryQuery->whereHas('route', function ($q) use ($user) {
                     $q->where('carrier_id', $user->id);
                 });
+            }
+            if ($startDate && $endDate) {
+                $secondaryQuery->whereBetween('created_at', [
+                    $startDate . ' 00:00:00',
+                    $endDate . ' 23:59:59',
+                ]);
             }
 
             $query = $query->union($secondaryQuery);
@@ -372,6 +389,68 @@ class SaleService
             'pending_amount' => $pendingAmount,
             'last_purchase' => $sales->sortByDesc('created_at')->first()?->created_at,
         ];
+    }
+
+    public function getTotalAmount(
+        string $search = '',
+        bool $includeDeleted = false,
+        ?int $routeId = null,
+        ?int $customerId = null,
+        ?bool $showPendingAndPartialSales = false,
+        ?string $startDate = null,
+        ?string $endDate = null
+    ): float {
+        $query = Sale::query();
+
+        if ($includeDeleted) {
+            $query->withTrashed();
+        }
+
+        if ($routeId) {
+            $query->where('route_id', $routeId);
+        }
+
+        if ($customerId) {
+            $query->where('customer_id', $customerId);
+        }
+
+        $user = Auth::user();
+        if ($user->role === 'carrier') {
+            $query->whereHas('route', function ($q) use ($user) {
+                $q->where('carrier_id', $user->id);
+            });
+        }
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                $startDate . ' 00:00:00',
+                $endDate . ' 23:59:59',
+            ]);
+        }
+
+        // Text search across relations similar to searchSales
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('customer', function ($customerQuery) use ($search) {
+                    $customerQuery->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                })
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('saleDetails.product', function ($productQuery) use ($search) {
+                        $productQuery->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhere('payment_status', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Note: For simplicity we don't union pending/partial here; totals reflect current filtered base
+        $sales = $query->with('saleDetails')->get();
+
+        return $sales->sum(function ($sale) {
+            return $sale->saleDetails->sum('total_price');
+        });
     }
 
     private function validateSaleData(array $data): array

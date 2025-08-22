@@ -115,7 +115,9 @@ class ExpenseService
         string $search = '',
         bool $includeDeletedExpenses = false,
         ?int $user_id = null,
-        ?int $route_id = null
+        ?int $route_id = null,
+        ?string $startDate = null,
+        ?string $endDate = null
     ): float {
         $query = Expense::query();
 
@@ -136,6 +138,13 @@ class ExpenseService
 
         if ($route_id) {
             $query->where('route_id', $route_id);
+        }
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                $startDate . ' 00:00:00',
+                $endDate . ' 23:59:59',
+            ]);
         }
 
         return $query->sum('amount');
@@ -176,7 +185,9 @@ class ExpenseService
         int $perPage = 10,
         bool $includeDeletedExpenses = false,
         ?int $user_id = null,
-        ?int $route_id = null
+        ?int $route_id = null,
+        ?string $startDate = null,
+        ?string $endDate = null
     ) {
         $query = Expense::query();
 
@@ -197,6 +208,13 @@ class ExpenseService
 
         if ($route_id) {
             $query->where('route_id', $route_id);
+        }
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                $startDate . ' 00:00:00',
+                $endDate . ' 23:59:59',
+            ]);
         }
 
         return $query->with(['route', 'user'])->orderBy($sortField, $sortDirection)
