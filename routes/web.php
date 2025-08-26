@@ -28,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
             Volt::route('clientes', 'customers.index')->name('customers.index');
             Volt::route('clientes/detalles/{customer}', 'customers.show')->name('customers.show');
             Volt::route('contabilidad', 'accounting.index')->name('accounting.index');
+            Volt::route('recursos', 'resources.index')->name('resources.index');
         });
     });
 });

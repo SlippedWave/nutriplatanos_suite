@@ -58,6 +58,14 @@ $role = auth()->user()->role ?? 'guest';
             >
                 {{ __('Contabilidad') }}
             </flux:navbar.item>
+            <flux:navbar.item 
+                icon="chart-bar" 
+                :href="route('resources.index')" 
+                :current="request()->routeIs('resources.*')"
+                wire:navigate
+            >
+                {{ __('Recursos') }}
+            </flux:navbar.item>
             @endif
         </flux:navbar>
         <flux:spacer />
@@ -167,6 +175,14 @@ $role = auth()->user()->role ?? 'guest';
                         wire:navigate
                     >
                         {{ __('Contabilidad') }}
+                    </flux:navbar.item>
+                    <flux:navbar.item 
+                        icon="chart-bar" 
+                        :href="route('resources.index')" 
+                        :current="request()->routeIs('resources.*')"
+                        wire:navigate
+                    >
+                        {{ __('Recursos') }}
                     </flux:navbar.item>
                 @endif
             </flux:navlist>

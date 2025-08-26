@@ -83,7 +83,7 @@ new class extends Component {
     </div>
 
     <div class="mt-6">
-        <div class="bg-white border rounded-md p-4 flex items-center bg-gray-50">
+        <div class="bg-white border rounded-md p-4 flex border-gray-300 items-center bg-gray-50">
             <div class="flex-shrink-0">
                 <flux:icon.currency-dollar class="w-6 h-6 text-gray-500" />
             </div>
@@ -104,21 +104,58 @@ new class extends Component {
     </div>
 
     <div class="mt-6 space-y-6">
-        <!-- Payments table -->
-        <div class="-mx-4 sm:mx-0">
-            <div class="overflow-x-auto">
-                <livewire:accounting.tables.payments-table wire:model.live="dateFilter" />
+        <div class="grid grid-cols-1 gap-4">
+            <!-- Payments card -->
+            <div class="bg-white border border-gray-300 rounded-md p-4 shadow-sm">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <flux:icon.currency-dollar class="w-6 h-6 text-green-500" />
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Desglose de pagos</p>
+                            <p class="text-xs text-gray-500">Lista de ingresos según el filtro seleccionado</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs px-2 py-1 bg-green-50 text-green-700 rounded-full">
+                            Pagos
+                        </span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-3">
+                    <div class="overflow-x-auto -mx-4 px-4">
+                        <livewire:accounting.tables.payments-table wire:model.live="dateFilter" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses card -->
+            <div class="bg-white border rounded-md p-4 border-gray-300 shadow-sm">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <flux:icon.currency-dollar class="w-6 h-6 text-red-500" />
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">Desglose de gastos</p>
+                            <p class="text-xs text-gray-500">Registro de egresos según el filtro seleccionado</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs px-2 py-1 bg-red-50 text-red-700 rounded-full">Gastos</span>
+                    </div>
+                </div>
+
+                <div class="border-t pt-3">
+                    <div class="overflow-x-auto -mx-4 px-4">
+                        <livewire:accounting.tables.expenses-table
+                            wire:model.live="dateFilter"
+                            hideFilters="true"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- Expenses table -->
-        <div class="-mx-4 sm:mx-0">
-            <div class="overflow-x-auto">
-                <livewire:accounting.tables.expenses-table
-                    wire:model.live="dateFilter"
-                    hideFilters="true"
-                />
-            </div>
         </div>
     </div>
 </section>

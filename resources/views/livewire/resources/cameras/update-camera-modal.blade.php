@@ -1,0 +1,60 @@
+<flux:modal wire:model="showUpdateModal" class="space-y-6 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
+    <div class="flex items-center justify-between">
+        <flux:heading size="lg" class="text-primary-800!">{{ __('Actualizar datos de cámara') }}</flux:heading>
+    </div>
+
+    <div class="space-y-4">
+        <form wire:submit.prevent="updateCamera">
+            <div class="bg-primary-100 p-4 rounded-md">
+                <h4 class="font-semibold">{{ __('Datos de la cámara') }}</h4>
+                <div class="flex flex-col space-y-2">
+                   <flux:field>
+                        <flux:input 
+                            wire:model="name" 
+                            label="{{ __('Nombre') }}" 
+                            type="text"
+                            placeholder=""
+                            class="text-[var(--color-text)]!"
+                        />
+                        <flux:error name="name" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:input 
+                            wire:model="location" 
+                            label="{{ __('Ubicación') }}" 
+                            type="text"
+                            placeholder=""
+                            class="text-[var(--color-text)]!"
+                        />
+                        <flux:error name="location" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:input 
+                            wire:model="box_stock" 
+                            label="{{ __('Stock de cajas') }}" 
+                            type="text"
+                            placeholder=""
+                            class="text-[var(--color-text)]!"
+                        />
+                        <flux:error name="box_stock" />
+                    </flux:field>
+                </div>
+            <div class="flex justify-end">
+                <flux:button 
+                    wire:click="updateCamera" 
+                    variant="primary" 
+                    wire:loading.attr="disabled"
+                    wire:target="updateCamera"
+                    class="w-full sm:w-auto"
+                >
+                    <span wire:loading.remove wire:target="updateCamera">{{ __('Actualizar') }}</span>
+                    <span wire:loading wire:target="updateCamera">Actualizando...</span>
+                </flux:button>
+            </div>
+        </form>
+    </div>
+</flux:modal>
+
+    
