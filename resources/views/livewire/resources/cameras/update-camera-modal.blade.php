@@ -1,11 +1,11 @@
 <flux:modal wire:model="showUpdateModal" class="space-y-6 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
-        <flux:heading size="lg" class="text-primary-800!">{{ __('Actualizar datos de cámara') }}</flux:heading>
+        <flux:heading size="lg" class="font-semibold text-primary-600!">{{ __('Actualizar datos de cámara') }}</flux:heading>
     </div>
 
     <div class="space-y-4">
         <form wire:submit.prevent="updateCamera">
-            <div class="bg-primary-100 p-4 rounded-md">
+            <div class="bg-secondary-50 p-4 rounded-md">
                 <h4 class="font-semibold">{{ __('Datos de la cámara') }}</h4>
                 <div class="flex flex-col space-y-2">
                    <flux:field>

@@ -61,8 +61,8 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th wire:click="sortBy('camera_id')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
-                            <div class="flex items-center justify-center">
+                        <th wire:click="sortBy('camera_id')" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-start justify-start">
                                 <span>Cámara</span>
                                 @if($sortField === 'camera_id')
                                     <flux:icon.chevron-up class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
@@ -84,7 +84,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($cameras as $camera)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-start">
                                 {{ $camera->name }}
                                 <div class="text-xs text-gray-500">
                                     {{ $camera->location }}

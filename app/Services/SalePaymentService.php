@@ -392,6 +392,7 @@ class SalePaymentService
             'notable_id' => $sale->id,
             'user_id' => Auth::id(),
             'content' => $content,
+            'type' => 'payment'
         ]);
     }
 

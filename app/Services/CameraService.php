@@ -3,9 +3,24 @@
 namespace App\Services;
 
 use App\Models\Camera;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Note;
+
 
 class CameraService
 {
+    public function createCameraNote(Camera $camera, string $noteContent): void
+    {
+        Note::create([
+            'notable_id' => $camera->id,
+            'notable_type' => Camera::class,
+            'content' => $noteContent,
+            'user_id' => Auth::id(),
+            'type' => 'camera'
+        ]);
+    }
+
+
     public function createCamera(array $data): array
     {
         try {
@@ -32,6 +47,8 @@ class CameraService
             $camera = Camera::findOrFail($id);
             $camera->update($validated);
 
+            $this->createCameraNote($camera, 'Cámara actualizada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+
             return [
                 'success' => true,
                 'camera' => $camera,
@@ -50,6 +67,8 @@ class CameraService
         try {
             $camera = Camera::findOrFail($id);
             $camera->delete();
+
+            $this->createCameraNote($camera, 'Cámara eliminada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
 
             return [
                 'success' => true,

@@ -22,14 +22,6 @@ $role = auth()->user()->role ?? 'guest';
 
         <!-- Desktop Navigation -->
         <flux:navbar class="hidden lg:flex ml-8">
-            <flux:navbar.item 
-                icon="layout-grid" 
-                :href="route('dashboard')" 
-                :current="request()->routeIs('dashboard')"
-                wire:navigate
-            >
-                {{ __('Inicio') }}
-            </flux:navbar.item>
             @if($role == 'admin' || $role == 'coordinator')
             <flux:navbar.item 
                 icon="users" 
