@@ -45,7 +45,7 @@ class CameraService
         }
     }
 
-    private function deleteCamera(int $id): array
+    public function deleteCamera(int $id): array
     {
         try {
             $camera = Camera::findOrFail($id);
