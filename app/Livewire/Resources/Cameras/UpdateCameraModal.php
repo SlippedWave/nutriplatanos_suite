@@ -1,31 +1,37 @@
 <?php
-
+// ...existing code...
 namespace App\Livewire\Resources\Cameras;
 
 use Livewire\Component;
 use App\Services\CameraService;
+use App\Models\Camera; // added
 
 class UpdateCameraModal extends Component
 {
     public bool $showUpdateModal = false;
-    public $selectedCamera = null;
+    // store id instead of full model (or type-hint the model)
+    public ?int $selectedCameraId = null;
 
     public string $name = '';
     public string $location = '';
     public int $box_stock = 0;
 
-    public CameraService $cameraService;
+    protected CameraService $cameraService;
 
-    public function __construct(CameraService $cameraService)
+    // listen for Livewire event
+    protected $listeners = [
+        'open-update-camera-modal' => 'openUpdateCameraModal',
+    ];
+
+    public function boot()
     {
-        $this->cameraService = $cameraService;
+        $this->cameraService = app(CameraService::class);
     }
 
-    #[On('open-update-camera-modal')]
     public function openUpdateCameraModal($id)
     {
         $camera = Camera::findOrFail($id);
-        $this->selectedCamera = $camera;
+        $this->selectedCameraId = $camera->id;
         $this->name = $camera->name;
         $this->location = $camera->location;
         $this->box_stock = $camera->box_stock;
@@ -35,13 +41,14 @@ class UpdateCameraModal extends Component
     public function updateCamera()
     {
         try {
-            $result = $this->cameraService->updateCamera($this->selectedCamera->id, $this->getFormData());
-            $this->emit('camera-updated', $result);
+            $result = $this->cameraService->updateCamera($this->selectedCameraId, $this->getFormData());
+            $this->dispatch('cameras-info-updated', $result);
+            $this->showUpdateModal = false;
         } catch (\Exception $e) {
-            $this->emit('camera-update-failed', $e->getMessage());
+            $this->dispatch('camera-update-failed', $e->getMessage());
         }
     }
-
+    
     public function getFormData()
     {
         return [

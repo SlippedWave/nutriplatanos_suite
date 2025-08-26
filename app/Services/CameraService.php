@@ -24,7 +24,7 @@ class CameraService
         }
     }
 
-    private function updateCamera(int $id, array $data): array
+    public function updateCamera(int $id, array $data): array
     {
         try {
             $validated = $this->validateCameraData($data);
