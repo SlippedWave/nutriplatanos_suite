@@ -24,7 +24,8 @@ class Sale extends Model
         'payment_status',
         'paid_amount',
         'total_amount',
-        'notes',
+        'refunded_amount',
+        'net_amount_due'
     ];
 
     /**
@@ -38,6 +39,8 @@ class Sale extends Model
         'route_id' => 'integer',
         'payment_status' => 'string',
         'paid_amount' => 'decimal:2',
+        'refunded_amount' => 'decimal:2',
+        'net_amount_due' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

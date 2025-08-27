@@ -1,9 +1,9 @@
 <?php
+
 namespace App\Livewire\Resources\Cameras;
 
 use Livewire\Component;
 use App\Services\CameraService;
-use App\Models\Camera; 
 
 class CreateCameraModal extends Component
 {

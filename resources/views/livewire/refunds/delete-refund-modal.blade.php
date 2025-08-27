@@ -1,10 +1,10 @@
 <flux:modal wire:model="showDeleteModal"
     class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
-        <flux:heading size="lg" class="text-danger-800!">{{ __('Eliminar cámara') }}</flux:heading>
+        <flux:heading size="lg" class="text-danger-800!">{{ __('Eliminar reembolso') }}</flux:heading>
     </div>
 
-    @if ($selectedCamera)
+    @if ($selectedRefund)
         <div class="space-y-4">
             <div class="bg-danger-50 rounded-lg p-4">
                 <div class="flex">
@@ -25,7 +25,7 @@
             </div>
 
             <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900">{{ __('Cámara a eliminar:') }}</h4>
+                <h4 class="font-medium text-gray-900">{{ __('Reembolso a eliminar:') }}</h4>
                 <div class="mt-2 flex items-center gap-3">
                     <span
                         class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 text-primary-900 font-medium text-sm">
@@ -36,8 +36,10 @@
                         </svg>
                     </span>
                     <div>
-                        <p class="font-medium">{{ $selectedCamera->name }}</p>
-                        <p class="text-sm text-gray-600">{{ $selectedCamera->location ?? 'Sin ubicación asignada' }}</p>
+                        <p class="font-medium">{{ $selectedRefund->id }}</p>
+                        <p class="text-sm text-gray-600">{{ $selectedRefund->reason }}</p>
+                        <p class="text-sm text-gray-600">{{ $selectedRefund->refund_amount }}</p>
+                        <p class="text-sm text-gray-600">{{ $selectedRefund->created_at }}</p>
                     </div>
                 </div>
             </div>
@@ -48,7 +50,8 @@
         <flux:button variant="outline" wire:click="$set('showDeleteModal', false)" class="w-full sm:w-auto">
             {{ __('Cancelar') }}
         </flux:button>
-        <flux:button variant="danger" class="text-background! w-full sm:w-auto" wire:click="deleteCamera">
-            {{ __('Eliminar cámara') }}</flux:button>
+        <flux:button variant="danger" class="text-background! w-full sm:w-auto" wire:click="deleteRefund">
+            {{ __('Eliminar reembolso') }}
+        </flux:button>
     </div>
 </flux:modal>

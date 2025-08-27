@@ -9,7 +9,7 @@ use App\Models\Camera; // added
 class UpdateCameraModal extends Component
 {
     public bool $showUpdateModal = false;
-    // store id instead of full model (or type-hint the model)
+
     public ?int $selectedCameraId = null;
 
     public string $name = '';
@@ -48,7 +48,7 @@ class UpdateCameraModal extends Component
             $this->dispatch('camera-update-failed', $e->getMessage());
         }
     }
-    
+
     public function getFormData()
     {
         return [
