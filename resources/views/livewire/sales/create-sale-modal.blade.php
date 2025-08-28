@@ -213,7 +213,7 @@
 
 
         <div class="flex justify-end gap-3 pt-4 flex-col sm:flex-row">
-            <flux:button wire:click="closeModals" variant="outline" wire:loading.attr="disabled"
+            <flux:button wire:click="$set('showCreateModal', false)" variant="outline" wire:loading.attr="disabled"
                 wire:target="createSale" class="w-full sm:w-auto">
                 {{ __('Cancelar') }}
             </flux:button>

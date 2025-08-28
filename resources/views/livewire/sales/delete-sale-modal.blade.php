@@ -108,7 +108,7 @@
     @endif
 
     <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
-        <flux:button wire:click="closeModals" variant="outline" class="w-full sm:w-auto">
+        <flux:button wire:click="$set('showDeleteModal', false)" variant="outline" class="w-full sm:w-auto">
             {{ __('Cancelar') }}
         </flux:button>
 

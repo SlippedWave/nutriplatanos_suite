@@ -227,8 +227,8 @@
             {{ __('Cancelar') }}
         </flux:button>
 
-        <flux:button wire:click="updateSale" variant="primary" wire:loading.attr="disabled" wire:target="updateSale"
-            class="w-full sm:w-auto">
+        <flux:button wire:click="$set('showUpdateModal', false)" variant="primary" wire:loading.attr="disabled"
+            wire:target="updateSale" class="w-full sm:w-auto">
             <span wire:loading.remove wire:target="updateSale">{{ __('Actualizar Venta') }}</span>
             <span wire:loading wire:target="updateSale">Actualizando...</span>
         </flux:button>
