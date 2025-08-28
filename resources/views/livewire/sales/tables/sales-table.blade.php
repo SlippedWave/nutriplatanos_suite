@@ -9,19 +9,19 @@
             $type = data_get($flash, 'type', 'info');
         @endphp
 
-        <div
-            x-data="{ show: true }"
-            x-init="setTimeout(() => show = false, 4000)"
-            x-show="show"
-            x-transition
-            @class([
-                'px-4 py-3 rounded-lg flex justify-between items-center',
-                'bg-green-50 border border-green-200 text-green-700' => $type === 'success',
-                'bg-danger-50 border border-danger-200 text-danger-700' => $type === 'error',
-                'bg-yellow-50 border border-yellow-200 text-yellow-700' => $type === 'warning',
-                'bg-blue-50 border border-blue-200 text-blue-700' => !in_array($type, ['success','error','warning']),
-            ])
-        >
+        <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 4000)" x-show="show" x-transition @class([
+            'px-4 py-3 rounded-lg flex justify-between items-center',
+            'bg-green-50 border border-green-200 text-green-700' => $type === 'success',
+            'bg-danger-50 border border-danger-200 text-danger-700' =>
+                $type === 'error',
+            'bg-yellow-50 border border-yellow-200 text-yellow-700' =>
+                $type === 'warning',
+            'bg-blue-50 border border-blue-200 text-blue-700' => !in_array($type, [
+                'success',
+                'error',
+                'warning',
+            ]),
+        ])>
             <div>{{ data_get($flash, 'text') }}</div>
             <button type="button" @click="show = false" class="opacity-70 hover:opacity-100">
                 <span class="sr-only">Close</span>
@@ -37,12 +37,8 @@
             <div class="flex flex-col xs:flex-row gap-2 flex-1">
                 <!-- Search Bar (Full Width) -->
                 <div class="w-full">
-                    <flux:input 
-                        wire:model.live.debounce.300ms="search" 
-                        placeholder="Buscar ventas..."
-                        type="search"
-                        class="w-full"
-                    />
+                    <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar ventas..." type="search"
+                        class="w-full" />
                 </div>
                 <!-- Date Filter -->
                 <flux:select wire:model.live="dateFilter" class="flex-1 xs:min-w-[140px]">
@@ -60,71 +56,66 @@
                     <option value="100">100</option>
                 </flux:select>
             </div>
-            
+
             <!-- Action Buttons Group -->
             <div class="flex flex-col xs:flex-row gap-2 xs:items-center">
-                <flux:button 
-                    variant="primary" 
-                    wire:click="toggleIncludeDeleted"
-                    class="{{ $includeDeleted ? 'bg-danger-100! text-danger-900!' : 'bg-background! text-danger-500! hover:bg-danger-50!' }}" 
+                <flux:button variant="primary" wire:click="toggleIncludeDeleted"
+                    class="{{ $includeDeleted ? 'bg-danger-100! text-danger-900!' : 'bg-background! text-danger-500! hover:bg-danger-50!' }}"
                     aria-label="{{ $includeDeleted ? __('Ocultar ventas eliminadas') : __('Incluir ventas eliminadas') }}"
-                    size="sm"
-                >
-                    <span class="hidden sm:inline">{{ $includeDeleted ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}</span>
+                    size="sm">
+                    <span
+                        class="hidden sm:inline">{{ $includeDeleted ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}</span>
                     <span class="sm:hidden">{{ $includeDeleted ? __('Ocultar') : __('Eliminadas') }}</span>
                 </flux:button>
 
-                @if($contextCustomerId === null && $canCreateNewSale)
-                <flux:button 
-                    variant="primary"
-                    wire:click="togglePendingAndPartialSales"
-                    class="bg-secondary-400! hover:bg-secondary-300!"
-                    size="sm"
-                >
-                    <span class="hidden sm:inline">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }} ventas pendientes y parciales</span>
-                    <span class="sm:hidden">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }} Pendientes/Parciales</span>
-                </flux:button>
+                @if ($contextCustomerId === null && $canCreateNewSale)
+                    <flux:button variant="primary" wire:click="togglePendingAndPartialSales"
+                        class="bg-secondary-400! hover:bg-secondary-300!" size="sm">
+                        <span class="hidden sm:inline">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }}
+                            ventas pendientes y parciales</span>
+                        <span class="sm:hidden">{{ $showPendingAndPartialSales ? __('Ocultar') : __('Mostrar') }}
+                            Pendientes/Parciales</span>
+                    </flux:button>
                 @endif
 
                 @if ($canCreateNewSale)
-                <flux:button variant="primary"
-                                icon="plus" 
-                                wire:click="openCreateModal"
-                                class="w-full xs:w-auto">
-                    <span class="hidden sm:inline">{{ __('Nueva Venta') }}</span>
-                    <span class="sm:hidden">{{ __('Nueva') }}</span>
-                </flux:button>
+                    <flux:button variant="primary" icon="plus" wire:click="openCreateModal" class="w-full xs:w-auto">
+                        <span class="hidden sm:inline">{{ __('Nueva Venta') }}</span>
+                        <span class="sm:hidden">{{ __('Nueva') }}</span>
+                    </flux:button>
                 @endif
             </div>
         </div>
     </div>
 
     <!-- Date Range Indicator -->
-    @if($dateFilter !== 'all' && $startDate && $endDate)
-    <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <flux:icon.calendar class="w-5 h-5 text-blue-400" />
-            </div>
-            <div class="ml-3">
-                <p class="text-sm text-blue-700">
-                    <span class="font-medium">Filtro activo:</span>
-                    @if($dateFilter === 'today')
-                        Ventas de hoy ({{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }})
-                    @elseif($dateFilter === 'week')
-                        Ventas de esta semana ({{ \Carbon\Carbon::parse($startDate)->format('d/m') }} - {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }})
-                    @elseif($dateFilter === 'month')
-                        Ventas de este mes ({{ \Carbon\Carbon::parse($startDate)->format('M Y') }})
-                    @endif
-                </p>
-            </div>
-            <div class="ml-auto">
-                <button wire:click="$set('dateFilter', 'all')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    Limpiar filtro
-                </button>
+    @if ($dateFilter !== 'all' && $startDate && $endDate)
+        <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <flux:icon.calendar class="w-5 h-5 text-blue-400" />
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        <span class="font-medium">Filtro activo:</span>
+                        @if ($dateFilter === 'today')
+                            Ventas de hoy ({{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }})
+                        @elseif($dateFilter === 'week')
+                            Ventas de esta semana ({{ \Carbon\Carbon::parse($startDate)->format('d/m') }} -
+                            {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }})
+                        @elseif($dateFilter === 'month')
+                            Ventas de este mes ({{ \Carbon\Carbon::parse($startDate)->format('M Y') }})
+                        @endif
+                    </p>
+                </div>
+                <div class="ml-auto">
+                    <button wire:click="$set('dateFilter', 'all')"
+                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        Limpiar filtro
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
     @endif
 
     <!-- Table -->
@@ -133,45 +124,51 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th wire:click="sortBy('created_at')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <th wire:click="sortBy('created_at')"
+                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             <div class="flex items-center justify-center">
                                 <span>Fecha</span>
-                                @if($sortField === 'created_at')
-                                    <flux:icon.chevron-up class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
+                                @if ($sortField === 'created_at')
+                                    <flux:icon.chevron-up
+                                        class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
                                 @endif
                             </div>
                         </th>
-                        
-                        <th wire:click="sortBy('customer_id')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+
+                        <th wire:click="sortBy('customer_id')"
+                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             <div class="flex items-center justify-center">
                                 <span>Cliente</span>
-                                @if($sortField === 'customer_id')
-                                    <flux:icon.chevron-up class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
+                                @if ($sortField === 'customer_id')
+                                    <flux:icon.chevron-up
+                                        class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
                                 @endif
                             </div>
                         </th>
-                        
+
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Productos
                         </th>
-                        
+
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Total
                         </th>
-                        
+
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Estado
                         </th>
-                        
-                        <th wire:click="sortBy('user_id')" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+
+                        <th wire:click="sortBy('user_id')"
+                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             <div class="flex items-center justify-center">
                                 <span>Vendedor</span>
-                                @if($sortField === 'user_id')
-                                    <flux:icon.chevron-up class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
+                                @if ($sortField === 'user_id')
+                                    <flux:icon.chevron-up
+                                        class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
                                 @endif
                             </div>
                         </th>
-                        
+
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Acciones
                         </th>
@@ -182,22 +179,22 @@
                         <tr class="hover:bg-gray-50 {{ $sale->trashed() ? 'opacity-60' : '' }}">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 {{ $sale->created_at->format('d/m/Y H:i') }}
-                                @if($sale->trashed())
+                                @if ($sale->trashed())
                                     <div class="text-xs text-red-500 mt-1">Eliminada</div>
                                 @endif
                             </td>
-                            
+
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="text-sm font-medium text-gray-900">
                                     {{ $sale->customer->name ?? 'Cliente eliminado' }}
                                 </div>
-                                @if($sale->customer?->email)
+                                @if ($sale->customer?->email)
                                     <div class="text-sm text-gray-500">
                                         {{ $sale->customer->email }}
                                     </div>
                                 @endif
                             </td>
-                            
+
                             <td class="px-6 py-4 text-center">
                                 <div class="text-sm text-gray-900">
                                     {{ $sale->saleDetails->count() }} producto(s)
@@ -206,11 +203,11 @@
                                     {{ number_format($sale->saleDetails->sum('quantity'), 2) }} unidades
                                 </div>
                             </td>
-                            
+
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                                 ${{ number_format($sale->saleDetails->sum('total_price'), 2) }}
                             </td>
-                            
+
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @php
                                     $statusColors = [
@@ -226,66 +223,47 @@
                                         'cancelled' => 'Cancelado',
                                     ];
                                 @endphp
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                <span
+                                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
                                 {{ $statusColors[$sale->payment_status] ?? 'bg-gray-100 text-gray-800' }}">
                                     {{ $statusLabels[$sale->payment_status] ?? $sale->payment_status }}
                                 </span>
                             </td>
-                            
+
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 {{ $sale->user->name ?? 'Usuario eliminado' }}
                             </td>
-                            
+
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <flux:button 
-                                        size="sm" 
-                                        variant="ghost" 
-                                        wire:click="openViewModal({{ $sale->id }})"
-                                        icon="eye"
-                                        aria-label="Ver venta"
-                                    />
-                                    
-                                    @if(!$sale->trashed())
+                                    <flux:button size="sm" variant="ghost"
+                                        wire:click="openViewModal({{ $sale->id }})" icon="eye"
+                                        aria-label="Ver venta" />
+
+                                    @if (!$sale->trashed())
                                         <!-- Payment Actions (only for unpaid/partial sales) -->
-                                        @if(in_array($sale->payment_status, ['pending', 'partial']))
-                                            <flux:button 
-                                                size="sm" 
-                                                variant="ghost" 
+                                        @if (in_array($sale->payment_status, ['pending', 'partial']))
+                                            <flux:button size="sm" variant="ghost"
                                                 wire:click="openAddPaymentModal({{ $sale->id }})"
-                                                icon="credit-card"
-                                                aria-label="Agregar pago"
-                                                class="text-green-600 hover:text-green-700"
-                                            />
+                                                icon="credit-card" aria-label="Agregar pago"
+                                                class="text-green-600 hover:text-green-700" />
                                         @endif
-                                        
+
                                         <!-- Payment History (for all sales with payments) -->
-                                        @if($sale->payments && $sale->payments->count() > 0)
-                                            <flux:button 
-                                                size="sm" 
-                                                variant="ghost" 
+                                        @if ($sale->payments && $sale->payments->count() > 0)
+                                            <flux:button size="sm" variant="ghost"
                                                 wire:click="openPaymentHistoryModal({{ $sale->id }})"
-                                                icon="clock"
-                                                aria-label="Historial de pagos"
-                                                class="text-blue-600 hover:text-blue-700"
-                                            />
+                                                icon="clock" aria-label="Historial de pagos"
+                                                class="text-blue-600 hover:text-blue-700" />
                                         @endif
-                                        
-                                        <flux:button 
-                                            size="sm" 
-                                            variant="ghost" 
-                                            wire:click="openEditModal({{ $sale->id }})"
-                                            icon="pencil"
-                                            aria-label="Editar venta"
-                                        />
-                                        
-                                        <flux:button 
-                                            size="sm" 
-                                            variant="ghost" 
-                                            wire:click="openDeleteModal({{ $sale->id }})"
-                                            icon="trash"
-                                            aria-label="Eliminar venta"
-                                        />
+
+                                        <flux:button size="sm" variant="ghost"
+                                            wire:click="openEditModal({{ $sale->id }})" icon="pencil"
+                                            aria-label="Editar venta" />
+
+                                        <flux:button size="sm" variant="ghost"
+                                            wire:click="openDeleteModal({{ $sale->id }})" icon="trash"
+                                            aria-label="Eliminar venta" />
                                     @endif
                                 </div>
                             </td>
@@ -293,7 +271,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
-                                @if($search)
+                                @if ($search)
                                     No se encontraron ventas que coincidan con "{{ $search }}".
                                 @else
                                     No hay ventas registradas.
@@ -306,7 +284,7 @@
         </div>
 
         <!-- Pagination -->
-        @if($sales->hasPages())
+        @if ($sales->hasPages())
             <div class="px-6 py-3 border-t border-gray-200">
                 {{ $sales->links() }}
             </div>
@@ -316,15 +294,12 @@
     <!-- Results Info -->
     <div class="flex items-center justify-between text-sm text-gray-500">
         <div>
-            Mostrando {{ $sales->firstItem() ?? 0 }} - {{ $sales->lastItem() ?? 0 }} 
+            Mostrando {{ $sales->firstItem() ?? 0 }} - {{ $sales->lastItem() ?? 0 }}
             de {{ $sales->total() }} ventas
         </div>
-        
-        @if($search)
-            <button 
-                wire:click="$set('search', '')" 
-                class="text-primary-600 hover:text-primary-700"
-            >
+
+        @if ($search)
+            <button wire:click="$set('search', '')" class="text-primary-600 hover:text-primary-700">
                 Limpiar búsqueda
             </button>
         @endif
@@ -343,13 +318,10 @@
     </div>
 
     <!-- Modals -->
-    @include('components.sales.create-sale-modal', ['contextRouteId' => $contextRouteId, 
-    'contextCustomerId' => $contextCustomerId])
-    @include('components.sales.update-sale-modal', ['selectedSale' => $selectedSale, 
-    'contextRouteId' => $contextRouteId, 
-    'contextCustomerId' => $contextCustomerId])
-    @include('components.sales.view-sale-modal', ['selectedSale' => $selectedSale])
-    @include('components.sales.delete-sale-modal', ['selectedSale' => $selectedSale])
-    @include('components.sales.add-payment-modal', ['selectedSale' => $selectedSale])
-    @include('components.sales.payment-history-modal', ['selectedSale' => $selectedSale])
+    <livewire:sales.create-sale-modal :contextRouteId="$contextRouteId" :contextCustomerId="$contextCustomerId" />
+    <livewire:sales.update-sale-modal :contextRouteId="$contextRouteId" :contextCustomerId="$contextCustomerId" />
+    <livewire:sales.view-sale-modal />
+    <livewire:sales.delete-sale-modal />
+    <livewire:sales.payment-history-modal />
+    <livewire:sales.add-payment-modal :contextRouteId="$contextRouteId" />
 </div>

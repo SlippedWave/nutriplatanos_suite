@@ -1,11 +1,11 @@
-<flux:modal wire:model="showCreateSaleModal"
+<flux:modal wire:model="showCreateModal"
     class="space-y-6 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-2xl md:max-w-3xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Crear Nueva Venta') }}</flux:heading>
     </div>
 
     <div class="space-y-4">
-        @if ($showCreateSaleModal && session()->has('error'))
+        @if ($showCreateModal && session()->has('error'))
             <div class="bg-red-50 border border-red-200 rounded-md p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">

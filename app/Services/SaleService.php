@@ -29,6 +29,7 @@ class SaleService
 
             // Create the sale without products data
             $saleData = collect($validated)->except(['products', 'notes'])->toArray();
+            $saleData['net_amount_due'] = $validated['total_amount'];
             $sale = Sale::create($saleData);
 
             // Create sale details if products are provided
@@ -64,7 +65,7 @@ class SaleService
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación. Por favor, revisa los datos ingresados.',
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
                 'errors' => $e->errors(),
                 'type' => 'validation'
             ];

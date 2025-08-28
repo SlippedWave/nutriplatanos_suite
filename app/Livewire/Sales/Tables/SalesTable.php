@@ -5,11 +5,9 @@ namespace App\Livewire\Sales\Tables;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Customer;
-use App\Models\SaleDetail;
 use App\Models\SalePayment;
 use App\Models\Route;
 use App\Services\SaleService;
-use App\Services\SalePaymentService;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -33,23 +31,6 @@ class SalesTable extends Component
     public bool $showAddPaymentModal = false;
     public bool $showPaymentHistoryModal = false;
 
-    // Form fields
-    public $customer_id = '';
-    public $route_id = null;
-    public $payment_status = 'pending';
-    public $paid_amount = 0.00; // New field for paid amount
-    public $notes = '';
-    public $saleProducts = [];
-    public int $box_balance_delivered = 0;
-    public int $box_balance_returned = 0;
-
-    // Payment form fields
-    public $payment_amount = 0.00;
-    public $payment_date = '';
-    public $payment_method = 'cash';
-    public $payment_route_id = '';
-    public $payment_notes = '';
-
     public bool $canCreateNewSale = true; // Flag to control creation of new sales
 
     // Date filtering
@@ -63,14 +44,19 @@ class SalesTable extends Component
 
     public ?Sale $selectedSale = null;
 
-    protected function showSalesTableMessage($result)
+    protected $listeners = [
+        'refresh-sales-table' => '$refresh',
+        'flash-sales-table-message' => 'flashSalesTableMessage',
+        'show-sales-table-message' => 'showSalesTableMessage',
+    ];
+
+    public function showSalesTableMessage($result)
     {
-        $this->closeModals();
         $this->flashSalesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
         $this->resetPage();
     }
 
-    protected function flashSalesTableMessage(string $message, string $type): void
+    public function flashSalesTableMessage(string $message, string $type): void
     {
         session()->flash('message', [
             'header' => 'sales-table',
@@ -78,13 +64,12 @@ class SalesTable extends Component
             'type' => $type,
         ]);
     }
-    protected SaleService $saleService;
-    protected SalePaymentService $salePaymentService;
 
-    public function boot(SaleService $saleService, SalePaymentService $salePaymentService)
+    protected SaleService $saleService;
+
+    public function boot()
     {
-        $this->saleService = $saleService;
-        $this->salePaymentService = $salePaymentService;
+        $this->saleService = app(SaleService::class);
     }
 
     protected $queryString = [
@@ -96,75 +81,10 @@ class SalesTable extends Component
         'includeDeleted' => ['except' => false],
     ];
 
-    protected $rules = [
-        'customer_id' => 'required|exists:customers,id',
-        'route_id' => 'required|exists:routes,id',
-        'paid_amount' => 'nullable|numeric|min:0|max:999999.99',
-        'notes' => 'nullable|string|max:1000',
-        'saleProducts.*.product_id' => 'required|exists:products,id',
-        // Require integer quantities (only whole numbers). Adjust min/max as needed.
-        'saleProducts.*.quantity' => 'required|integer|min:1|max:999999',
-        'saleProducts.*.price_per_unit' => 'required|numeric|min:0.01|max:999999.99',
-        'box_balance_delivered' => 'nullable|integer|min:0',
-        'box_balance_returned' => 'nullable|integer|min:0',
-    ];
-
-    protected $messages = [
-        'customer_id.required' => 'El cliente es obligatorio.',
-        'customer_id.exists' => 'El cliente seleccionado no es válido.',
-        'route_id.required' => 'La ruta es obligatoria.',
-        'route_id.exists' => 'La ruta seleccionada no es válida.',
-        'paid_amount.numeric' => 'El monto pagado debe ser un número.',
-        'paid_amount.min' => 'El monto pagado no puede ser negativo.',
-        'paid_amount.max' => 'El monto pagado es demasiado alto.',
-        'saleProducts.*.product_id.required' => 'Debe seleccionar un producto.',
-        'saleProducts.*.product_id.exists' => 'El producto seleccionado no es válido.',
-        'saleProducts.*.quantity.required' => 'La cantidad es obligatoria.',
-        'saleProducts.*.quantity.integer' => 'La cantidad debe ser un número entero.',
-        'saleProducts.*.quantity.min' => 'La cantidad debe ser mayor que 0.',
-        'saleProducts.*.price_per_unit.required' => 'El precio unitario es obligatorio.',
-        'saleProducts.*.price_per_unit.numeric' => 'El precio unitario debe ser un número.',
-        'saleProducts.*.price_per_unit.min' => 'El precio unitario debe ser mayor que 0.',
-    ];
-    protected function getPaymentRules(): array
-    {
-        return [
-            'payment_amount' => 'required|numeric|min:0.01|max:999999.99',
-            'payment_date' => 'required|date|before_or_equal:today',
-            'payment_method' => 'required|in:cash,transfer,check,card,other',
-            'payment_route_id' => 'nullable|exists:routes,id',
-            'payment_notes' => 'nullable|string|max:1000',
-        ];
-    }
-
-    /**
-     * Get payment validation messages.
-     */
-    protected function getPaymentMessages(): array
-    {
-        return [
-            'payment_amount.required' => 'El monto del pago es obligatorio.',
-            'payment_amount.numeric' => 'El monto del pago debe ser un número.',
-            'payment_amount.min' => 'El monto del pago debe ser mayor que 0.',
-            'payment_amount.max' => 'El monto del pago es demasiado alto.',
-            'payment_date.required' => 'La fecha de pago es obligatoria.',
-            'payment_date.date' => 'La fecha de pago debe ser una fecha válida.',
-            'payment_date.before_or_equal' => 'La fecha de pago no puede ser futura.',
-            'payment_method.required' => 'El método de pago es obligatorio.',
-            'payment_method.in' => 'El método de pago seleccionado no es válido.',
-            'payment_route_id.exists' => 'La ruta seleccionada no es válida.',
-            'payment_notes.string' => 'Las notas deben ser texto.',
-            'payment_notes.max' => 'Las notas no pueden exceder 1000 caracteres.',
-        ];
-    }
-
     public function mount($customer_id = null, $route_id = null)
     {
         $this->contextCustomerId = $customer_id;
         $this->contextRouteId = $route_id;
-
-        $this->customer_id = $customer_id ?? '';
-        $this->route_id = $route_id ?? '';
 
         // Determine sale creation eligibility based on contextual parameters
         $this->canCreateNewSale = match (true) {
@@ -178,12 +98,8 @@ class SalesTable extends Component
                 ->where('status', 'active')
                 ->exists(),
 
-            // Default: require explicit context association for new sale creation
             default => false,
         };
-
-        // Initialize products array with one empty product
-        $this->addProduct();
 
         $this->applyDateFilter();
     }
@@ -254,384 +170,32 @@ class SalesTable extends Component
     // Modal management methods
     public function openCreateModal()
     {
-        $this->resetFormFields();
-        $this->resetValidation(); // Clear any previous validation errors
-        session()->forget(['error', 'message']); // Clear any session messages
-        $this->showCreateSaleModal = true;
+        $this->dispatch('open-create-sale-modal');
     }
 
     public function openEditModal($saleId)
     {
-        $this->selectedSale = Sale::with(['saleDetails.product', 'customer', 'route'])->findOrFail($saleId);
-        $this->fillForm($this->selectedSale);
-        $this->resetValidation(); // Clear any previous validation errors
-        session()->forget(['error', 'message']); // Clear any session messages
-        $this->showUpdateSaleModal = true;
+        $this->dispatch('open-update-sale-modal', $saleId);
     }
 
     public function openViewModal($saleId)
     {
-        $this->selectedSale = Sale::with(['saleDetails.product', 'customer', 'route', 'user'])
-            ->withTrashed()
-            ->findOrFail($saleId);
-        $this->resetValidation(); // Clear any previous validation errors
-        session()->forget(['error', 'message']); // Clear any session messages
-        $this->showViewSaleModal = true;
+        $this->dispatch('open-view-sale-modal', $saleId);
     }
 
     public function openDeleteModal($saleId)
     {
-        $this->selectedSale = Sale::findOrFail($saleId);
-        $this->resetValidation(); // Clear any previous validation errors
-        session()->forget(['error', 'message']); // Clear any session messages
-        $this->showDeleteSaleModal = true;
+        $this->dispatch('open-delete-sale-modal', $saleId);
     }
 
     public function openAddPaymentModal($saleId)
     {
-        $this->selectedSale = Sale::with(['saleDetails', 'payments'])->findOrFail($saleId);
-        $this->resetPaymentFields();
-        $this->resetValidation(); // Clear any previous validation errors
-        session()->forget(['error', 'message']); // Clear any session messages
-        $this->showAddPaymentModal = true;
+        $this->dispatch('open-add-payment-modal', $saleId);
     }
 
     public function openPaymentHistoryModal($saleId)
     {
-        $this->selectedSale = Sale::with(['payments.user', 'payments.route', 'saleDetails'])->findOrFail($saleId);
-        $this->resetValidation(); // Clear any previous validation errors
-        session()->forget(['error', 'message']); // Clear any session messages
-        $this->showPaymentHistoryModal = true;
-    }
-
-    public function closeModals()
-    {
-        $this->showCreateSaleModal = false;
-        $this->showUpdateSaleModal = false;
-        $this->showDeleteSaleModal = false;
-        $this->showViewSaleModal = false;
-        $this->showAddPaymentModal = false;
-        $this->showPaymentHistoryModal = false;
-        $this->selectedSale = null;
-        $this->resetFormFields();
-        $this->resetPaymentFields();
-        $this->resetValidation(); // Clear validation errors when closing modals
-
-        // Clear session flash messages
-        session()->forget(['error', 'message']);
-    }
-
-    public function clearErrors()
-    {
-        $this->resetValidation();
-        session()->forget(['error', 'message']);
-    }
-
-    public function clearErrorsForModal($modalType = null)
-    {
-        // Clear validation errors
-        $this->resetValidation();
-
-        // Clear session errors only if the current modal is open
-        $shouldClearSession = match ($modalType) {
-            'create' => $this->showCreateSaleModal,
-            'update' => $this->showUpdateSaleModal,
-            'delete' => $this->showDeleteSaleModal,
-            'view' => $this->showViewSaleModal,
-            'payment' => $this->showAddPaymentModal,
-            'payment_history' => $this->showPaymentHistoryModal,
-            default => true, // Clear if no specific modal type provided
-        };
-
-        if ($shouldClearSession) {
-            session()->forget(['error', 'message']);
-        }
-    }
-
-    // Product management methods
-    public function addProduct()
-    {
-        $this->saleProducts[] = [
-            'product_id' => '',
-            'quantity' => 1,
-            'price_per_unit' => 0,
-        ];
-    }
-
-    public function removeProduct($index)
-    {
-        if (count($this->saleProducts) > 1) {
-            unset($this->saleProducts[$index]);
-            $this->saleProducts = array_values($this->saleProducts); // Re-index array
-        }
-    }
-
-    public function createSale()
-    {
-        try {
-            // Validate form data first
-            $this->validate();
-
-            $result = $this->saleService->createSale($this->getFormData());
-
-            if ($result['success']) {
-                $sale = $result['sale'] ?? null;
-
-                // Create a payment record if the sale has a paid amount
-                if ($sale && ($this->payment_status === 'paid' || $this->payment_status === 'partial')) {
-                    $paymentAmount = $this->payment_status === 'paid' ? $sale->total_amount : $this->paid_amount;
-
-                    $paymentData = [
-                        'sale_id' => $sale->id,
-                        'amount' => $paymentAmount,
-                        'payment_date' => now()->toDateString(),
-                        'payment_method' => $this->payment_method, // Default payment method
-                        'route_id' => $this->route_id ?: null,
-                        'notes' => 'Pago inicial registrado con la venta',
-                    ];
-
-                    $this->salePaymentService->addPayment($sale, $paymentData);
-                }
-
-                $this->showSalesTableMessage($result);
-            } else {
-                // Handle different types of errors
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        // Don't close modal for validation errors
-                        if (isset($result['errors'])) {
-                            // Set validation errors for display
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->flashSalesTableMessage($result['message'], 'error');
-                        break;
-                    default:
-                        // Don't close modal for other errors, let user retry
-                        $this->showSalesTableMessage($result);
-                        break;
-                }
-            }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Livewire validation failed, don't close modal
-            $this->flashSalesTableMessage($e->getMessage(), 'error');
-        }
-    }
-
-    public function updateSale()
-    {
-        if (!$this->selectedSale) {
-            $this->flashSalesTableMessage('No se ha seleccionado ninguna venta.', 'error');
-            return;
-        }
-
-        try {
-            // Validate form data first
-            $this->validate();
-
-            $result = $this->saleService->updateSale($this->selectedSale, $this->getFormData());
-
-            if ($result['success']) {
-                $this->showSalesTableMessage($result);
-            } else {
-                // Handle different types of errors
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        // Don't close modal for validation errors
-                        if (isset($result['errors'])) {
-                            // Set validation errors for display
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->flashSalesTableMessage($result['message'], 'error');
-                        break;
-                    default:
-                        // Don't close modal for other errors, let user retry
-                        $this->showSalesTableMessage($result);
-                        break;
-                }
-            }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Livewire validation failed, don't close modal
-            $this->flashSalesTableMessage($e->getMessage(), 'error');
-        }
-    }
-
-    public function deleteSale()
-    {
-        if (!$this->selectedSale) {
-            $this->flashSalesTableMessage('No se ha seleccionado ninguna venta.', 'error');
-            return;
-        }
-
-        $result = $this->saleService->deleteSale($this->selectedSale);
-
-        if ($result['success']) {
-            $this->showSalesTableMessage($result);
-        } else {
-            // Handle different types of errors
-            switch ($result['type'] ?? 'error') {
-                case 'validation':
-                    // Don't close modal for validation errors
-                    if (isset($result['errors'])) {
-                        // Set validation errors for display
-                        foreach ($result['errors'] as $field => $messages) {
-                            $this->addError($field, implode(' ', $messages));
-                        }
-                    }
-                    $this->flashSalesTableMessage($result['message'], 'error');
-                    break;
-                default:
-                    // Don't close modal for other errors, let user retry
-                    $this->showSalesTableMessage($result);
-                    break;
-            }
-        }
-    }
-
-    // Payment management methods
-    public function addPayment()
-    {
-        if (!$this->selectedSale) {
-            $this->flashSalesTableMessage('No se ha seleccionado ninguna venta.', 'error');
-            return;
-        }
-
-        try {
-            // Validate payment data
-            $this->validate($this->getPaymentRules(), $this->getPaymentMessages());
-
-            $result = $this->salePaymentService->addPayment($this->selectedSale, $this->getPaymentFormData());
-
-            if ($result['success']) {
-                $this->showSalesTableMessage($result);
-            } else {
-                // Handle different types of errors
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        // Don't close modal for validation errors
-                        if (isset($result['errors'])) {
-                            // Set validation errors for display
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->flashSalesTableMessage($result['message'], 'error');
-                        break;
-                    default:
-                        // Don't close modal for other errors, let user retry
-                        $this->showSalesTableMessage($result);
-                        break;
-                }
-            }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Livewire validation failed, don't close modal
-            $this->flashSalesTableMessage($e->getMessage(), 'error');
-        }
-    }
-
-    public function markAsFullyPaid($saleId)
-    {
-        $sale = Sale::findOrFail($saleId);
-
-        $result = $this->salePaymentService->markAsFullyPaid($sale);
-
-        $this->showSalesTableMessage($result);
-    }
-
-    // Utility methods
-    private function getFormData(): array
-    {
-        // Filter out empty products
-        $validProducts = array_filter($this->saleProducts, function ($product) {
-            return !empty($product['product_id']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0;
-        });
-
-        $totalAmount = array_reduce($validProducts, function ($carry, $product) {
-            return $carry + ($product['quantity'] * $product['price_per_unit']);
-        }, 0.00);
-
-        return [
-            'customer_id' => $this->customer_id,
-            'route_id' => $this->route_id,
-            'payment_status' => $this->payment_status,
-            'total_amount' => $totalAmount,
-            'paid_amount' => match ($this->payment_status) {
-                'partial' => $this->paid_amount,
-                'paid' => $totalAmount,
-                default => 0,
-            },
-            'notes' => $this->notes,
-            'products' => array_values($validProducts), // Re-index
-            'box_balance_returned' => $this->box_balance_returned,
-            'box_balance_delivered' => $this->box_balance_delivered,
-        ];
-    }
-
-    private function resetFormFields()
-    {
-        $this->customer_id = $this->contextCustomerId ?? '';
-        $this->route_id = $this->contextRouteId ?? '';
-        $this->payment_status = 'pending';
-        $this->paid_amount = 0.00;
-        $this->notes = '';
-        $this->saleProducts = [];
-        $this->addProduct(); // Add one empty product
-    }
-
-    private function resetPaymentFields()
-    {
-        $this->payment_amount = 0.00;
-        $this->payment_date = now()->toDateString();
-        $this->payment_method = 'cash';
-        $this->payment_route_id = $this->contextRouteId ?? '';
-        $this->payment_notes = '';
-    }
-
-    private function getPaymentFormData(): array
-    {
-        return [
-            'sale_id' => $this->selectedSale->id,
-            'amount' => $this->payment_amount,
-            'payment_date' => $this->payment_date,
-            'payment_method' => $this->payment_method,
-            'route_id' => $this->payment_route_id ?: null,
-            'notes' => $this->payment_notes,
-        ];
-    }
-
-    private function fillForm(Sale $sale)
-    {
-        $this->customer_id = $sale->customer_id;
-        $this->route_id = $sale->route_id;
-        $this->payment_status = $sale->payment_status;
-        $this->paid_amount = $sale->paid_amount ?? 0.00;
-        $this->notes = '';
-
-        // Fill products
-        $this->saleProducts = $sale->saleDetails->map(function ($detail) {
-            return [
-                'product_id' => $detail->product_id,
-                'quantity' => $detail->quantity,
-                'price_per_unit' => $detail->price_per_unit,
-            ];
-        })->toArray();
-
-        if (empty($this->saleProducts)) {
-            $this->addProduct();
-        }
-    }
-
-    public function hasOpenModal(): bool
-    {
-        return $this->showCreateSaleModal ||
-            $this->showUpdateSaleModal ||
-            $this->showDeleteSaleModal ||
-            $this->showViewSaleModal ||
-            $this->showAddPaymentModal ||
-            $this->showPaymentHistoryModal;
+        $this->dispatch('open-payment-history-modal', $saleId);
     }
 
     public function render()
