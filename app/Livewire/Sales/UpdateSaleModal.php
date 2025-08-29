@@ -20,7 +20,6 @@ class UpdateSaleModal extends Component
 
     public $customers = [];
     public array $paymentMethods = [];
-    public $products;
 
     // Form fields
     public $customer_id = null;
@@ -74,7 +73,6 @@ class UpdateSaleModal extends Component
 
         $this->customers = Customer::where('active', true)->get();
         $this->paymentMethods = SalePayment::PAYMENT_METHODS;
-        $this->products = Product::all();
 
         $this->route_id = $contextRouteId;
         $this->customer_id = $contextCustomerId;
@@ -102,23 +100,6 @@ class UpdateSaleModal extends Component
     public function clearErrorsForModal()
     {
         session()->forget(['error', 'message']);
-    }
-
-    public function addProduct()
-    {
-        $this->saleProducts[] = [
-            'product_id' => '',
-            'quantity' => 1,
-            'price_per_unit' => 0,
-        ];
-    }
-
-    public function removeProduct($index)
-    {
-        if (count($this->saleProducts) > 1) {
-            unset($this->saleProducts[$index]);
-            $this->saleProducts = array_values($this->saleProducts); // Re-index array
-        }
     }
 
     public function updateSale()

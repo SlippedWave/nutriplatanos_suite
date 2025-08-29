@@ -95,6 +95,10 @@ class SaleService
 
             DB::beginTransaction();
 
+            if ($sale->payment_status === 'paid' && $sale->paid_amount !== $validated['total_amount']) {
+                $validated['payment_status'] = 'partial';
+            }
+
             // Update the sale without products data
             $saleData = collect($validated)->except(['products', 'notes'])->toArray();
             $sale->update($saleData);
@@ -105,7 +109,6 @@ class SaleService
             if (isset($validated['products'])) {
                 // Delete existing sale details
 
-                // Create new sale details
                 if (!empty($validated['products'])) {
                     $this->createSaleDetails($sale, $validated['products']);
                 }

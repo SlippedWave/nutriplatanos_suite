@@ -67,8 +67,10 @@
 
         <flux:separator class="my-6" />
 
+        <livewire:sales.product-details-editor wire:model="saleProducts" />
+
         <!-- Products Section -->
-        <div>
+        {{-- <div>
             <div class="flex items-center justify-between mb-4">
                 <flux:heading size="base">{{ __('Productos') }} *</flux:heading>
                 <flux:button type="button" wire:click="addProduct" size="sm" variant="outline" icon="plus">
@@ -124,10 +126,7 @@
                         </flux:field>
                     </div>
 
-                    @if (is_numeric($product['quantity']) &&
-                            is_numeric($product['price_per_unit']) &&
-                            $product['quantity'] > 0 &&
-                            $product['price_per_unit'] > 0)
+                    @if (is_numeric($product['quantity']) && is_numeric($product['price_per_unit']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0)
                         <div class="mt-3 text-right">
                             <span class="text-sm font-medium text-gray-900">
                                 Subtotal:
@@ -154,7 +153,7 @@
                     </div>
                 </div>
             @endif
-        </div>
+        </div> --}}
 
         <!-- Payment Status -->
         <flux:field>
@@ -218,8 +217,8 @@
                 {{ __('Cancelar') }}
             </flux:button>
 
-            <flux:button wire:click="createSale" variant="primary" wire:loading.attr="disabled"
-                wire:target="createSale" class="w-full sm:w-auto">
+            <flux:button wire:click="createSale" variant="primary" wire:loading.attr="disabled" wire:target="createSale"
+                class="w-full sm:w-auto">
                 <span wire:loading.remove wire:target="createSale">{{ __('Crear Venta') }}</span>
                 <span wire:loading wire:target="createSale">Creando...</span>
             </flux:button>
