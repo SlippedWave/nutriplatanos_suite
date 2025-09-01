@@ -20,7 +20,6 @@ class CameraService
         ]);
     }
 
-
     public function createCamera(array $data): array
     {
         try {
