@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\Resources\Cameras\Tables;
+namespace App\Livewire\Resources\Products\Tables;
 
+use App\Models\Product;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Camera;
 
-class CamerasTable extends Component
+class ProductsTable extends Component
 {
     use WithPagination;
 
@@ -21,7 +21,7 @@ class CamerasTable extends Component
     }
 
     protected $listeners = [
-        'cameras-info-updated' => '$refresh',
+        'products-info-updated' => '$refresh',
     ];
 
     public function sortBy($field)
@@ -37,7 +37,9 @@ class CamerasTable extends Component
 
     public function render()
     {
-        $cameras = Camera::orderBy($this->sortField, $this->sortDirection)->paginate($this->perPage);
-        return view('livewire.resources.cameras.tables.cameras-table', compact('cameras'));
+        $products = Product::orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+
+        return view('livewire.resources.products.tables.products-table', compact('products'));
     }
 }

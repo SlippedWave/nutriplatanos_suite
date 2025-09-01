@@ -44,9 +44,9 @@
 
             <!-- Action Buttons Group -->
             <div class="flex flex-col xs:flex-row gap-2 xs:items-center">
-                <flux:button variant="primary" icon="plus" wire:click="$dispatch('open-create-camera-modal')"
+                <flux:button variant="primary" icon="plus" wire:click="$dispatch('open-create-product-modal')"
                     class="w-full xs:w-auto">
-                    <span class="hidden sm:inline">{{ __('Nueva Venta') }}</span>
+                    <span class="hidden sm:inline">{{ __('Nuevo producto') }}</span>
                     <span class="sm:hidden">{{ __('Nueva') }}</span>
                 </flux:button>
             </div>
@@ -62,7 +62,7 @@
                         <th wire:click="sortBy('name')"
                             class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
                             <div class="flex items-start justify-start">
-                                <span>Cámara</span>
+                                <span>Producto</span>
                                 @if ($sortField === 'name')
                                     <flux:icon.chevron-up
                                         class="w-4 h-4 ml-1 {{ $sortDirection === 'desc' ? 'rotate-180' : '' }}" />
@@ -72,7 +72,7 @@
                         <th
                             class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
                             <div class="flex items-center justify-center">
-                                <span>Cantidad de cajas</span>
+                                <span>Descripción</span>
                             </div>
                         </th>
                         <th
@@ -84,30 +84,27 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($cameras as $camera)
+                    @forelse($products as $product)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-start">
-                                {{ $camera->name }}
-                                <div class="text-xs text-gray-500">
-                                    {{ $camera->location }}
-                                </div>
+                                {{ $product->name }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                {{ $camera->box_stock }}
+                                {{ $product->description }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 <flux:button variant="ghost" size="sm" icon="pencil"
-                                    wire:click="$dispatch('open-update-camera-modal', {id: {{ $camera->id }}})"
-                                    aria-label="{{ __('Editar cámara') }}" />
+                                    wire:click="$dispatch('open-update-product-modal', {id: {{ $product->id }}})"
+                                    aria-label="{{ __('Editar producto') }}" />
                                 <flux:button variant="ghost" size="sm" icon="trash"
-                                    wire:click="$dispatch('open-delete-camera-modal', {id: {{ $camera->id }}})"
-                                    aria-label="{{ __('Eliminar cámara') }}" />
+                                    wire:click="$dispatch('open-delete-product-modal', {id: {{ $product->id }}})"
+                                    aria-label="{{ __('Eliminar producto') }}" />
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
-                                No hay cámaras registradas.
+                                No hay productos registrados.
                             </td>
                         </tr>
                     @endforelse
@@ -116,7 +113,7 @@
         </div>
     </div>
 
-    <livewire:resources.cameras.create-camera-modal />
-    <livewire:resources.cameras.update-camera-modal />
-    <livewire:resources.cameras.delete-camera-modal />
+    <livewire:resources.products.create-product-modal />
+    <livewire:resources.products.update-product-modal />
+    <livewire:resources.products.delete-product-modal />
 </div>

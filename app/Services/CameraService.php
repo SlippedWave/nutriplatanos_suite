@@ -47,7 +47,7 @@ class CameraService
             $camera = Camera::findOrFail($id);
             $camera->update($validated);
 
-            $this->createCameraNote($camera, 'Cámara actualizada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+            $this->createCameraNote($camera, 'Cámara "' . $camera->name . '" actualizada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
 
             return [
                 'success' => true,
@@ -68,7 +68,7 @@ class CameraService
             $camera = Camera::findOrFail($id);
             $camera->delete();
 
-            $this->createCameraNote($camera, 'Cámara eliminada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+            $this->createCameraNote($camera, 'Cámara "' . $camera->name . '" eliminada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
 
             return [
                 'success' => true,

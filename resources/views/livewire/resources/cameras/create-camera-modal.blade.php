@@ -10,20 +10,20 @@
                 <h4 class="font-semibold">{{ __('Datos de la cámara') }}</h4>
                 <div class="flex flex-col space-y-2">
                     <flux:field>
-                        <flux:input wire:model="name" label="{{ __('Nombre') }}" type="text" placeholder=""
-                            class="text-[var(--color-text)]!" />
+                        <flux:input wire:model="name" label="{{ __('Nombre') }}" type="text"
+                            placeholder="Nombre de la cámara" class="text-[var(--color-text)]!" />
                         <flux:error name="name" />
                     </flux:field>
 
                     <flux:field>
-                        <flux:input wire:model="location" label="{{ __('Ubicación') }}" type="text" placeholder=""
-                            class="text-[var(--color-text)]!" />
+                        <flux:input wire:model="location" label="{{ __('Ubicación') }}" type="text"
+                            placeholder="Ubicación de la cámara" class="text-[var(--color-text)]!" />
                         <flux:error name="location" />
                     </flux:field>
 
                     <flux:field>
                         <flux:input wire:model="box_stock" label="{{ __('Stock de cajas') }}" type="text"
-                            placeholder="" class="text-[var(--color-text)]!" />
+                            placeholder="Cantidad de cajas en existencia" class="text-[var(--color-text)]!" />
                         <flux:error name="box_stock" />
                     </flux:field>
                 </div>

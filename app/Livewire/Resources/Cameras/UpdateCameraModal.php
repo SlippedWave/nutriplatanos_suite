@@ -1,10 +1,10 @@
 <?php
-// ...existing code...
+
 namespace App\Livewire\Resources\Cameras;
 
 use Livewire\Component;
 use App\Services\CameraService;
-use App\Models\Camera; // added
+use App\Models\Camera;
 
 class UpdateCameraModal extends Component
 {
