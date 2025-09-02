@@ -30,7 +30,7 @@ new class extends Component {};
     <div class="bg-white border border-gray-300 rounded-md p-4 shadow-sm mt-4">
         <div class="flex items-start justify-between mb-3">
             <div class="flex items-center gap-3">
-                <flux:icon.home-modern class="w-6 h-6 text-gray-500" />
+                <flux:icon.cube class="w-6 h-6 text-gray-500" />
                 <div>
                     <p class="text-sm font-semibold text-gray-800">Productos</p>
                     <p class="text-xs text-gray-500">Productos disponibles para la venta</p>
@@ -44,7 +44,4 @@ new class extends Component {};
             </div>
         </div>
     </div>
-
-
-
 </section>

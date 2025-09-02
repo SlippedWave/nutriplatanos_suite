@@ -11,14 +11,13 @@
 <div class="flex-1">
     <div class="w-full flex justify-center items-center mb-4! mt-0! pt-0! ">
         <flux:navbar>
-            @if($userHasActiveRoute && $activeRouteId)
-                <flux:navbar.item :href="route('routes.show', ['route' => $activeRouteId])" wire:navigate>
-                    {{ __('Mi ruta activa') }}
-                </flux:navbar.item>
-            @else
-                <flux:navbar.item :href="route('routes.index')" wire:navigate>{{ __('Nueva ruta') }}</flux:navbar.item>
-            @endif
-            <flux:navbar.item :href="route('routes.history')" wire:navigate>{{ ($role === 'admin' || $role === 'coordinator') ? __('Ver historial de rutas') : __('Mis rutas') }}</flux:navbar.item>
+            <flux:navbar.item :href="route('routes.index')" wire:navigate
+                :current="request()->routeIs('routes.index') || request()->routeIs('routes.show')">
+                {{ __('Ruta') }}</flux:navbar.item>
+            <flux:navbar.item :href="route('routes.history')" wire:navigate
+                :current="request()->routeIs('routes.history')">
+                {{ $role === 'admin' || $role === 'coordinator' ? __('Ver historial de rutas') : __('Mis rutas') }}
+            </flux:navbar.item>
         </flux:navbar>
     </div>
 
