@@ -52,7 +52,7 @@ class UserService
             'emergency_contact' => 'nullable|string|max:255',
             'emergency_contact_phone' => 'nullable|string|max:20',
             'emergency_contact_relationship' => 'nullable|string|max:50',
-            'role' => ['required', Rule::in(['carrier', 'admin'])],
+            'role' => ['required', Rule::in(array_keys(User::ROLES))],
             'password' => $userId ? 'nullable|string|min:8|confirmed' : 'required|string|min:8|confirmed',
             'notes' => 'nullable|string|max:1000',
         ])->validate();

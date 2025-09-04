@@ -4,6 +4,7 @@ namespace App\Livewire\Sales;
 
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Route;
 use App\Models\SalePayment;
 use App\Services\SalePaymentService;
 use App\Services\SaleService;
@@ -17,6 +18,7 @@ class CreateSaleModal extends Component
     public ?int $contextCustomerId = null;
 
     public $customers = [];
+    public $routes = [];
     public array $paymentMethods = [];
 
     // Form fields
@@ -70,6 +72,7 @@ class CreateSaleModal extends Component
         $this->contextCustomerId = $contextCustomerId;
 
         $this->customers = Customer::where('active', true)->get();
+        $this->routes = Route::where('status', 'active')->get();
         $this->paymentMethods = SalePayment::PAYMENT_METHODS;
 
         $this->route_id = $contextRouteId;

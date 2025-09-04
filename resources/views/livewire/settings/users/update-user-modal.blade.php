@@ -1,4 +1,4 @@
-<flux:modal wire:model="showEditModal" class="space-y-4 border-0 bg-background!">
+<flux:modal wire:model="showUpdateModal" class="space-y-4 border-0 bg-background!">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Editar Usuario') }}</flux:heading>
     </div>
@@ -19,9 +19,9 @@
             </flux:field>
             <flux:field>
                 <flux:select wire:model="role" label="{{ __('Rol') }}" required class="text-[var(--color-text)]!">
-                    <option value="carrier">{{ __('Transportista') }}</option>
-                    <option value="coordinator">{{ __('Coordinador') }}</option>
-                    <option value="admin">{{ __('Administrador') }}</option>
+                    @foreach (App\Models\User::ROLES as $value => $label)
+                        <option value="{{ $value }}">{{ __($label) }}</option>
+                    @endforeach
                 </flux:select>
                 <flux:error name="role" />
             </flux:field>
@@ -44,14 +44,14 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <flux:input wire:model="password" type="password" label="{{ __('Contraseña') }}" required class="text-[var(--color-text)]!" />
-            <flux:input wire:model="password_confirmation" type="password" label="{{ __('Confirmar contraseña') }}" required class="text-[var(--color-text)]!" />
+            <flux:input wire:model="password" type="password" label="{{ __('Contraseña') }}" class="text-[var(--color-text)]!" />
+            <flux:input wire:model="password_confirmation" type="password" label="{{ __('Confirmar contraseña') }}" class="text-[var(--color-text)]!" />
         </div>
 
         <flux:checkbox wire:model="active" label="{{ __('Usuario activo') }}" />
 
         <div class="flex justify-end gap-3 pt-4">
-            <flux:button variant="outline" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
+            <flux:button variant="outline" wire:click="$set('showUpdateModal', false)">{{ __('Cancelar') }}</flux:button>
             <flux:button type="submit" variant="primary">{{ __('Guardar cambios') }}</flux:button>
         </div>
     </form>

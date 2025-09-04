@@ -48,6 +48,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    const ROLES = [
+        'admin' => 'Administrador',
+        'carrier' => 'Transportista',
+        'coordinator' => 'Coordinador',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *

@@ -51,7 +51,7 @@ new class extends Component {
     <x-settings.layout :heading="__('Gestión de usuarios')" :subheading="__('Administra los usuarios dentro del sistema')" :showSidebar="false">
         <div class="mt-6 w-full max-w-full overflow-hidden">
             <div class="overflow-x-auto">
-                @livewire('settings.tables.users-table')
+                <livewire:settings.users.tables.users-table />
             </div>
         </div>
     </x-settings.layout>

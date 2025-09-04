@@ -57,7 +57,7 @@
             <flux:button 
                 variant="primary" 
                 icon="plus"
-                wire:click="openCreateModal"
+                wire:click="$dispatch('open-create-user-modal')"
             >
                 {{ __('Nuevo Usuario') }}
             </flux:button>
@@ -309,7 +309,7 @@
                                             variant="ghost" 
                                             size="sm" 
                                             icon="eye"
-                                            wire:click="openViewModal({{ $user->id }})"
+                                            wire:click="$dispatch('open-view-user-modal', { userId: {{ $user->id }} })"
                                             aria-label="{{ __('Ver usuario') }}"
                                         />
 
@@ -323,7 +323,7 @@
                                             variant="ghost" 
                                             size="sm" 
                                             icon="pencil"
-                                            wire:click="openEditModal({{ $user->id }})"
+                                            wire:click="$dispatch('open-update-user-modal', { userId: {{ $user->id }} })"
                                             aria-label="{{ __('Editar usuario') }}"
                                         />
                                         
@@ -331,7 +331,7 @@
                                             variant="ghost" 
                                             size="sm" 
                                             icon="eye"
-                                            wire:click="openViewModal({{ $user->id }})"
+                                            wire:click="$dispatch('open-view-user-modal', { userId: {{ $user->id }} })"
                                             aria-label="{{ __('Ver usuario') }}"
                                         />
                                         
@@ -341,7 +341,7 @@
                                                 size="sm" 
                                                 icon="trash"
                                                 class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
-                                                wire:click="openDeleteModal({{ $user->id }})"
+                                                wire:click="$dispatch('open-delete-user-modal', { userId: {{ $user->id }} })"
                                                 aria-label="{{ __('Eliminar usuario') }}"
                                             />
                                         @endif
@@ -386,15 +386,8 @@
         ]) }}
     </div>
 
-    <!-- Create User Modal -->
-   @include('components.settings.create-user-modal')
-
-    <!-- Edit User Modal -->
-    @include('components.settings.edit-user-modal', ['selectedUser' => $selectedUser])
-
-    <!-- View User Modal -->
-    @include('components.settings.view-user-modal', ['selectedUser' => $selectedUser])
-
-    <!-- Delete User Modal -->
-    @include('components.settings.delete-user-modal', ['selectedUser' => $selectedUser])
+    <livewire:settings.users.create-user-modal />
+    <livewire:settings.users.update-user-modal />
+    <livewire:settings.users.view-user-modal />
+    <livewire:settings.users.delete-user-modal />
 </div>

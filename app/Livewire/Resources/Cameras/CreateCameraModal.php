@@ -27,8 +27,8 @@ class CreateCameraModal extends Component
 
     public function openCreateCameraModal()
     {
-        $this->showCreateModal = true;
         $this->reset(['name', 'location', 'box_stock']);
+        $this->showCreateModal = true;
     }
 
     public function createCamera()

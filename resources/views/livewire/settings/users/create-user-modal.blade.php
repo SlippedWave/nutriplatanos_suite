@@ -19,9 +19,9 @@
             </flux:field>
             <flux:field>
                 <flux:select wire:model="role" label="{{ __('Rol') }}" required class="text-[var(--color-text)]!">
-                    <option value="carrier">{{ __('Transportista') }}</option>
-                    <option value="coordinator">{{ __('Coordinador') }}</option>
-                    <option value="admin">{{ __('Administrador') }}</option>
+                    @foreach (App\Models\User::ROLES as $value => $label)
+                        <option value="{{ $value }}">{{ __($label) }}</option>
+                    @endforeach
                 </flux:select>
                 <flux:error name="role" />
             </flux:field>
@@ -58,7 +58,7 @@
         <flux:checkbox wire:model="active" label="{{ __('Usuario activo') }}" />
 
         <div class="flex justify-end gap-3 pt-4">
-            <flux:button variant="outline" wire:click="closeModals">{{ __('Cancelar') }}</flux:button>
+            <flux:button variant="outline" wire:click="$set('showCreateModal', false)">{{ __('Cancelar') }}</flux:button>
             <flux:button type="submit" variant="primary">{{ __('Crear Usuario') }}</flux:button>
         </div>
     </form>

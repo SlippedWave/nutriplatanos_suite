@@ -22,7 +22,6 @@ class ViewSaleModal extends Component
         $this->selectedSale = Sale::with(['saleDetails.product', 'customer', 'route', 'user'])
             ->withTrashed()
             ->findOrFail($saleId);
-
         session()->forget(['error', 'message']);
     }
 

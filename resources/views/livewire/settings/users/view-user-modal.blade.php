@@ -66,6 +66,6 @@
     @endif
 
     <div class="flex justify-end pt-4 flex-col sm:flex-row">
-        <flux:button variant="primary" wire:click="closeModals" class="w-full sm:w-auto">{{ __('Cerrar') }}</flux:button>
+        <flux:button variant="primary" wire:click="$set('showViewModal', false)" class="w-full sm:w-auto">{{ __('Cerrar') }}</flux:button>
     </div>
 </flux:modal>
