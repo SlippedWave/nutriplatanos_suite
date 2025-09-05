@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Accounting\Tables;
+namespace App\Livewire\Accounting\Expenses\Tables;
 
 use App\Models\Expense;
 use App\Models\Route;
@@ -242,37 +242,6 @@ class ExpensesTable extends Component
         }
     }
 
-    public function updateExpense()
-    {
-        $this->resetValidation();
-        $this->validate($this->rules);
-
-        try {
-            $result = $this->expenseService->updateExpense($this->selectedExpense->id, $this->getFormData());
-
-            if ($result['success']) {
-                $this->showExpensesTableMessage($result);
-            } else {
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        if (isset($result['errors'])) {
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->flashExpensesTableMessage($result['message'], 'error');
-                        break;
-                    default:
-                        $this->showExpensesTableMessage($result);
-                        break;
-                }
-            }
-        } catch (\Exception $e) {
-            $this->flashExpensesTableMessage('Error al editar el gasto: ' . $e->getMessage(), 'error');
-            return;
-        }
-    }
-
     public function deleteExpense()
     {
         try {
@@ -333,6 +302,6 @@ class ExpensesTable extends Component
         );
         $this->dispatch('expensesTotalUpdated', $totalAmount);
 
-        return view('livewire.accounting.tables.expenses-table', compact('expenses', 'totalAmount'));
+        return view('livewire.accounting.expenses.tables.expenses-table', compact('expenses', 'totalAmount'));
     }
 }

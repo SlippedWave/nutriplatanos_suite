@@ -262,7 +262,7 @@
                                             variant="ghost" 
                                             size="sm" 
                                             icon="eye"
-                                            wire:click="openViewModal({{ $customer->id }})"
+                                            wire:click="$dispatch('open-view-customer-modal', { customerId: {{ $customer->id }} })"
                                             aria-label="{{ __('Ver cliente') }}"
                                         />
 
@@ -276,7 +276,7 @@
                                             variant="ghost" 
                                             size="sm" 
                                             icon="pencil"
-                                            wire:click="openEditModal({{ $customer->id }})"
+                                            wire:click="$dispatch('open-update-customer-modal', { customerId: {{ $customer->id }} })"
                                             aria-label="{{ __('Editar cliente') }}"
                                         />
                                         
@@ -284,7 +284,7 @@
                                             variant="ghost" 
                                             size="sm" 
                                             icon="eye"
-                                            wire:click="openViewModal({{ $customer->id }})"
+                                            wire:click="$dispatch('open-view-customer-modal', { customerId: {{ $customer->id }} })"
                                             aria-label="{{ __('Ver cliente') }}"
                                         />
 
@@ -293,7 +293,7 @@
                                             size="sm" 
                                             icon="trash"
                                             class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
-                                            wire:click="openDeleteModal({{ $customer->id }})"
+                                            wire:click="$dispatch('open-delete-customer-modal', { customerId: {{ $customer->id }} })"
                                             aria-label="{{ __('Eliminar cliente') }}"
                                         />
                                     @endif
@@ -314,7 +314,7 @@
                                         @endif
                                     </p>
                                     @if(!$search)
-                                        <flux:button variant="primary" wire:click="openCreateModal">
+                                        <flux:button variant="primary" wire:click="$dispatch('open-create-customer-modal')">
                                             <flux:icon.plus class="size-4" />
                                             Agregar Cliente
                                         </flux:button>
@@ -352,12 +352,8 @@
         @endif
     </div>
 
-    <!-- Modals -->
-    @include('components.customers.create-customer-modal')
-
-    @include('components.customers.update-customer-modal', ['selectedCustomer' => $selectedCustomer])
-
-    @include('components.customers.view-customer-modal', ['selectedCustomer' => $selectedCustomer])
-
-    @include('components.customers.delete-customer-modal', ['selectedCustomer' => $selectedCustomer])
+    <livewire:customers.create-customer-modal />
+    <livewire:customers.update-customer-modal />
+    <livewire:customers.view-customer-modal />
+    <livewire:customers.delete-customer-modal />
 </div>

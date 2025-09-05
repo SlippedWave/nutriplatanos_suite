@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Accounting\Tables;
+namespace App\Livewire\Accounting\Payments\Tables;
 
 use App\Services\SalePaymentService;
 use Livewire\Attributes\Modelable;
@@ -78,6 +78,6 @@ class PaymentsTable extends Component
 
         $totalAmount = $payments->sum('amount');
         $this->dispatch('paymentsTotalUpdated', $totalAmount);
-        return view('livewire.accounting.tables.payments-table', compact('payments', 'totalAmount'));
+        return view('livewire.accounting.payments.tables.payments-table', compact('payments', 'totalAmount'));
     }
 }

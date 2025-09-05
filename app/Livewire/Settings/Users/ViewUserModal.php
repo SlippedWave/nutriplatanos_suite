@@ -3,7 +3,6 @@
 namespace App\Livewire\Settings\Users;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class ViewUserModal extends Component

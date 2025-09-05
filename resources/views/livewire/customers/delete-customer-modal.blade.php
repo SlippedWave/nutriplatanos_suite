@@ -37,7 +37,7 @@
     @endif
 
     <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
-        <flux:button variant="ghost" wire:click="closeModals" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
+        <flux:button variant="ghost" wire:click="$set('showDeleteModal', false)" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
         <flux:button variant="danger" class="text-background! w-full sm:w-auto" wire:click="deleteCustomer">{{ __('Eliminar Cliente') }}</flux:button>
     </div>
 </flux:modal>

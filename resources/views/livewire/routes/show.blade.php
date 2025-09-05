@@ -175,7 +175,7 @@ new class extends Component {
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Historial de Gastos en Ruta</h3>
             </div>
-            @livewire('accounting.tables.expenses-table', ['route_id' => $selectedRoute->id])
+            @livewire('accounting.expenses.tables.expenses-table', ['route_id' => $selectedRoute->id])
         </div>
 
         <livewire:routes.update-route-modal />

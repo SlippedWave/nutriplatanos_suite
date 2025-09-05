@@ -1,4 +1,4 @@
-<flux:modal wire:model="showEditExpenseModal" class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
+<flux:modal wire:model="showUpdateModal" class="space-y-4 border-0 bg-background! mx-auto w-full max-w-[96vw] sm:max-w-md md:max-w-lg lg:max-w-2xl p-3 sm:p-4 rounded-none sm:rounded-xl overflow-y-auto max-h-[90vh]">
     <div class="flex items-center justify-between">
         <flux:heading size="lg">{{ __('Editar Gasto') }}</flux:heading>
     </div>
@@ -24,7 +24,7 @@
                 @foreach($routes as $route)
                     <flux:radio value="{{ $route->id }}"
                         label="{{ $route->title }}"
-                        description="{{ $route->created_at->format('d/m/Y') }} - {{ $route->carrier->name }}"
+                        description="{{ $route->created_at->format('d/m/Y') }} - {{ $route->carrier?->name ?? 'USUARIO ELIMINADO' }}"
                     />
                 @endforeach
             </flux:radio.group>
@@ -51,7 +51,7 @@
         </flux:field>
 
         <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
-            <flux:button variant="outline" wire:click="closeModals" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
+            <flux:button variant="outline" wire:click="$set('showUpdateModal', false)" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
             <flux:button type="submit" variant="primary" class="w-full sm:w-auto">{{ __('Editar gasto') }}</flux:button>
         </div>
     </form>

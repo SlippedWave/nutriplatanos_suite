@@ -17,22 +17,11 @@ class CustomersTable extends Component
     public $sortDirection = 'asc';
     public bool $includeDeleted = false;
 
-    // Modal states
-    public bool $showCreateModal = false;
-    public bool $showUpdateModal = false;
-    public bool $showDeleteModal = false;
-    public bool $showViewModal = false;
-
-    // Form fields
-    public $name = '';
-    public $email = '';
-    public $phone = '';
-    public $address = '';
-    public $rfc = '';
-    public $active = true;
-    public $notes = '';
-
-    public ?Customer $selectedCustomer = null;
+    protected $listeners = [
+        'customers-info-updated' => '$refresh',
+        'show-customers-table-message' => 'showCustomersTableMessage',
+        'flash-customers-table-message' => 'flashCustomersTableMessage'
+    ];
 
     protected CustomerService $customerService;
 
@@ -41,14 +30,13 @@ class CustomersTable extends Component
         $this->customerService = $customerService;
     }
 
-    protected function showCustomersTableMessage($result)
+    public function showCustomersTableMessage($result)
     {
-        $this->closeModals();
         $this->flashCustomersTableMessage($result['message'], $result['success'] ? 'success' : 'error');
         $this->resetPage();
     }
 
-    protected function flashCustomersTableMessage($message, $type)
+    public function flashCustomersTableMessage($message, $type)
     {
         session()->flash('message', [
             'header' => 'customers-table',
@@ -89,110 +77,6 @@ class CustomersTable extends Component
             $this->sortDirection = 'asc';
         }
         $this->resetPage();
-    }
-
-    // Modal management methods
-    public function openCreateModal()
-    {
-        $this->resetFormFields();
-        $this->showCreateModal = true;
-    }
-
-    public function openEditModal($customerId)
-    {
-        $this->selectedCustomer = Customer::findOrFail($customerId);
-        $this->fillForm($this->selectedCustomer);
-        $this->showUpdateModal = true;
-    }
-
-    public function openViewModal($customerId)
-    {
-        $this->selectedCustomer = Customer::withTrashed()->findOrFail($customerId);
-        $this->showViewModal = true;
-    }
-
-    public function openDeleteModal($customerId)
-    {
-        $this->selectedCustomer = Customer::findOrFail($customerId);
-        $this->showDeleteModal = true;
-    }
-
-    public function closeModals()
-    {
-        $this->showCreateModal = false;
-        $this->showUpdateModal = false;
-        $this->showDeleteModal = false;
-        $this->showViewModal = false;
-        $this->selectedCustomer = null;
-        $this->resetFormFields();
-    }
-
-    // CRUD operations using CustomerService
-    public function createCustomer()
-    {
-        $result = $this->customerService->createCustomer($this->getFormData());
-
-        $this->showCustomersTableMessage($result);
-    }
-
-    public function updateCustomer()
-    {
-        if (!$this->selectedCustomer) {
-            session()->flash('error', 'No se ha seleccionado ningún cliente.');
-            return;
-        }
-
-        $result = $this->customerService->updateCustomer($this->selectedCustomer, $this->getFormData());
-
-        $this->showCustomersTableMessage($result);
-    }
-
-    public function deleteCustomer()
-    {
-        if (!$this->selectedCustomer) {
-            session()->flash('error', 'No se ha seleccionado ningún cliente.');
-            return;
-        }
-
-        $result = $this->customerService->deleteCustomer($this->selectedCustomer);
-
-        $this->showCustomersTableMessage($result);
-    }
-
-    // Utility methods
-    private function getFormData(): array
-    {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'address' => $this->address,
-            'rfc' => $this->rfc,
-            'active' => $this->active,
-            'notes' => $this->notes,
-        ];
-    }
-
-    private function resetFormFields()
-    {
-        $this->name = '';
-        $this->email = '';
-        $this->phone = '';
-        $this->address = '';
-        $this->rfc = '';
-        $this->active = true;
-        $this->notes = '';
-    }
-
-    private function fillForm(Customer $customer)
-    {
-        $this->name = $customer->name;
-        $this->email = $customer->email;
-        $this->phone = $customer->phone ?? '';
-        $this->address = $customer->address ?? '';
-        $this->rfc = $customer->rfc ?? '';
-        $this->active = $customer->active;
-        $this->notes = '';
     }
 
     public function render()

@@ -78,7 +78,7 @@
                 @if ($canCreateNewExpense)
                 <flux:button variant="primary"
                                 icon="plus" 
-                                wire:click="openCreateExpenseModal"
+                                wire:click="$dispatch('open-create-expense-modal')"
                                 class="w-full xs:w-auto">
                     <span class="hidden sm:inline">{{ __('Crear nuevo gasto') }}</span>
                     <span class="sm:hidden">{{ __('Crear') }}</span>
@@ -208,7 +208,7 @@
                                     <flux:button 
                                         size="sm" 
                                         variant="ghost" 
-                                        wire:click="openViewExpenseModal({{ $expense->id }})"
+                                        wire:click="$dispatch('open-view-expense-modal', { expenseId: {{ $expense->id }} })"
                                         icon="eye"
                                         aria-label="Ver venta"
                                     />
@@ -218,7 +218,7 @@
                                         <flux:button 
                                             size="sm" 
                                             variant="ghost" 
-                                            wire:click="openEditExpenseModal({{ $expense->id }})"
+                                            wire:click="$dispatch('open-update-expense-modal', { expenseId: {{ $expense->id }} })"
                                             icon="pencil"
                                             aria-label="Editar venta"
                                         />
@@ -226,7 +226,7 @@
                                         <flux:button 
                                             size="sm" 
                                             variant="ghost" 
-                                            wire:click="openDeleteExpenseModal({{ $expense->id }})"
+                                            wire:click="$dispatch('open-delete-expense-modal', { expenseId: {{ $expense->id }} })"
                                             icon="trash"
                                             aria-label="Eliminar venta"
                                         />
@@ -287,14 +287,14 @@
     </div>
 
     <!-- Modals -->
-    <x-expenses.create-expense-modal
+    <livewire:accounting.expenses.create-expense-modal
         :context-user-id="$contextUserId"
         :context-route-id="$contextRouteId"
     />
-    <x-expenses.update-expense-modal
+    <livewire:accounting.expenses.update-expense-modal
         :context-user-id="$contextUserId"
         :context-route-id="$contextRouteId"
     />
-    @include('components.expenses.view-expense-modal', ['selectedexpense' => null])
-    @include('components.expenses.delete-expense-modal', ['selectedexpense' => null])
+    <livewire:accounting.expenses.view-expense-modal/>
+    <livewire:accounting.expenses.delete-expense-modal/>
 </div>
