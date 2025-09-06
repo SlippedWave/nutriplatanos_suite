@@ -24,12 +24,11 @@ class ExpensesTable extends Component
 
     public bool $canCreateNewExpense = false;
 
-    
     #[Modelable]
     public $dateFilter = 'all';
     public $startDate;
     public $endDate;
-    
+
     public $contextRouteId = null;
     public $contextUserId = null;
     protected $listeners = [
@@ -37,8 +36,11 @@ class ExpensesTable extends Component
         'show-expenses-table-message' => 'showExpensesTableMessage',
         'flash-expenses-table-message' => 'flashExpensesTableMessage',
     ];
-    
+
     public ?Expense $selectedExpense = null;
+
+    // Dispatch optimization: remember last value sent to parent
+    public ?float $lastDispatchedExpensesTotal = null;
 
     protected ExpenseService $expenseService;
 
@@ -59,8 +61,6 @@ class ExpensesTable extends Component
         $this->contextUserId = $user_id;
         $this->hideFilters = $hideFilters;
         $this->dateFilter = $dateFilter;
-
-        $this->expenseService = new ExpenseService();
 
         $this->canCreateNewExpense = !empty($this->contextRouteId)
             && Route::where('id', $this->contextRouteId)->where('status', 'active')->exists()
@@ -160,7 +160,12 @@ class ExpensesTable extends Component
             startDate: $this->startDate,
             endDate: $this->endDate,
         );
-        $this->dispatch('expensesTotalUpdated', $totalAmount);
+
+        // Dispatch only on change to reduce event chatter and parent re-renders
+        if ($this->lastDispatchedExpensesTotal !== (float) $totalAmount) {
+            $this->lastDispatchedExpensesTotal = (float) $totalAmount;
+            $this->dispatch('expensesTotalUpdated', $totalAmount);
+        }
 
         return view('livewire.accounting.expenses.tables.expenses-table', compact('expenses', 'totalAmount'));
     }

@@ -19,6 +19,9 @@ class PaymentsTable extends Component
     public $startDate;
     public $endDate;
 
+    // Dispatch optimization: remember last value sent to parent
+    public ?float $lastDispatchedPaymentsTotal = null;
+
     protected SalePaymentService $salePaymentService;
 
     public function boot()
@@ -35,6 +38,12 @@ class PaymentsTable extends Component
     {
         $this->resetPage();
         $this->applyDateFilter();
+    }
+
+    // Avoid heavy fetch on invalid page after changing per-page
+    public function updatedPerPage()
+    {
+        $this->resetPage();
     }
 
     public function sortBy($field)
@@ -74,10 +83,22 @@ class PaymentsTable extends Component
 
     public function render()
     {
-        $payments = $this->salePaymentService->searchPayments($this->startDate, $this->endDate, $this->sortField, $this->sortDirection, $this->perPage);
+        $payments = $this->salePaymentService->searchPayments(
+            $this->startDate,
+            $this->endDate,
+            $this->sortField,
+            $this->sortDirection,
+            $this->perPage
+        );
 
-        $totalAmount = $payments->sum('amount');
-        $this->dispatch('paymentsTotalUpdated', $totalAmount);
+        $totalAmount = (float) $payments->sum('amount');
+
+        // Dispatch only on change to reduce event and DOM churn
+        if ($this->lastDispatchedPaymentsTotal !== $totalAmount) {
+            $this->lastDispatchedPaymentsTotal = $totalAmount;
+            $this->dispatch('paymentsTotalUpdated', $totalAmount);
+        }
+
         return view('livewire.accounting.payments.tables.payments-table', compact('payments', 'totalAmount'));
     }
 }

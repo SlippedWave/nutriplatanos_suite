@@ -125,7 +125,10 @@ new class extends Component {
 
                 <div class="border-t pt-3">
                     <div class="overflow-x-auto -mx-4 px-4">
-                        <livewire:accounting.payments.tables.payments-table wire:model.live="dateFilter" />
+                        <livewire:accounting.payments.tables.payments-table
+                            wire:key="payments-table"
+                            wire:model.live="dateFilter"
+                        />
                     </div>
                 </div>
             </div>
@@ -149,6 +152,7 @@ new class extends Component {
                 <div class="border-t pt-3">
                     <div class="overflow-x-auto -mx-4 px-4">
                         <livewire:accounting.expenses.tables.expenses-table
+                            wire:key="expenses-table"
                             wire:model.live="dateFilter"
                             hideFilters="true"
                         />
