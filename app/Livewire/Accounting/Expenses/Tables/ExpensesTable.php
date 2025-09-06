@@ -22,43 +22,28 @@ class ExpensesTable extends Component
     public bool $includeDeletedExpenses = false;
     public bool $hideFilters = false;
 
-    public bool $showCreateExpenseModal = false;
-    public bool $showEditExpenseModal = false;
-    public bool $showDeleteExpenseModal = false;
-    public bool $showViewExpenseModal = false;
-
-    protected $rules = [
-        'user_id' => 'required|exists:users,id',
-        'route_id' => 'required|exists:routes,id',
-        'description' => 'required|string|max:255',
-        'amount' => 'required|numeric|min:0',
-        'notes' => 'nullable|string|max:500',
-    ];
-
-    //Form fields
-    public $user_id;
-    public $route_id;
-    public $description;
-    public $amount;
-    public $notes;
-
     public bool $canCreateNewExpense = false;
 
+    
     #[Modelable]
     public $dateFilter = 'all';
     public $startDate;
     public $endDate;
-
+    
     public $contextRouteId = null;
     public $contextUserId = null;
-
+    protected $listeners = [
+        'expenses-info-updated' => '$refresh',
+        'show-expenses-table-message' => 'showExpensesTableMessage',
+        'flash-expenses-table-message' => 'flashExpensesTableMessage',
+    ];
+    
     public ?Expense $selectedExpense = null;
 
     protected ExpenseService $expenseService;
 
-    protected function showExpensesTableMessage($result)
+    public function showExpensesTableMessage($result)
     {
-        $this->closeModals();
         $this->flashExpensesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
         $this->resetPage();
     }
@@ -70,8 +55,6 @@ class ExpensesTable extends Component
 
     public function mount($route_id = null, $user_id = null, $hideFilters = false, $dateFilter = 'all')
     {
-        $this->route_id = $route_id;
-        $this->user_id = $user_id ?? Auth::user()->id;
         $this->contextRouteId = $route_id;
         $this->contextUserId = $user_id;
         $this->hideFilters = $hideFilters;
@@ -145,130 +128,7 @@ class ExpensesTable extends Component
         $this->resetPage();
     }
 
-    public function openCreateExpenseModal()
-    {
-        $this->resetFormFields();
-        $this->resetValidation();
-        session()->forget('message');
-        $this->showCreateExpenseModal = true;
-    }
-
-    public function openEditExpenseModal($saleId)
-    {
-        $this->selectedExpense = Expense::with('user', 'route')->find($saleId);
-        $this->fillForm();
-        $this->resetValidation();
-        session()->forget('message');
-        $this->showEditExpenseModal = true;
-    }
-
-    public function openViewExpenseModal($saleId)
-    {
-        $this->selectedExpense = Expense::with('user', 'route')->find($saleId);
-        $this->resetValidation();
-        session()->forget('message');
-        $this->showViewExpenseModal = true;
-    }
-
-    public function openDeleteExpenseModal($saleId)
-    {
-        $this->selectedExpense = Expense::findOrFail($saleId);
-        $this->resetValidation();
-        session()->forget('message');
-        $this->showDeleteExpenseModal = true;
-    }
-
-    private function resetFormFields()
-    {
-        $this->user_id = $this->contextUserId ?? Auth::user()->id;
-        $this->description = '';
-        $this->amount = null;
-        $this->route_id = $this->contextRouteId ?? null;
-        $this->notes = '';
-    }
-
-    private function fillForm()
-    {
-        $this->user_id = $this->selectedExpense->user_id;
-        $this->description = $this->selectedExpense->description;
-        $this->amount = $this->selectedExpense->amount;
-        $this->route_id = $this->selectedExpense->route_id;
-        $this->notes = '';
-    }
-
-    public function closeModals()
-    {
-        $this->showCreateExpenseModal = false;
-        $this->showEditExpenseModal = false;
-        $this->showDeleteExpenseModal = false;
-        $this->showViewExpenseModal = false;
-        $this->resetFormFields();
-        $this->resetValidation();
-        $this->selectedExpense = null;
-
-        session()->forget('message');
-    }
-
-    public function createExpense()
-    {
-        // Validate on the Livewire side first so errors render in the modal
-        $this->resetValidation();
-        $this->validate($this->rules);
-
-        try {
-            $result = $this->expenseService->createExpense($this->getFormData());
-
-            if ($result['success']) {
-                $this->showExpensesTableMessage($result);
-            } else {
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        // Populate any extra backend validation errors into the modal
-                        if (isset($result['errors'])) {
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->flashExpensesTableMessage($result['message'], 'error');
-                        break;
-                    default:
-                        $this->showExpensesTableMessage($result);
-                        break;
-                }
-            }
-        } catch (\Exception $e) {
-            $this->flashExpensesTableMessage('Error al crear el gasto: ' . $e->getMessage(), 'error');
-            return;
-        }
-    }
-
-    public function deleteExpense()
-    {
-        try {
-            $result = $this->expenseService->deleteExpense($this->selectedExpense->id);
-
-            if ($result['success']) {
-                $this->showExpensesTableMessage($result);
-            } else {
-                $this->flashExpensesTableMessage($result['message'], 'error');
-            }
-        } catch (\Exception $e) {
-            $this->flashExpensesTableMessage('Error al eliminar el gasto: ' . $e->getMessage(), 'error');
-        }
-    }
-
-    private function getFormData(): array
-    {
-        return [
-            'user_id' => $this->contextUserId ?? $this->user_id,
-            'description' => $this->description,
-            'amount' => $this->amount,
-            'route_id' => $this->contextRouteId ?? $this->route_id,
-            'notes' => $this->notes,
-        ];
-    }
-
-    protected function flashExpensesTableMessage(string $message, string $type)
+    public function flashExpensesTableMessage(string $message, string $type)
     {
         session()->flash('message', [
             'header' => 'expenses-table',

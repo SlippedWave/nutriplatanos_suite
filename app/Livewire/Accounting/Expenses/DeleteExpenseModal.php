@@ -33,11 +33,11 @@ class DeleteExpenseModal extends Component
     {
         try {
             $result = $this->expenseService->deleteExpense($this->selectedExpense->id);
-            $this->dispatch('users-info-updated');
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('expenses-info-updated');
+            $this->dispatch('show-expenses-table-message', $result);
             $this->showDeleteModal = false;
         } catch (\Exception $e) {
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('show-expenses-table-message', $result);
         }
     }
 

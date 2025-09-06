@@ -58,11 +58,11 @@ class CreateExpenseModal extends Component
     {
         try {
             $result = $this->expenseService->createExpense($this->getFormData());
-            $this->dispatch('users-info-updated');
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('expenses-info-updated');
+            $this->dispatch('show-expenses-table-message', $result);
             $this->showCreateModal = false;
         } catch (\Exception $e) {
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('show-expenses-table-message', $result);
         }
     }
 

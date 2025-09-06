@@ -17,7 +17,7 @@ class ViewCustomerModal extends Component
 
     public function openViewCustomerModal(int $customerId)
     {
-        $this->selectedCustomer = Customer::findOrFail($customerId);
+        $this->selectedCustomer = Customer::withTrashed()->findOrFail($customerId);
         $this->showViewModal = true;
     }
 

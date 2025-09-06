@@ -22,24 +22,12 @@ class RoutesTable extends Component
     public $statusFilter = '';
     public $carrierFilter = '';
 
-    #[On('route-updated')]
-    public function onRouteUpdated(): void
-    {
-        $this->resetPage();
-    }
+    protected $listeners = [
+        'routes-info-updated' => '$refresh',
+        'show-routes-table-message' => 'showRoutesTableMessage',
+        'flash-routes-table-message' => 'flashRoutesTableMessage',
+    ];
 
-    // Modal states
-    public bool $showCreateModal = false;
-    public bool $showDeleteModal = false;
-    public bool $showViewModal = false;
-    public bool $showEditRouteModal = false;
-    public bool $showCloseRouteModal = false;
-
-    // Form fields
-    public $title = '';
-    public $carrier_id = '';
-    public $status = 'active';
-    public $notes = '';
 
     public ?Route $selectedRoute = null;
 
@@ -50,14 +38,13 @@ class RoutesTable extends Component
         $this->routeService = $routeService;
     }
 
-    protected function showRoutesTableMessage($result)
+    public function showRoutesTableMessage($result)
     {
-        $this->closeModals();
         $this->flashRoutesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
         $this->resetPage();
     }
 
-    protected function flashRoutesTableMessage(string $text, string $type = 'success'): void
+    public function flashRoutesTableMessage(string $text, string $type = 'success'): void
     {
         session()->flash('message', [
             'header' => 'routes-table',
@@ -110,107 +97,6 @@ class RoutesTable extends Component
             $this->sortDirection = 'asc';
         }
         $this->resetPage();
-    }
-
-    public function openViewModal($routeId)
-    {
-        $this->selectedRoute = Route::withTrashed()->findOrFail($routeId);
-        $this->showViewModal = true;
-    }
-
-    public function openDeleteModal($routeId)
-    {
-        $this->selectedRoute = Route::findOrFail($routeId);
-        $this->showDeleteModal = true;
-    }
-
-    public function openCloseModal($routeId)
-    {
-        $this->selectedRoute = Route::findOrFail($routeId);
-        $this->showCloseRouteModal = true;
-    }
-
-    public function closeModals()
-    {
-        $this->showCreateModal = false;
-        $this->showEditRouteModal = false;
-        $this->showDeleteModal = false;
-        $this->showViewModal = false;
-        $this->showCloseRouteModal = false;
-        $this->selectedRoute = null;
-        $this->resetFormFields();
-    }
-
-    // CRUD operations using RouteService
-    public function createRoute()
-    {
-        $result = $this->routeService->createRoute($this->getFormData());
-
-        if ($result['success']) {
-            $this->closeModals();
-            session()->flash('message', $result['message']);
-            $this->resetPage();
-        } else {
-            session()->flash('error', $result['message']);
-        }
-    }
-
-    public function openEditModal($routeId): void
-    {
-        // Livewire v3 cross-component event
-        $this->selectedRoute = Route::findOrFail($routeId);
-        $this->dispatch('open-update-route-modal');
-    }
-
-    public function deleteRoute()
-    {
-        if (!$this->selectedRoute) {
-            $this->flashRoutesTableMessage('No se ha seleccionado ninguna ruta.', 'error');
-            return;
-        }
-
-        $result = $this->routeService->deleteRoute($this->selectedRoute);
-
-        $this->showRoutesTableMessage($result);
-    }
-
-    public function closeRoute()
-    {
-        if (!$this->selectedRoute) {
-            session()->flash('error', 'No se ha seleccionado ninguna ruta.');
-            return;
-        }
-
-        $result = $this->routeService->closeRoute($this->selectedRoute);
-
-        $this->showRoutesTableMessage($result);
-    }
-
-    // Utility methods
-    private function getFormData(): array
-    {
-        return [
-            'title' => $this->title,
-            'carrier_id' => $this->carrier_id,
-            'status' => $this->status,
-            'notes' => $this->notes,
-        ];
-    }
-
-    private function resetFormFields()
-    {
-        $this->title = '';
-        $this->carrier_id = Auth::user()->role === 'carrier' ? Auth::id() : '';
-        $this->status = 'active';
-        $this->notes = '';
-    }
-
-    private function fillForm(Route $route)
-    {
-        $this->title = $route->title ?? '';
-        $this->carrier_id = $route->carrier_id;
-        $this->status = $route->status;
-        $this->notes = '';
     }
 
     public function render()

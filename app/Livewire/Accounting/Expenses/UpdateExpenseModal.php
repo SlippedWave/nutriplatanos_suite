@@ -66,11 +66,11 @@ class UpdateExpenseModal extends Component
     {
         try {
             $result = $this->expenseService->updateExpense($this->selectedExpense->id, $this->getFormData());
-            $this->dispatch('users-info-updated');
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('expenses-info-updated');
+            $this->dispatch('show-expenses-table-message', $result);
             $this->showUpdateModal = false;
         } catch (\Exception $e) {
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('show-expenses-table-message', $result);
         }
     }
 

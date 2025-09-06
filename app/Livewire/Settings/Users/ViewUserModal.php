@@ -17,7 +17,7 @@ class ViewUserModal extends Component
 
     public function openViewUserModal(int $userId)
     {
-        $this->selectedUser = User::findOrFail($userId);
+        $this->selectedUser = User::withTrashed()->findOrFail($userId);
         $this->showViewModal = true;
     }
 

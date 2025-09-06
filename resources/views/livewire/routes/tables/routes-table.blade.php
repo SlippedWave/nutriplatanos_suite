@@ -30,34 +30,42 @@
         </div>
     @endif
 
-    <!-- Header with Search and Filters -->
     <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex-1">
-                <flux:input 
-                    wire:model.live.debounce.300ms="search" 
-                    placeholder="Buscar rutas..."
-                    type="search"
-                />
-            </div>
-            
-            <div class="flex-1 gap-4">
-                <flux:button 
-                    variant="primary" 
-                    wire:click="toggleIncludeDeleted"
-                    class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}"
-                >
-                    {{ $includeDeleted ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}
-                </flux:button>
+        <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 sm:p-4">
+            <!-- Reworked header like customers-table -->
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <!-- Search -->
+                <div class="flex-1">
+                    <flux:input 
+                        wire:model.live.debounce.300ms="search" 
+                        placeholder="Buscar rutas..."
+                        type="search"
+                    >
+                    </flux:input>
+                </div>
 
-                <flux:select wire:model.live="perPage" class="w-20">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </flux:select>
+                <!-- Actions -->
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <flux:button 
+                        variant="primary"
+                        wire:click="toggleIncludeDeleted"
+                        class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}"
+                        aria-label="{{ $includeDeleted ? __('Ocultar rutas eliminadas') : __('Incluir rutas eliminadas') }}"
+                    >
+                        {{ $includeDeleted ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}
+                    </flux:button>
 
-                <livewire:routes.create-route-modal />
+                    <flux:select wire:model.live="perPage" class="w-20">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </flux:select>
+
+                    <span class="inline-flex">
+                        <livewire:routes.create-route-modal />
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -70,7 +78,7 @@
                     <option value="closed">Cerradas</option>
                 </flux:select>
             </div>
-            
+
             @if($carriers->isNotEmpty())
                 <div class="flex-1">
                     <flux:select wire:model.live="carrierFilter" placeholder="Filtrar por transportista">
@@ -177,7 +185,7 @@
                                             variant="ghost" 
                                             size="sm" 
                                             icon="eye"
-                                            wire:click="openViewModal({{ $route->id }})"
+                                            wire:click="$dispatch('open-view-route-modal', { id: {{ $route->id }} })"
                                         />
                                         
                                         @if($route->status === 'active')
@@ -206,7 +214,7 @@
                                             size="sm" 
                                             icon="trash"
                                             class="text-danger-600 hover:text-danger-700 hover:bg-danger-50"
-                                            wire:click="openDeleteModal({{ $route->id }})"
+                                            wire:click="$dispatch('open-delete-route-modal', { id: {{ $route->id }} })"
                                         />
                                     @endif
                                 </div>
@@ -262,8 +270,8 @@
     </div>
 
     <!-- Modals -->
-    @include('components.routes.view-route-modal', ['selectedRoute' => $selectedRoute])
-    @include('components.routes.delete-route-modal', ['selectedRoute' => $selectedRoute])
+    <livewire:routes.delete-route-modal />
+    <livewire:routes.view-route-modal />
     <livewire:routes.update-route-modal />
     <livewire:routes.close-route-modal />
 </div>

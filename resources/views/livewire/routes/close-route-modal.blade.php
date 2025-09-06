@@ -44,7 +44,7 @@
     @endif
 
     <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
-        <flux:button variant="outline" wire:click="closeModals" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
+        <flux:button variant="outline" wire:click="$set('showCloseRouteModal', false)" class="w-full sm:w-auto">{{ __('Cancelar') }}</flux:button>
         <flux:button variant="primary" wire:click="closeRoute" class="w-full sm:w-auto">{{ __('Cerrar Ruta') }}</flux:button>
     </div>
 </flux:modal>

@@ -7,10 +7,6 @@ use Livewire\Attributes\On;
 
 new class extends Component {
     public $selectedRoute;
-    public $showCloseRouteModal = false;
-    public $showEditRouteModal = false;
-
-    public $title = '';
 
     protected RouteService $routeService;
 
@@ -28,40 +24,7 @@ new class extends Component {
 
     public function mount()
     {
-        // Fetch the route ID from the request and load the route
-        // Assuming the route ID is passed as a route parameter named 'route'
-        $routeId = request()->route('route');
-        $this->selectedRoute = Route::findOrFail($routeId);
-    }
-
-    public function openEditRouteModal()
-    {
-        $this->dispatch('open-update-route-modal');
-    }
-
-    public function openCloseRouteModal()
-    {
-        $this->showCloseRouteModal = true;
-    }
-
-    public function closeModals()
-    {
-        $this->showCloseRouteModal = false;
-    }
-
-
-    public function closeRoute()
-    {
-        $routeService = app(RouteService::class);
-        $result = $routeService->closeRoute($this->selectedRoute);
-        
-        if ($result['success']) {
-            session()->flash('message', $result['message']);
-            $this->showCloseRouteModal = false;
-            return redirect()->route('routes.index');
-        } else {
-            session()->flash('error', $result['message']);
-        }
+        $this->selectedRoute = Route::findOrFail(request()->route('route'));
     }
 };
 ?>
