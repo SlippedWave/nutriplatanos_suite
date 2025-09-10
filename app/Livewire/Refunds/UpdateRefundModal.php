@@ -11,7 +11,7 @@ class UpdateRefundModal extends Component
 {
     public bool $showUpdateModal = false;
 
-    public ?int $selectedRefundId = null;
+    public ?Refund $selectedRefund = null;
 
     public int $user_id;
     public int $sale_id;
@@ -41,7 +41,7 @@ class UpdateRefundModal extends Component
     public function openUpdateRefundModal($id)
     {
         $refund = Refund::findOrFail($id);
-        $this->selectedRefundId = $refund->id;
+        $this->selectedRefund = $refund;
         $this->user_id = $refund->user_id;
         $this->sale_id = $refund->sale_id;
         $this->refunded_amount = $refund->refunded_amount;
@@ -53,7 +53,7 @@ class UpdateRefundModal extends Component
     public function updateRefund(): void
     {
         try {
-            $this->refundService->updateRefund($this->selectedRefundId, $this->getFormData());
+            $this->refundService->updateRefund($this->selectedRefund, $this->getFormData());
             $this->dispatch('refunds-info-updated');
             $this->showUpdateModal = false;
         } catch (\Exception $e) {

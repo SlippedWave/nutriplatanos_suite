@@ -79,7 +79,7 @@
     @if ($total > 0)
         <div class="bg-blue-50 p-4 rounded-lg">
             <div class="flex justify-between items-center">
-                <span class="text-lg font-medium text-blue-900">Total de la Venta:</span>
+                <span class="text-lg font-medium text-blue-900">Total:</span>
                 <span class="text-xl font-bold text-blue-900">${{ number_format($total, 2) }}</span>
             </div>
         </div>

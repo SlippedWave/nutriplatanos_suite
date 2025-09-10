@@ -6,7 +6,7 @@ use App\Models\Product;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
-class ProductDetailsEditor extends Component
+class ProductListEditor extends Component
 {
     #[Modelable]
     public array $saleProducts = [];
@@ -41,6 +41,6 @@ class ProductDetailsEditor extends Component
 
     public function render()
     {
-        return view('livewire.sales.product-details-editor');
+        return view('livewire.sales.product-list-editor');
     }
 }

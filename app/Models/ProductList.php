@@ -8,7 +8,8 @@ class ProductList extends Model
 {
     //
     protected $fillable = [
-        'sale_id',
+        'listable_id',
+        'listable_type',
         'product_id',
         'quantity',
         'price_per_unit',

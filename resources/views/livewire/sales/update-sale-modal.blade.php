@@ -111,7 +111,7 @@
             @endif
 
             <!-- Products Section -->
-            <livewire:sales.product-details-editor wire:model="saleProducts" />
+            <livewire:sales.product-list-editor wire:model="saleProducts" />
 
             <!-- Notes -->
             <div>

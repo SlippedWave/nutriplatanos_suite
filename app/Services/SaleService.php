@@ -492,11 +492,12 @@ class SaleService
     private function createProductList(Sale $sale, array $products): void
     {
         foreach ($products as $productData) {
-            productList::create([
-                'sale_id' => $sale->id,
+            ProductList::create([
                 'product_id' => $productData['product_id'],
                 'quantity' => $productData['quantity'],
                 'price_per_unit' => $productData['price_per_unit'],
+                'listable_type' => Sale::class,
+                'listable_id' => $sale->id,
             ]);
         }
     }

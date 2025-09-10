@@ -18,6 +18,7 @@ class CreateRefundModal extends Component
     public ?float $refunded_amount = null;
     public string $refund_method = '';
     public string $reason = '';
+    public array $refund_products = [];
 
     protected RefundService $refundService;
 
@@ -59,9 +60,21 @@ class CreateRefundModal extends Component
 
     public function getFormData()
     {
+        $validProducts = array_filter($this->refund_products, function ($product) {
+            return isset($product['product_id']) && $product['quantity'] > 0 && $product['quantity'] > 0;
+        });
+
+        /*
+        $totalAmount = array_reduce($validProducts, function ($carry, $product) {
+            return $carry + ($product['quantity'] * $product['price_per_unit']);
+        }, 0.00);
+        */
+
+
         return [
             'user_id' => $this->user_id,
             'sale_id' => $this->sale_id,
+            'products' => array_values($validProducts),
             'refunded_amount' => $this->refunded_amount,
             'refund_method' => $this->refund_method,
             'reason' => $this->reason,

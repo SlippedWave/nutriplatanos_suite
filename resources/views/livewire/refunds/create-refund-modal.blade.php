@@ -28,15 +28,22 @@
                 <flux:error name="refund_method" />
             </flux:field>
 
+            @if ($refund_method === 'product')
+                <div class="my-4">
+                    <livewire:sales.product-list-editor wire:model="refund_products" />
+                </div>
+            @elseif ($refund_method === 'discount')
+                <flux:field>
+                    <flux:input wire:model="refunded_amount" label="{{ __('Monto reembolsado') }}" required />
+                    <flux:error name="refunded_amount" />
+                </flux:field>
+            @endif
+
             <flux:field>
                 <flux:input wire:model="reason" label="{{ __('Razón del reembolso') }}" required />
                 <flux:error name="reason" />
             </flux:field>
 
-            <flux:field>
-                <flux:input wire:model="refunded_amount" label="{{ __('Monto reembolsado') }}" required />
-                <flux:error name="refunded_amount" />
-            </flux:field>
             <div class="flex justify-end mt-4">
                 
                 <flux:button wire:click="createRefund" variant="primary" wire:loading.attr="disabled"
