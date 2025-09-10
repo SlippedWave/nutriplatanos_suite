@@ -91,7 +91,7 @@ class UpdateSaleModal extends Component
         $this->paid_amount = $sale->paid_amount;
 
         $this->notes = '';
-        $this->saleProducts = $sale->saleDetails->map(function ($detail) {
+        $this->saleProducts = $sale->productList->map(function ($detail) {
             return [
                 'product_id' => $detail->product_id,
                 'quantity' => $detail->quantity,

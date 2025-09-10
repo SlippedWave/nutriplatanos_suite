@@ -83,7 +83,7 @@
             <div>
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Productos</h3>
 
-                @if ($selectedSale->saleDetails && $selectedSale->saleDetails->count() > 0)
+                @if ($selectedSale->productList && $selectedSale->productList->count() > 0)
                     <div class="overflow-auto shadow ring-1 ring-gray-300 ring-opacity-5 md:rounded-lg">
                         <table class="min-w-full divide-y divide-gray-300">
                             <thead class="bg-gray-50">
@@ -107,7 +107,7 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach ($selectedSale->saleDetails as $detail)
+                                @foreach ($selectedSale->productList as $detail)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">
@@ -138,7 +138,7 @@
                                         Total de la Venta:
                                     </td>
                                     <td class="px-6 py-3 text-center text-sm font-bold text-gray-900">
-                                        ${{ number_format($selectedSale->saleDetails->sum('total_price'), 2) }}
+                                        ${{ number_format($selectedSale->productList->sum('total_price'), 2) }}
                                     </td>
                                 </tr>
                             </tfoot>
@@ -158,19 +158,19 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div>
                         <div class="text-2xl font-bold text-blue-900">
-                            {{ $selectedSale->saleDetails->count() }}
+                            {{ $selectedSale->productList->count() }}
                         </div>
                         <div class="text-sm text-blue-700">Productos</div>
                     </div>
                     <div>
                         <div class="text-2xl font-bold text-blue-900">
-                            {{ number_format($selectedSale->saleDetails->sum('quantity'), 2) }}
+                            {{ number_format($selectedSale->productList->sum('quantity'), 2) }}
                         </div>
                         <div class="text-sm text-blue-700">Total Unidades</div>
                     </div>
                     <div>
                         <div class="text-2xl font-bold text-blue-900">
-                            ${{ number_format($selectedSale->saleDetails->sum('total_price'), 2) }}
+                            ${{ number_format($selectedSale->productList->sum('total_price'), 2) }}
                         </div>
                         <div class="text-sm text-blue-700">Total Venta</div>
                     </div>

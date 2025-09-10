@@ -25,7 +25,7 @@ class PaymentHistoryModal extends Component
     public function openPaymentHistoryModal(int $saleId)
     {
         $this->showPaymentHistoryModal = true;
-        $this->selectedSale = Sale::with(['payments.user', 'payments.route', 'saleDetails'])->findOrFail($saleId);
+        $this->selectedSale = Sale::with(['payments.user', 'payments.route', 'productList'])->findOrFail($saleId);
         session()->forget(['error', 'message']);
     }
 

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SaleDetail extends Model
+class ProductList extends Model
 {
     //
     protected $fillable = [
@@ -23,7 +23,7 @@ class SaleDetail extends Model
     ];
 
     /**
-     * Get the sale that owns the SaleDetail.
+     * Get the sale that owns the ProductList.
      */
     public function sale()
     {
@@ -31,7 +31,7 @@ class SaleDetail extends Model
     }
 
     /**
-     * Get the product associated with the SaleDetail.
+     * Get the product associated with the ProductList.
      */
     public function product()
     {
@@ -39,7 +39,7 @@ class SaleDetail extends Model
     }
 
     /**
-     * Calculate the total price for this SaleDetail.
+     * Calculate the total price for this ProductList.
      * Note: total_price is a computed column in the database
      *
      * @return float

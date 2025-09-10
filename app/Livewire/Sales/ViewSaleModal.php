@@ -19,7 +19,7 @@ class ViewSaleModal extends Component
     public function openViewModal(int $saleId)
     {
         $this->showViewModal = true;
-        $this->selectedSale = Sale::with(['saleDetails.product', 'customer', 'route', 'user'])
+        $this->selectedSale = Sale::with(['productList.product', 'customer', 'route', 'user'])
             ->withTrashed()
             ->findOrFail($saleId);
         session()->forget(['error', 'message']);

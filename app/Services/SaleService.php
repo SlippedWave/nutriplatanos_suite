@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\BoxBalance;
 use App\Models\Sale;
-use App\Models\SaleDetail;
+use App\Models\ProductList;
 use App\Models\Product;
 use App\Models\Note;
 use App\Models\Route;
@@ -34,7 +34,7 @@ class SaleService
 
             // Create sale details if products are provided
             if (!empty($validated['products'])) {
-                $this->createSaleDetails($sale, $validated['products']);
+                $this->createProductList($sale, $validated['products']);
             }
 
             // Create note if provided
@@ -57,7 +57,7 @@ class SaleService
 
             return [
                 'success' => true,
-                'sale' => $sale->load(['customer', 'route', 'user', 'saleDetails.product']),
+                'sale' => $sale->load(['customer', 'route', 'user', 'productList.product']),
                 'message' => 'Venta creada exitosamente.',
                 'type' => 'success'
             ];
@@ -104,13 +104,13 @@ class SaleService
             $sale->update($saleData);
             $this->createSaleNote($sale, "Venta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
-            $sale->saleDetails()->delete();
+            $sale->productList()->delete();
             // Update sale details if products are provided
             if (isset($validated['products'])) {
                 // Delete existing sale details
 
                 if (!empty($validated['products'])) {
-                    $this->createSaleDetails($sale, $validated['products']);
+                    $this->createProductList($sale, $validated['products']);
                 }
             }
 
@@ -123,7 +123,7 @@ class SaleService
 
             return [
                 'success' => true,
-                'sale' => $sale->fresh(['customer', 'route', 'user', 'saleDetails.product']),
+                'sale' => $sale->fresh(['customer', 'route', 'user', 'productList.product']),
                 'message' => 'Venta actualizada exitosamente.',
                 'type' => 'success'
             ];
@@ -286,7 +286,7 @@ class SaleService
         }
 
         $query = $query
-            ->with(['customer', 'route', 'user', 'saleDetails.product'])
+            ->with(['customer', 'route', 'user', 'productList.product', 'refund'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->whereHas('customer', function ($customerQuery) use ($search) {
@@ -296,7 +296,7 @@ class SaleService
                         ->orWhereHas('user', function ($userQuery) use ($search) {
                             $userQuery->where('name', 'like', '%' . $search . '%');
                         })
-                        ->orWhereHas('saleDetails.product', function ($productQuery) use ($search) {
+                        ->orWhereHas('productList.product', function ($productQuery) use ($search) {
                             $productQuery->where('name', 'like', '%' . $search . '%');
                         })
                         ->orWhere('payment_status', 'like', '%' . $search . '%');
@@ -310,11 +310,11 @@ class SaleService
 
     public function getSaleStats(Sale $sale): array
     {
-        $sale->load(['saleDetails.product', 'customer', 'route', 'user']);
+        $sale->load(['productList.product', 'customer', 'route', 'user']);
 
-        $totalAmount = $sale->saleDetails->sum('total_price');
-        $totalItems = $sale->saleDetails->count();
-        $totalQuantity = $sale->saleDetails->sum('quantity');
+        $totalAmount = $sale->productList->sum('total_price');
+        $totalItems = $sale->productList->count();
+        $totalQuantity = $sale->productList->sum('quantity');
 
         return [
             'customer_name' => $sale->customer->name ?? 'Cliente eliminado',
@@ -325,7 +325,7 @@ class SaleService
             'total_quantity' => $totalQuantity,
             'payment_status' => $sale->payment_status,
             'created_at' => $sale->created_at,
-            'products' => $sale->saleDetails->map(function ($detail) {
+            'products' => $sale->productList->map(function ($detail) {
                 return [
                     'name' => $detail->product->name ?? 'Producto eliminado',
                     'quantity' => $detail->quantity,
@@ -338,30 +338,30 @@ class SaleService
 
     public function getRouteRevenue(int $routeId): array
     {
-        $sales = Sale::with('saleDetails')
+        $sales = Sale::with('productList')
             ->where('route_id', $routeId)
             ->get();
 
         $totalRevenue = $sales->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
+            return $sale->productList->sum('total_price');
         });
 
         $paidRevenue = $sales->where('payment_status', 'paid')->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
+            return $sale->productList->sum('total_price');
         });
 
         $pendingRevenue = $sales->where('payment_status', 'pending')->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
+            return $sale->productList->sum('total_price');
         });
 
         $partialRevenue = $sales->where('payment_status', 'partial')->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
+            return $sale->productList->sum('total_price');
         });
 
         return [
             'total_sales' => $sales->count(),
             'total_items' => $sales->sum(function ($sale) {
-                return $sale->saleDetails->sum('quantity');
+                return $sale->productList->sum('quantity');
             }),
             'total_revenue' => $totalRevenue,
             'paid_revenue' => $paidRevenue,
@@ -372,22 +372,22 @@ class SaleService
 
     public function getCustomerSales(int $customerId): array
     {
-        $sales = Sale::with('saleDetails')
+        $sales = Sale::with('productList')
             ->where('customer_id', $customerId)
             ->get();
 
         $totalSpent = $sales->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
+            return $sale->productList->sum('total_price');
         });
 
         $pendingAmount = $sales->where('payment_status', 'pending')->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
+            return $sale->productList->sum('total_price');
         });
 
         return [
             'total_purchases' => $sales->count(),
             'total_items' => $sales->sum(function ($sale) {
-                return $sale->saleDetails->sum('quantity');
+                return $sale->productList->sum('quantity');
             }),
             'total_spent' => $totalSpent,
             'pending_amount' => $pendingAmount,
@@ -442,7 +442,7 @@ class SaleService
                     ->orWhereHas('user', function ($userQuery) use ($search) {
                         $userQuery->where('name', 'like', '%' . $search . '%');
                     })
-                    ->orWhereHas('saleDetails.product', function ($productQuery) use ($search) {
+                    ->orWhereHas('productList.product', function ($productQuery) use ($search) {
                         $productQuery->where('name', 'like', '%' . $search . '%');
                     })
                     ->orWhere('payment_status', 'like', '%' . $search . '%');
@@ -450,10 +450,10 @@ class SaleService
         }
 
         // Note: For simplicity we don't union pending/partial here; totals reflect current filtered base
-        $sales = $query->with('saleDetails')->get();
+        $sales = $query->with('productList')->get();
 
         return $sales->sum(function ($sale) {
-            return $sale->saleDetails->sum('total_price');
+            return $sale->productList->sum('total_price');
         });
     }
 
@@ -489,10 +489,10 @@ class SaleService
         ]);
     }
 
-    private function createSaleDetails(Sale $sale, array $products): void
+    private function createProductList(Sale $sale, array $products): void
     {
         foreach ($products as $productData) {
-            SaleDetail::create([
+            productList::create([
                 'sale_id' => $sale->id,
                 'product_id' => $productData['product_id'],
                 'quantity' => $productData['quantity'],

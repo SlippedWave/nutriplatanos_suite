@@ -29,21 +29,15 @@
         </div>
     @endif
 
-    <div class="flex flex-col gap-4 mb-4">
-        <!-- Controls Section -->
-        <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-            <!-- Filters Group -->
-            <div class="flex flex-col xs:flex-row gap-2 flex-1 max-w-sm">
-                <!-- Per Page -->
-                <flux:select wire:model.live="perPage" class="xs:w-16 flex-none">
+    <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 sm:p-4 mb-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex-1"></div>
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <flux:select wire:model.live="perPage" class="w-20">
                     <option value="3">3</option>
                     <option value="5">5</option>
                     <option value="10">10</option>
                 </flux:select>
-            </div>
-
-            <!-- Action Buttons Group -->
-            <div class="flex flex-col xs:flex-row gap-2 xs:items-center">
                 <flux:button variant="primary" icon="plus" wire:click="$dispatch('open-create-camera-modal')"
                     class="w-full xs:w-auto">
                     <span class="hidden sm:inline">{{ __('Nueva Venta') }}</span>

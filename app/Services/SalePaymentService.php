@@ -42,7 +42,7 @@ class SalePaymentService
                 'type' => 'success',
                 'message' => 'Pago agregado exitosamente.',
                 'payment' => $payment,
-                'sale' => $sale->fresh(['payments', 'saleDetails']),
+                'sale' => $sale->fresh(['payments', 'productList']),
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -96,7 +96,7 @@ class SalePaymentService
                 'type' => 'success',
                 'message' => 'Pago actualizado exitosamente.',
                 'payment' => $payment,
-                'sale' => $payment->sale->fresh(['payments', 'saleDetails']),
+                'sale' => $payment->sale->fresh(['payments', 'productList']),
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
@@ -150,7 +150,7 @@ class SalePaymentService
                 'success' => true,
                 'type' => 'success',
                 'message' => 'Pago eliminado exitosamente.',
-                'sale' => $sale->fresh(['payments', 'saleDetails']),
+                'sale' => $sale->fresh(['payments', 'productList']),
             ];
         } catch (\Exception $e) {
             DB::rollBack();
@@ -170,8 +170,8 @@ class SalePaymentService
         try {
             DB::beginTransaction();
 
-            $sale->loadMissing('saleDetails');
-            $totalAmount = $sale->saleDetails->sum('total_price');
+            $sale->loadMissing('productList');
+            $totalAmount = $sale->productList->sum('total_price');
             $totalPaid = $sale->total_paid;
             $remainingBalance = $totalAmount - $totalPaid;
 
@@ -209,7 +209,7 @@ class SalePaymentService
                 'type' => 'success',
                 'message' => 'Venta marcada como pagada completamente.',
                 'payment' => $payment,
-                'sale' => $sale->fresh(['payments', 'saleDetails']),
+                'sale' => $sale->fresh(['payments', 'productList']),
             ];
         } catch (\Exception $e) {
             DB::rollBack();
@@ -226,9 +226,9 @@ class SalePaymentService
      */
     public function getSalePaymentStats(Sale $sale): array
     {
-        $sale->loadMissing(['payments', 'saleDetails']);
+        $sale->loadMissing(['payments', 'productList']);
 
-        $totalAmount = $sale->saleDetails->sum('total_price');
+        $totalAmount = $sale->productList->sum('total_price');
         $totalPaid = $sale->total_paid;
         $remainingBalance = $sale->remaining_balance;
         $paymentCount = $sale->payments->count();
@@ -266,8 +266,8 @@ class SalePaymentService
      */
     private function validatePaymentData(array $data, Sale $sale, ?int $paymentId = null): array
     {
-        $sale->loadMissing('saleDetails');
-        $totalAmount = $sale->saleDetails->sum('total_price');
+        $sale->loadMissing('productList');
+        $totalAmount = $sale->productList->sum('total_price');
         $currentPaid = $sale->total_paid;
 
         // If updating, subtract the current payment amount

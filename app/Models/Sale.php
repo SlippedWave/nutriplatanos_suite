@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sale extends Model
@@ -71,6 +72,11 @@ class Sale extends Model
         return $this->belongsTo(Route::class);
     }
 
+    public function refund(): HasOne
+    {
+        return $this->hasOne(Refund::class);
+    }
+
     /**
      * Get the user who made this sale.
      */
@@ -80,11 +86,11 @@ class Sale extends Model
     }
 
     /**
-     * Get the sale details for this sale.
+     * Get the product list for this sale.
      */
-    public function saleDetails(): HasMany
+    public function productList(): HasMany
     {
-        return $this->hasMany(SaleDetail::class);
+        return $this->hasMany(ProductList::class);
     }
 
     /**
@@ -156,7 +162,7 @@ class Sale extends Model
      */
     public function getTotalAmountAttribute(): float
     {
-        return $this->saleDetails->sum('total_price');
+        return $this->productList()->sum('total_price');
     }
 
     /**
@@ -164,7 +170,7 @@ class Sale extends Model
      */
     public function getTotalQuantityAttribute(): float
     {
-        return $this->saleDetails->sum('quantity');
+        return $this->productList()->sum('quantity');
     }
 
     /**
@@ -172,7 +178,7 @@ class Sale extends Model
      */
     public function getTotalProductsAttribute(): int
     {
-        return $this->saleDetails->count();
+        return $this->productList()->count();
     }
 
     /**
@@ -188,7 +194,7 @@ class Sale extends Model
      */
     public function getRemainingBalanceAttribute(): float
     {
-        $totalAmount = $this->saleDetails->sum('total_price');
+        $totalAmount = $this->productList()->sum('total_price');
         $totalPaid = $this->total_paid;
         return max(0, $totalAmount - $totalPaid);
     }
@@ -206,7 +212,7 @@ class Sale extends Model
      */
     public function isOverpaid(): bool
     {
-        $totalAmount = $this->saleDetails->sum('total_price');
+        $totalAmount = $this->productList()->sum('total_price');
         return $this->total_paid > $totalAmount + 0.01; // Using small threshold for float comparison
     }
 
@@ -219,7 +225,7 @@ class Sale extends Model
             return 0.0;
         }
 
-        $totalAmount = $this->saleDetails->sum('total_price');
+        $totalAmount = $this->productList()->sum('total_price');
         return $this->total_paid - $totalAmount;
     }
 
@@ -228,7 +234,7 @@ class Sale extends Model
      */
     public function updatePaymentStatus(): void
     {
-        $this->loadMissing(['payments', 'saleDetails']);
+        $this->loadMissing(['payments', 'productList']);
 
         if ($this->payments->isEmpty()) {
             $this->payment_status = 'pending';
@@ -249,7 +255,7 @@ class Sale extends Model
      */
     public function scopeWithOutstandingBalance($query)
     {
-        return $query->whereHas('saleDetails')
+        return $query->whereHas('productList')
             ->where(function ($q) {
                 $q->where('payment_status', 'pending')
                     ->orWhere('payment_status', 'partial');

@@ -13,9 +13,9 @@ class CreateRefundModal extends Component
 {
     public bool $showCreateModal = false;
 
-    public int $user_id;
-    public int $sale_id;
-    public float $refunded_amount;
+    public ?int $user_id = null;
+    public ?int $sale_id = null;
+    public ?float $refunded_amount = null;
     public string $refund_method = '';
     public string $reason = '';
 
@@ -24,11 +24,9 @@ class CreateRefundModal extends Component
     public $users = [];
     public array $refund_methods = Refund::REFUND_METHODS;
 
-    public function mount(?int $user_id = null, ?int $sale_id = null)
+    public function mount()
     {
         $this->users = User::where('active', true)->get();
-        $this->user_id = $user_id ?? Auth::user()->id;
-        $this->sale_id = $sale_id;
     }
 
     protected $listeners = [
@@ -40,10 +38,12 @@ class CreateRefundModal extends Component
         $this->refundService = app(RefundService::class);
     }
 
-    public function openCreateRefundModal()
+    public function openCreateRefundModal(int $user_id, int $sale_id)
     {
         $this->showCreateModal = true;
         $this->reset(['user_id', 'sale_id', 'refunded_amount', 'refund_method', 'reason']);
+        $this->user_id = $user_id;
+        $this->sale_id = $sale_id;
     }
 
     public function createRefund()

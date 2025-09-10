@@ -126,6 +126,11 @@ class CreateSaleModal extends Component
                 $this->dispatch('refresh-sales-table');
                 $this->dispatch('show-sales-table-message', $result);
                 $this->showCreateModal = false;
+                if ($sale) {
+                    // Target the refunds component class so the modal opens reliably
+                    $this->dispatch('open-create-refund-modal', $sale->customer_id, $sale->id)
+                        ->to(\App\Livewire\Refunds\CreateRefundModal::class);
+                }
             } else {
                 // Handle different types of errors
                 switch ($result['type'] ?? 'error') {

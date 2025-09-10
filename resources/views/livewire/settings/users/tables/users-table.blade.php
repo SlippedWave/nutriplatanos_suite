@@ -30,37 +30,39 @@
         </div>
     @endif
 
-    <!-- Search and Filters -->
     <div class="flex flex-col gap-4">
-        <div class="w-full">
-            <flux:input 
-                wire:model.live.debounce.300ms="search"
-                placeholder="{{ __('Buscar usuarios...') }}"
-            />
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
-            <flux:button 
-                variant="primary" 
-                wire:click="toggleIncludeDeleted"
-                class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}" 
-                aria-label="{{ $includeDeleted ? __('Ocultar usuarios eliminados') : __('Incluir usuarios eliminados') }}"
-            >
-                {{ $includeDeleted ? __('Ocultar eliminados') : __('Incluir eliminados') }}
-            </flux:button>
-            <flux:select wire:model.live="perPage" class="w-20">
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </flux:select>
-            <flux:button 
-                variant="primary" 
-                icon="plus"
-                wire:click="$dispatch('open-create-user-modal')"
-            >
-                {{ __('Nuevo Usuario') }}
-            </flux:button>
+        <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 sm:p-4">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex-1">
+                    <flux:input 
+                        wire:model.live.debounce.300ms="search"
+                        placeholder="{{ __('Buscar usuarios...') }}"
+                    />
+                </div>
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <flux:button 
+                        variant="primary" 
+                        wire:click="toggleIncludeDeleted"
+                        class="{{ $includeDeleted ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}" 
+                        aria-label="{{ $includeDeleted ? __('Ocultar usuarios eliminados') : __('Incluir usuarios eliminados') }}"
+                    >
+                        {{ $includeDeleted ? __('Ocultar eliminados') : __('Incluir eliminados') }}
+                    </flux:button>
+                    <flux:select wire:model.live="perPage" class="w-20">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </flux:select>
+                    <flux:button 
+                        variant="primary" 
+                        icon="plus"
+                        wire:click="$dispatch('open-create-user-modal')"
+                    >
+                        {{ __('Nuevo Usuario') }}
+                    </flux:button>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -41,13 +41,13 @@
 
                     <div class="flex justify-between">
                         <span class="text-gray-500">Productos:</span>
-                        <span class="text-gray-900">{{ $selectedSale->saleDetails->count() }} producto(s)</span>
+                        <span class="text-gray-900">{{ $selectedSale->productList->count() }} producto(s)</span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-gray-500">Total:</span>
                         <span class="text-gray-900 font-medium">
-                            ${{ number_format($selectedSale->saleDetails->sum('total_price'), 2) }}
+                            ${{ number_format($selectedSale->productList->sum('total_price'), 2) }}
                         </span>
                     </div>
 
@@ -69,11 +69,11 @@
             </div>
 
             <!-- Products List -->
-            @if ($selectedSale->saleDetails && $selectedSale->saleDetails->count() > 0)
+            @if ($selectedSale->productList && $selectedSale->productList->count() > 0)
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <h4 class="text-sm font-medium text-gray-900 mb-2">Productos incluidos:</h4>
                     <div class="space-y-1">
-                        @foreach ($selectedSale->saleDetails as $detail)
+                        @foreach ($selectedSale->productList as $detail)
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">
                                     {{ $detail->product->name ?? 'Producto eliminado' }}

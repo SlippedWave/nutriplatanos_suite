@@ -29,16 +29,16 @@ class Product extends Model
     /**
      * Get the sale details associated with this product.
      */
-    public function saleDetails()
+    public function productLists()
     {
-        return $this->hasMany(SaleDetail::class);
+        return $this->hasMany(ProductList::class);
     }
 
     /**
-     * Get the sales associated with this product through sale details.
+     * Get the sales associated with this product through product lists.
      */
     public function sales()
     {
-        return $this->hasManyThrough(Sale::class, SaleDetail::class);
+        return $this->hasManyThrough(Sale::class, ProductList::class);
     }
 }

@@ -22,7 +22,7 @@
                     <div>
                         <span class="text-blue-700">Total:</span>
                         <span
-                            class="text-blue-900 font-medium">${{ number_format($selectedSale->saleDetails->sum('total_price'), 2) }}</span>
+                            class="text-blue-900 font-medium">${{ number_format($selectedSale->productList->sum('total_price'), 2) }}</span>
                     </div>
                     <div>
                         <span class="text-blue-700">Total Pagado:</span>

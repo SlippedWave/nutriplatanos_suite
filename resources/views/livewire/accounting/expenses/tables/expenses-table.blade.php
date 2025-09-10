@@ -32,58 +32,54 @@
 
     @if(!$hideFilters)
     <div class="flex flex-col gap-4">
-        <!-- Controls Section -->
-        <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-            <!-- Filters Group -->
-            <div class="flex flex-col xs:flex-row gap-2 flex-1">
-                <!-- Search Bar (Full Width) -->
-                <div class="w-full">
-                    <flux:input 
-                        wire:model.live.debounce.300ms="search" 
-                        placeholder="Buscar gastos..."
-                        type="search"
-                        class="w-full"
-                    />
+        <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 sm:p-4">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex-1">
+                    <div class="w-full">
+                        <flux:input 
+                            wire:model.live.debounce.300ms="search" 
+                            placeholder="Buscar gastos..."
+                            type="search"
+                            class="w-full"
+                        />
+                    </div>
                 </div>
-                <!-- Date Filter -->
-                <flux:select wire:model.live="dateFilter" class="flex-1 xs:min-w-[140px]">
-                    <option value="all">Todas las fechas</option>
-                    <option value="today">Hoy</option>
-                    <option value="week">Esta semana</option>
-                    <option value="month">Este mes</option>
-                </flux:select>
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <flux:button 
+                        variant="primary" 
+                        wire:click="toggleIncludeDeletedExpenses"
+                        class="{{ $includeDeletedExpenses ? 'bg-gray-100! text-gray-900!' : 'bg-background! text-gray-500! hover:bg-gray-50!' }}" 
+                        aria-label="{{ $includeDeletedExpenses ? __('Ocultar gastos eliminados') : __('Incluir gastos eliminados') }}"
+                        size="sm"
+                    >
+                        <span class="hidden sm:inline">{{ $includeDeletedExpenses ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}</span>
+                        <span class="sm:hidden">{{ $includeDeletedExpenses ? __('Ocultar') : __('Eliminadas') }}</span>
+                    </flux:button>
 
-                <!-- Per Page -->
-                <flux:select wire:model.live="perPage" class="xs:w-16 flex-none">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </flux:select>
-            </div>
-            
-            <!-- Action Buttons Group -->
-            <div class="flex flex-col xs:flex-row gap-2 xs:items-center">
-                <flux:button 
-                    variant="primary" 
-                    wire:click="toggleIncludeDeletedExpenses"
-                    class="{{ $includeDeletedExpenses ? 'bg-danger-100! text-danger-900!' : 'bg-background! text-danger-500! hover:bg-danger-50!' }}" 
-                    aria-label="{{ $includeDeletedExpenses ? __('Ocultar gastos eliminados') : __('Incluir gastos eliminados') }}"
-                    size="sm"
-                >
-                    <span class="hidden sm:inline">{{ $includeDeletedExpenses ? __('Ocultar eliminadas') : __('Incluir eliminadas') }}</span>
-                    <span class="sm:hidden">{{ $includeDeletedExpenses ? __('Ocultar') : __('Eliminadas') }}</span>
-                </flux:button>
+                    <flux:select wire:model.live="dateFilter" class="flex-1 xs:min-w-[140px]">
+                        <option value="all">Todas las fechas</option>
+                        <option value="today">Hoy</option>
+                        <option value="week">Esta semana</option>
+                        <option value="month">Este mes</option>
+                    </flux:select>
 
-                @if ($canCreateNewExpense)
-                <flux:button variant="primary"
-                                icon="plus" 
-                                wire:click="$dispatch('open-create-expense-modal')"
-                                class="w-full xs:w-auto">
-                    <span class="hidden sm:inline">{{ __('Crear nuevo gasto') }}</span>
-                    <span class="sm:hidden">{{ __('Crear') }}</span>
-                </flux:button>
-                @endif
+                    <flux:select wire:model.live="perPage" class="w-20">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </flux:select>
+
+                    @if ($canCreateNewExpense)
+                    <flux:button variant="primary"
+                                    icon="plus" 
+                                    wire:click="$dispatch('open-create-expense-modal')"
+                                    class="w-full xs:w-auto">
+                        <span class="hidden sm:inline">{{ __('Crear nuevo gasto') }}</span>
+                        <span class="sm:hidden">{{ __('Crear') }}</span>
+                    </flux:button>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

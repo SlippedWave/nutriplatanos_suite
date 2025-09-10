@@ -76,7 +76,7 @@ class AddPaymentModal extends Component
     public function openAddPaymentModal(int $saleId)
     {
         $this->showAddPaymentModal = true;
-        $this->selectedSale = Sale::with(['saleDetails', 'payments'])->findOrFail($saleId);
+        $this->selectedSale = Sale::with(['productList', 'payments'])->findOrFail($saleId);
         $this->payment_date = now()->toDateString();
         $this->payment_route_id = $this->contextRouteId ?? '';
         $this->reset([
