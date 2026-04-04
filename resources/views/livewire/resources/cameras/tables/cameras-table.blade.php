@@ -40,7 +40,7 @@
                 </flux:select>
                 <flux:button variant="primary" icon="plus" wire:click="$dispatch('open-create-camera-modal')"
                     class="w-full xs:w-auto">
-                    <span class="hidden sm:inline">{{ __('Nueva Venta') }}</span>
+                    <span class="hidden sm:inline">{{ __('Nueva Cámara') }}</span>
                     <span class="sm:hidden">{{ __('Nueva') }}</span>
                 </flux:button>
             </div>
