@@ -221,9 +221,9 @@ class SalePaymentService
         }
     }
 
-    /**
+    /*     /**
      * Get payment statistics for a sale.
-     */
+     
     public function getSalePaymentStats(Sale $sale): array
     {
         $sale->loadMissing(['payments', 'productList']);
@@ -237,7 +237,7 @@ class SalePaymentService
 
         return [
             'total_amount' => $totalAmount,
-            'total_paid' => $totalPaid,
+            'tot    al_paid' => $totalPaid,
             'remaining_balance' => $remainingBalance,
             'payment_count' => $paymentCount,
             'payment_progress' => round($paymentProgress, 2),
@@ -246,7 +246,7 @@ class SalePaymentService
             'overpaid_amount' => $sale->overpaid_amount,
             'last_payment_date' => $sale->payments->max('payment_date'),
         ];
-    }
+    } */
 
     /**
      * Get payment history for a sale.

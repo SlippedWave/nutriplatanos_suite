@@ -128,7 +128,7 @@ class CreateSaleModal extends Component
                 $this->showCreateModal = false;
                 if ($sale) {
                     // Target the refunds component class so the modal opens reliably
-                    $this->dispatch('open-create-refund-modal', $sale->customer_id, $sale->id)
+                    $this->dispatch('open-create-refund-modal', $sale->id)
                         ->to(\App\Livewire\Refunds\CreateRefundModal::class);
                 }
             } else {
@@ -172,7 +172,7 @@ class CreateSaleModal extends Component
             'route_id' => $this->route_id,
             'payment_status' => $this->payment_status,
             'total_amount' => $totalAmount,
-            'net_amount_due' => $totalAmount,
+            'total_amount_excluding_refunds' => $totalAmount,
             'paid_amount' => match ($this->payment_status) {
                 'partial' => $this->paid_amount,
                 'paid' => $totalAmount,

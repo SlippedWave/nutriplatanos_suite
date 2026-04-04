@@ -29,7 +29,7 @@ class Product extends Model
     /**
      * Get the sale details associated with this product.
      */
-    public function productLists()
+    public function productList()
     {
         return $this->hasMany(ProductList::class);
     }

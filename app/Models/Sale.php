@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sale extends Model
@@ -26,7 +27,7 @@ class Sale extends Model
         'paid_amount',
         'total_amount',
         'refunded_amount',
-        'net_amount_due'
+        'total_amount_excluding_refunds',
     ];
 
     /**
@@ -41,7 +42,7 @@ class Sale extends Model
         'payment_status' => 'string',
         'paid_amount' => 'decimal:2',
         'refunded_amount' => 'decimal:2',
-        'net_amount_due' => 'decimal:2',
+        'total_amount_excluding_refunds' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -88,9 +89,9 @@ class Sale extends Model
     /**
      * Get the product list for this sale.
      */
-    public function productList(): HasMany
+    public function productList(): MorphMany
     {
-        return $this->hasMany(ProductList::class);
+        return $this->morphMany(ProductList::class, 'listable');
     }
 
     /**
@@ -157,46 +158,18 @@ class Sale extends Model
         return $query->whereBetween('created_at', [$startDate, $endDate]);
     }
 
-    /**
-     * Calculate and return the total amount for this sale.
-     */
-    public function getTotalAmountAttribute(): float
+    public function applyDiscountFromRefund(float $discountAmount): void
     {
-        return $this->productList()->sum('total_price');
-    }
+        $this->loadMissing('productList');
 
-    /**
-     * Get the total quantity of items in this sale.
-     */
-    public function getTotalQuantityAttribute(): float
-    {
-        return $this->productList()->sum('quantity');
-    }
+        $currentTotal = $this->total_amount;
+        $newTotal = max(0, $currentTotal - $discountAmount);
+        $this->total_amount = $newTotal;
 
-    /**
-     * Get the total number of different products in this sale.
-     */
-    public function getTotalProductsAttribute(): int
-    {
-        return $this->productList()->count();
-    }
+        // Update total amount excluding refunds accordingly
+        $this->total_amount_excluding_refunds = max(0, $this->total_amount_excluding_refunds - $discountAmount);
 
-    /**
-     * Calculate the total amount paid for this sale.
-     */
-    public function getTotalPaidAttribute(): float
-    {
-        return $this->payments()->sum('amount');
-    }
-
-    /**
-     * Calculate the remaining balance for this sale.
-     */
-    public function getRemainingBalanceAttribute(): float
-    {
-        $totalAmount = $this->productList()->sum('total_price');
-        $totalPaid = $this->total_paid;
-        return max(0, $totalAmount - $totalPaid);
+        $this->save();
     }
 
     /**

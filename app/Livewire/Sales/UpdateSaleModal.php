@@ -180,7 +180,7 @@ class UpdateSaleModal extends Component
             'route_id' => $this->route_id,
             'payment_status' => $this->payment_status,
             'total_amount' => $totalAmount,
-            'net_amount_due' => $totalAmount,
+            'total_amount_excluding_refunds' => $totalAmount,
             'paid_amount' => match ($this->payment_status) {
                 'partial' => $this->paid_amount,
                 'paid' => $totalAmount,
