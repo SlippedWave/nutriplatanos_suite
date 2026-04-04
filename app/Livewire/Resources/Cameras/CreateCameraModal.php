@@ -4,6 +4,7 @@ namespace App\Livewire\Resources\Cameras;
 
 use Livewire\Component;
 use App\Services\CameraService;
+use Illuminate\Support\MessageBag;
 
 class CreateCameraModal extends Component
 {
@@ -29,14 +30,27 @@ class CreateCameraModal extends Component
     {
         $this->reset(['name', 'location', 'box_stock']);
         $this->showCreateModal = true;
+        $this->resetValidation();
     }
 
     public function createCamera()
     {
         try {
             $result = $this->cameraService->createCamera($this->getFormData());
-            $this->dispatch('cameras-info-updated', $result);
-            $this->showCreateModal = false;
+
+            if ($result['success']) {
+                $this->resetValidation();
+                $this->dispatch('cameras-info-updated', $result);
+                $this->showCreateModal = false;
+                return;
+            }
+
+            if (($result['type'] ?? 'error') === 'validation') {
+                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+                return;
+            }
+
+            $this->dispatch('camera-creation-failed', $result['message']);
         } catch (\Exception $e) {
             $this->dispatch('camera-creation-failed', $e->getMessage());
         }

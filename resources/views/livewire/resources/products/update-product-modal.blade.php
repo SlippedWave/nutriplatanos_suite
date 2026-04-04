@@ -13,13 +13,11 @@
                     <flux:field>
                         <flux:input wire:model="name" label="{{ __('Nombre') }}" type="text"
                             placeholder="Nombre del producto" class="text-[var(--color-text)]!" />
-                        <flux:error name="name" />
                     </flux:field>
 
                     <flux:field>
                         <flux:textarea wire:model="description" label="{{ __('Descripción') }}" type="text"
                             placeholder="Describe el producto" class="text-[var(--color-text)]!" />
-                        <flux:error name="description" />
                     </flux:field>
                 </div>
                 <div class="flex justify-end mt-4">

@@ -4,6 +4,7 @@ namespace App\Livewire\Resources\Products;
 
 use App\Models\Product;
 use App\Services\ProductService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class UpdateProductModal extends Component
@@ -32,6 +33,7 @@ class UpdateProductModal extends Component
         $this->selectedProductId = $product->id;
         $this->name = $product->name;
         $this->description = $product->description;
+        $this->resetValidation();
         $this->showUpdateModal = true;
     }
 
@@ -39,8 +41,20 @@ class UpdateProductModal extends Component
     {
         try {
             $result = $this->productService->updateProduct($this->selectedProductId, $this->getFormData());
-            $this->dispatch('products-info-updated', $result);
-            $this->showUpdateModal = false;
+
+            if ($result['success']) {
+                $this->resetValidation();
+                $this->dispatch('products-info-updated', $result);
+                $this->showUpdateModal = false;
+                return;
+            }
+
+            if (($result['type'] ?? 'error') === 'validation') {
+                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+                return;
+            }
+
+            $this->dispatch('product-update-failed', $result['message']);
         } catch (\Exception $e) {
             $this->dispatch('product-update-failed', $e->getMessage());
         }

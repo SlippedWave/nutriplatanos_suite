@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Note;
+
 
 
 class ProductService
@@ -26,15 +28,32 @@ class ProductService
         try {
             $validated = $this->validateProductData($data);
 
+            DB::beginTransaction();
+
+            $product = Product::create($validated);
+
+            DB::commit();
+
             return [
                 'success' => true,
-                'product' => Product::create($validated),
+                'product' => $product,
                 'message' => 'Producto creado exitosamente.'
             ];
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al crear el producto: ' . $e->getMessage()
+                'message' => 'Error de validación: ' . $e->getMessage(),
+                'type' => 'validation',
+                'errors' => $e->errors(),
+            ];
+        }
+        catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error al crear el producto: ' . $e->getMessage(),
+                'type' => 'error',
             ];
         }
     }
@@ -44,8 +63,14 @@ class ProductService
         try {
             $validated = $this->validateProductData($data);
 
+            
             $product = Product::findOrFail($id);
+
+            DB::beginTransaction();
+
             $product->update($validated);
+
+            DB::commit();
 
             $this->createProductNote($product, 'Producto "' . $product->name . '" actualizado el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
 
@@ -54,10 +79,21 @@ class ProductService
                 'product' => $product,
                 'message' => 'Producto actualizado exitosamente.'
             ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+                DB::rollBack();
+                return [
+                    'success' => false,
+                    'message' => 'Error de validación: ' . $e->getMessage(),
+                    'type' => 'validation',
+                    'errors' => $e->errors(),
+                ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al actualizar el producto: ' . $e->getMessage()
+                'message' => 'Error al actualizar el producto: ' . $e->getMessage(),
+                'type' => 'error',
+
             ];
         }
     }
@@ -77,7 +113,8 @@ class ProductService
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error al eliminar el producto: ' . $e->getMessage()
+                'message' => 'Error al eliminar el producto: ' . $e->getMessage(),
+                'type' => 'error',
             ];
         }
     }

@@ -12,23 +12,20 @@
                     <flux:field>
                         <flux:input wire:model="name" label="{{ __('Nombre') }}" type="text"
                             placeholder="Nombre de la cámara" class="text-[var(--color-text)]!" />
-                        <flux:error name="name" />
                     </flux:field>
 
                     <flux:field>
                         <flux:input wire:model="location" label="{{ __('Ubicación') }}" type="text"
                             placeholder="Ubicación de la cámara" class="text-[var(--color-text)]!" />
-                        <flux:error name="location" />
                     </flux:field>
 
                     <flux:field>
                         <flux:input wire:model="box_stock" label="{{ __('Stock de cajas') }}" type="text"
                             placeholder="Cantidad de cajas en existencia" class="text-[var(--color-text)]!" />
-                        <flux:error name="box_stock" />
                     </flux:field>
                 </div>
                 <div class="flex justify-end mt-4">
-                    <flux:button wire:click="createCamera" variant="primary" wire:loading.attr="disabled"
+                    <flux:button type="submit" variant="primary" wire:loading.attr="disabled"
                         wire:target="createCamera" class="w-full sm:w-auto">
                         <span wire:loading.remove wire:target="createCamera">{{ __('Crear') }}</span>
                         <span wire:loading wire:target="createCamera">Creando...</span>

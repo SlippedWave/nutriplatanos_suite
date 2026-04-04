@@ -3,6 +3,7 @@
 namespace App\Livewire\Resources\Products;
 
 use App\Services\ProductService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class CreateProductModal extends Component
@@ -27,14 +28,27 @@ class CreateProductModal extends Component
     {
         $this->showCreateModal = true;
         $this->reset(['name', 'description']);
+        $this->resetValidation();
     }
 
     public function createProduct()
     {
         try {
             $result = $this->productService->createProduct($this->getFormData());
-            $this->dispatch('products-info-updated', $result);
-            $this->showCreateModal = false;
+
+            if ($result['success']) {
+                $this->resetValidation();
+                $this->dispatch('products-info-updated', $result);
+                $this->showCreateModal = false;
+                return;
+            }
+
+            if (($result['type'] ?? 'error') === 'validation') {
+                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+                return;
+            }
+
+            $this->dispatch('product-creation-failed', $result['message']);
         } catch (\Exception $e) {
             $this->dispatch('product-creation-failed', $e->getMessage());
         }

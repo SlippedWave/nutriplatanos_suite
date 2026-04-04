@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Camera;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Note;
-
+use Illuminate\Support\Facades\DB;
 
 class CameraService
 {
@@ -25,15 +25,31 @@ class CameraService
         try {
             $validated = $this->validateCameraData($data);
 
+            DB::beginTransaction();
+
+            $camera = Camera::create($validated);
+
+            DB::commit();
+
             return [
                 'success' => true,
-                'camera' => Camera::create($validated),
+                'camera' => $camera,
                 'message' => 'Cámara creada exitosamente.'
             ];
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al crear la cámara: ' . $e->getMessage()
+                'message' => 'Error de validación: ' . $e->getMessage(),
+                'type' => 'validation',
+                'errors' => $e->errors(),
+            ]; 
+        } catch (\Exception $e) {
+            DB::rollBack(); 
+            return [
+                'success' => false,
+                'message' => 'Error al crear la cámara: ' . $e->getMessage(),
+                'type' => 'error',
             ];
         }
     }
@@ -44,7 +60,12 @@ class CameraService
             $validated = $this->validateCameraData($data);
 
             $camera = Camera::findOrFail($id);
+
+            DB::beginTransaction();
+
             $camera->update($validated);
+
+            DB::commit();
 
             $this->createCameraNote($camera, 'Cámara "' . $camera->name . '" actualizada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
 
@@ -53,7 +74,16 @@ class CameraService
                 'camera' => $camera,
                 'message' => 'Cámara actualizada exitosamente.'
             ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error de validación: ' . $e->getMessage(),
+                'type' => 'validation',
+                'errors' => $e->errors(),
+            ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al actualizar la cámara: ' . $e->getMessage()

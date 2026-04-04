@@ -5,6 +5,7 @@ namespace App\Livewire\Resources\Cameras;
 use Livewire\Component;
 use App\Services\CameraService;
 use App\Models\Camera;
+use Illuminate\Support\MessageBag;
 
 class UpdateCameraModal extends Component
 {
@@ -35,6 +36,7 @@ class UpdateCameraModal extends Component
         $this->name = $camera->name;
         $this->location = $camera->location;
         $this->box_stock = $camera->box_stock;
+        $this->resetValidation();
         $this->showUpdateModal = true;
     }
 
@@ -42,8 +44,20 @@ class UpdateCameraModal extends Component
     {
         try {
             $result = $this->cameraService->updateCamera($this->selectedCameraId, $this->getFormData());
-            $this->dispatch('cameras-info-updated', $result);
-            $this->showUpdateModal = false;
+
+            if ($result['success']) {
+                $this->resetValidation();
+                $this->dispatch('cameras-info-updated', $result);
+                $this->showUpdateModal = false;
+                return;
+            }
+
+            if (($result['type'] ?? 'error') === 'validation') {
+                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+                return;
+            }
+
+            $this->dispatch('camera-update-failed', $result['message']);
         } catch (\Exception $e) {
             $this->dispatch('camera-update-failed', $e->getMessage());
         }
