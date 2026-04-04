@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sale_details', function (Blueprint $table) {
+        Schema::create('product_lists', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sale_id')->constrained('sales')->onDelete('cascade');
+            $table->morphs('listable');
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->decimal('quantity', 8, 2);
             $table->decimal('price_per_unit', 10, 2);

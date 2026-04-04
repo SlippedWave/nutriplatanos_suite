@@ -28,6 +28,11 @@ class Refund extends Model
         'product' => 'Producto',
     ];
 
+    public function productList()
+    {
+        return $this->morphMany(ProductList::class, 'listable');
+    }
+
     public function sale()
     {
         return $this->belongsTo(Sale::class);

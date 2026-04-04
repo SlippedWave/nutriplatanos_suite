@@ -72,7 +72,8 @@ class RefundService
             $refund->update($refundData);
             $this->createRefundNote($refund, "Reembolso actualizado el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
-            $refund->productLists()->delete();
+            $refund->productList()->delete();
+
             if (!empty($validated['products'])) {
                 $this->createProductList($refund, $validated['products']);
             }
@@ -115,16 +116,22 @@ class RefundService
     private function validateRefundData(array $data): array
     {
         $rules = [
-            'amount' => 'required|numeric|min:0',
+            'refund_method' => 'required|in:' . implode(',', array_keys(Refund::REFUND_METHODS)),
+            'refunded_amount' => 'required|numeric|min:0',
             'reason' => 'required|string|max:255',
             'user_id' => 'required|exists:users,id',
-            'sale_id' => 'required|exists:sales,id',
-            'refund_method' => 'required|in:' . implode(',', array_keys(Refund::REFUND_METHODS)),
-            'products' => 'nullable|array|min:1',
-            'products.*.product_id' => 'required_with:products|exists:products,id',
-            'products.*.quantity' => 'required_with:products|integer|min:1',
-            'products.*.price_per_unit' => 'required_with:products|numeric|min:0',
+            'sale_id' => 'required|exists:sales,id'
         ];
+
+        if ($data['refund_method'] === 'product') {
+            $rules['products'] = 'required|array|min:1';
+            $rules['products.*.product_id'] = 'required|exists:products,id';
+            $rules['products.*.quantity'] = 'required|integer|min:1';
+            $rules['products.*.price_per_unit'] = 'required|numeric|min:0';
+        } else {
+            $rules['products'] = 'nullable|array';
+        }
+
         return validator($data, $rules)->validate();
     }
 
@@ -132,7 +139,7 @@ class RefundService
     {
         foreach ($products as $productData) {
             ProductList::create([
-                'listable_type' => ProductList::class,
+                'listable_type' => Refund::class,
                 'listable_id' => $refund->id,
                 'product_id' => $productData['product_id'],
                 'quantity' => $productData['quantity'],

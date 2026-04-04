@@ -29,7 +29,6 @@ class SaleService
 
             // Create the sale without products data
             $saleData = collect($validated)->except(['products', 'notes'])->toArray();
-            $saleData['net_amount_due'] = $validated['total_amount'];
             $sale = Sale::create($saleData);
 
             // Create sale details if products are provided
@@ -308,7 +307,7 @@ class SaleService
         return $query;
     }
 
-    public function getSaleStats(Sale $sale): array
+    public function getSaleStats(Sale $sale): array 
     {
         $sale->load(['productList.product', 'customer', 'route', 'user']);
 
@@ -467,6 +466,8 @@ class SaleService
             'total_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'paid_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'refunded_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
+            'total_amount_excluding_refunds' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'products' => ['required', 'array', 'min:1'],
             'products.*.product_id' => ['required', 'exists:products,id'],
             'products.*.quantity' => ['required', 'numeric', 'min:0.001', 'max:999999.999'],

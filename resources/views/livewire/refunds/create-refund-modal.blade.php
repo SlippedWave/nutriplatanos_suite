@@ -4,6 +4,12 @@
         <flux:heading size="lg" class="font-semibold text-primary-600!">{{ __('Crear reembolso') }}</flux:heading>
     </div>
 
+    @if (session()->has('error'))
+            <div class="bg-danger-50 border border-danger-200 text-danger-700 px-3 py-2 rounded">
+                {{ session('error') }}
+            </div>
+        @endif
+
     <div class="space-y-4">
         <form wire:submit.prevent="createRefund">
 

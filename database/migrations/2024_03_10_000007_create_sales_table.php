@@ -18,8 +18,8 @@ return new class extends Migration
                 'paid',
                 'partial',
             ])->default('pending');
-            $table->float('paid_amount')->default(0.00);
-            $table->float('total_amount')->default(0.00);
+            $table->decimal('paid_amount', 10, 2)->default(0.00);
+            $table->decimal('total_amount', 10, 2)->default(0.00);
             $table->timestamps();
             $table->softDeletes(); // For soft delete functionality
         });
