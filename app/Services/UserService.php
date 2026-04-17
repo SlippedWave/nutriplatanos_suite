@@ -7,6 +7,7 @@ use App\Models\Note;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserService
 {
@@ -16,21 +17,35 @@ class UserService
             $validated = $this->validateUserData($data);
             $validated['password'] = Hash::make($validated['password']);
 
+            DB::beginTransaction();
+
             $user = User::create($validated);
 
             if (!empty($validated['notes'])) {
                 $this->createUserNote($user, $validated['notes']);
             }
 
+            DB::commit();
+
             return [
                 'success' => true,
                 'user' => $user,
                 'message' => 'Usuario creado exitosamente.'
             ];
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al crear usuario: ' . $e->getMessage()
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados. hay ' .  count($e->errors()) . ' error(es).',
+                'validation-errors' => $e->errors(),
+                'type' => 'validation-exception'
+            ]; 
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error al crear usuario: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -73,18 +88,32 @@ class UserService
                 $validated['password'] = Hash::make($data['password']);
             }
 
+            DB::beginTransaction();
+
             $user->update($validated);
             $this->createUserNote($user, "Usuario actualizado el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'user' => $user->fresh(),
                 'message' => 'Usuario actualizado exitosamente.'
             ];
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al actualizar usuario: ' . $e->getMessage()
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados. hay ' .  count($e->errors()) . ' error(es).',
+                'validation-errors' => $e->errors(),
+                'type' => 'validation-exception'
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error al actualizar usuario: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -101,19 +130,26 @@ class UserService
 
         try {
             // Soft delete the user
+
+            DB::beginTransaction();
+
             $user->delete();
 
             // Optionally, add a note about the deletion
             $this->createUserNote($user, "Usuario eliminado por {$currentUser->name} el " . now()->format('d/m/Y H:i'));
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Usuario eliminado exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar usuario: ' . $e->getMessage()
+                'message' => 'Error al eliminar usuario: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -121,18 +157,25 @@ class UserService
     public function restoreUser(User $user): array
     {
         try {
+            DB::beginTransaction();
+
             $user->restore();
 
             $this->createUserNote($user, "Usuario restaurado el " . now()->format('d/m/Y H:i'));
 
+            DB::commit();
+
             return [
                 'success' => true,
-                'message' => 'Usuario restaurado exitosamente.'
+                'message' => 'Usuario restaurado exitosamente.',
+                'user' => $user->fresh()
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al restaurar usuario: ' . $e->getMessage()
+                'message' => 'Error al restaurar usuario: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -147,17 +190,22 @@ class UserService
         }
 
         try {
+            DB::beginTransaction();
             // Permanently delete the user
             $user->forceDelete();
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Usuario eliminado permanentemente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar permanentemente el usuario: ' . $e->getMessage()
+                'message' => 'Error al eliminar permanentemente el usuario: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }

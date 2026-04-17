@@ -78,6 +78,11 @@ class Sale extends Model
         return $this->hasOne(Refund::class);
     }
 
+    public function hasRefund(): bool
+    {
+        return $this->refund()->exists();
+    }
+
     /**
      * Get the user who made this sale.
      */

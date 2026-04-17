@@ -58,22 +58,21 @@ class SaleService
                 'success' => true,
                 'sale' => $sale->load(['customer', 'route', 'user', 'productList.product']),
                 'message' => 'Venta creada exitosamente.',
-                'type' => 'success'
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
-                'errors' => $e->errors(),
-                'type' => 'validation'
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados. hay ' .  count($e->errors()) . ' error(es).',
+                'validation-errors' => $e->errors(),
+                'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear venta: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -130,16 +129,16 @@ class SaleService
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación. Por favor, revisa los datos ingresados.',
-                'errors' => $e->errors(),
-                'type' => 'validation'
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados. hay ' .  count($e->errors()) . ' error(es).',
+                'validation-errors' => $e->errors(),
+                'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al actualizar venta: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -154,19 +153,25 @@ class SaleService
                 ];
             }
 
+            DB::beginTransaction();
+
             // Soft delete the sale
             $sale->delete();
 
             $this->createSaleNote($sale, "Venta eliminada el " . now()->format('d/m/Y H:i'));
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Venta eliminada exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar venta: ' . $e->getMessage()
+                'message' => 'Error al eliminar venta: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -174,18 +179,22 @@ class SaleService
     public function restoreSale(Sale $sale): array
     {
         try {
+            DB::beginTransaction();
             $sale->restore();
 
             $this->createSaleNote($sale, "Venta restaurada el " . now()->format('d/m/Y H:i'));
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Venta restaurada exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al restaurar venta: ' . $e->getMessage()
+                'message' => 'Error al restaurar venta: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -218,7 +227,8 @@ class SaleService
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error al actualizar estado de pago: ' . $e->getMessage()
+                'message' => 'Error al actualizar estado de pago: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }

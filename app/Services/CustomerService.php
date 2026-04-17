@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Note;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CustomerService
 {
@@ -13,22 +14,37 @@ class CustomerService
     {
         try {
             $validated = $this->validateCustomerData($data);
-
+            
+            DB::beginTransaction();
             $customer = Customer::create($validated);
+
+
 
             if (!empty($validated['notes'])) {
                 $this->createCustomerNote($customer, $validated['notes']);
             }
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'customer' => $customer,
                 'message' => 'Cliente creado exitosamente.'
             ];
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al crear cliente: ' . $e->getMessage()
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
+                'errors' => $e->errors(),
+                'type' => 'validation'
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error al crear cliente: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }
@@ -38,6 +54,8 @@ class CustomerService
         try {
             $validated = $this->validateCustomerData($data, $customer->id);
 
+            DB::beginTransaction();
+
             $customer->update($validated);
             $this->createCustomerNote($customer, "Cliente actualizado el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
@@ -45,15 +63,27 @@ class CustomerService
                 $this->createCustomerNote($customer, $validated['notes']);
             }
 
+            DB::commit();
+
             return [
                 'success' => true,
                 'customer' => $customer->fresh(),
                 'message' => 'Cliente actualizado exitosamente.'
             ];
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al actualizar cliente: ' . $e->getMessage()
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
+                'errors' => $e->errors(),
+                'type' => 'validation'
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Error al actualizar cliente: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }
@@ -69,20 +99,26 @@ class CustomerService
                 ];
             }
 
+            DB::beginTransaction();
+
             // Soft delete the customer
             $customer->delete();
 
             // Add a note about the deletion
             $this->createCustomerNote($customer, "Cliente eliminado el " . now()->format('d/m/Y H:i'));
 
+            DB::commit();
+
             return [
                 'success' => true,
                 'message' => 'Cliente eliminado exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar cliente: ' . $e->getMessage()
+                'message' => 'Error al eliminar cliente: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }
@@ -98,17 +134,24 @@ class CustomerService
                 ];
             }
 
+            DB::beginTransaction();
             // Permanently delete the customer
             $customer->forceDelete();
+
+            $this->createCustomerNote($customer, "Cliente eliminado permanentemente el " . now()->format('d/m/Y H:i'));
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Cliente eliminado permanentemente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar permanentemente el cliente: ' . $e->getMessage()
+                'message' => 'Error al eliminar permanentemente el cliente: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }

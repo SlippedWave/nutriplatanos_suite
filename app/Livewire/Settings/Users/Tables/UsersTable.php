@@ -20,8 +20,7 @@ class UsersTable extends Component
     
     protected $listeners = [
         'users-info-updated' => '$refresh',
-        'show-users-table-message' => 'showUsersTableMessage',
-        'flash-users-table-message' => 'flashUsersTableMessage'
+        'show-users-table--message' => 'showUsersTableMessage',
     ];
 
     
@@ -31,9 +30,18 @@ class UsersTable extends Component
     {
         $this->userService = $userService;
     }
+
     public function showUsersTableMessage($result)
     {
-        $this->flashUsersTableMessage($result['message'], $result['success'] ? 'success' : 'error');
+        $message = is_array($result)
+            ? ($result['message'] ?? 'Operación completada')
+            : (string) $result;
+
+        $type = is_array($result)
+            ? ($result['success'] ?? true ? 'success' : 'error')
+            : 'error';
+
+        $this->flashUsersTableMessage($message, $type);
         $this->resetPage();
     }
 

@@ -6,6 +6,7 @@ use App\Models\Refund;
 use App\Models\User;
 use App\Services\RefundService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 
@@ -53,6 +54,8 @@ class CreateRefundModal extends Component
         $this->refund_method = array_key_first(Refund::REFUND_METHODS);
         $this->user_id = Auth::id();
         $this->sale_id = $sale_id;
+        $this->resetValidation();
+        
     }
 
     public function createRefund()
@@ -60,23 +63,19 @@ class CreateRefundModal extends Component
         try {
             $response = $this->refundService->createRefund($this->getFormData());
 
-            if (!($response['success'] ?? false)) {
-                // Surface validation errors in the modal
-                if (($response['type'] ?? null) === 'validation' && isset($response['errors'])) {
-                    foreach ($response['errors'] as $field => $messages) {
-                        foreach ((array) $messages as $msg) {
-                            $this->addError($field, $msg);
-                        }
-                    }
-                }
-                session()->flash('error', $response['message'] ?? __('Error al crear el reembolso.'));
+            if ($response['success']) {
+                $this->resetValidation();
+                $this->dispatch('refunds-info-updated', $response);
+                $this->showCreateModal = false;
                 return;
             }
 
-            // Notify listeners and close
-            $this->dispatch('refund-created');
-            $this->dispatch('refresh-sales-table');
-            $this->showCreateModal = false;
+            if (($response['type'] ?? 'error') === 'validation') {
+                $this->setErrorBag(new MessageBag($response['errors'] ?? []));
+                $this->dispatch('refund-creation-failed', $response['message'] ?? 'Refund creation failed');
+                return;
+            }
+
         } catch (\Exception $e) {
             $this->dispatch('refund-creation-failed', $e->getMessage());
         }

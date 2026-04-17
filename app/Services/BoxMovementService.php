@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BoxMovement;
 use App\Models\Note;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class BoxMovementService
@@ -26,8 +27,10 @@ class BoxMovementService
                 ];
             }
 
+            DB::beginTransaction();
             $boxMovementData = collect($validated)->except('notes')->toArray();
             $boxMovement = BoxMovement::create($boxMovementData);
+            DB::commit();
 
             if (!empty($validated['notes'])) {
                 Note::create([
@@ -44,7 +47,16 @@ class BoxMovementService
                 'message' => 'Movimiento de caja creado exitosamente.',
                 'type' => 'success'
             ];
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => 'Datos inválidos para el movimiento de caja.',
+                'errors' => $e->errors(),
+                'type' => 'error',
+            ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear movimiento de caja: ' . $e->getMessage(),

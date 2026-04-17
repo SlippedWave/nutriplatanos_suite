@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Expense;
 use App\Models\Note;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class ExpenseService
@@ -21,12 +22,16 @@ class ExpenseService
                 $validated['user_id'] = Auth::id();
             }
 
+            DB::beginTransaction();
+
             $expense = Expense::create($validated);
 
             if (!empty($data['notes'])) {
                 // Handle notes if provided
                 $this->createExpenseNote($expense, $data['notes']);
             }
+
+            DB::commit();
 
             return [
                 'success' => true,
@@ -35,6 +40,7 @@ class ExpenseService
                 'type' => 'success'
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error de validación.',
@@ -42,6 +48,7 @@ class ExpenseService
                 'errors' => $e->errors()
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear gasto: ' . $e->getMessage(),
@@ -58,6 +65,8 @@ class ExpenseService
         try {
             $validated = $this->validateExpenseData($data);
 
+            DB::beginTransaction();
+
             $expense = Expense::findOrFail($id);
             $expense->update($validated);
             $this->createExpenseNote($expense, "Gasto actualizado el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
@@ -66,6 +75,8 @@ class ExpenseService
                 $this->createExpenseNote($expense, $data['notes']);
             }
 
+            DB::commit();
+
             return [
                 'success' => true,
                 'expense' => $expense,
@@ -73,6 +84,7 @@ class ExpenseService
                 'type' => 'success'
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error de validación.',
@@ -80,6 +92,7 @@ class ExpenseService
                 'errors' => $e->errors()
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear gasto: ' . $e->getMessage(),
@@ -95,7 +108,14 @@ class ExpenseService
     {
         try {
             $expense = Expense::findOrFail($id);
+
+            DB::beginTransaction();
+
             $expense->delete();
+
+            $this->createExpenseNote($expense, 'Gasto eliminado el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+
+            DB::commit();
 
             return [
                 'success' => true,
@@ -103,6 +123,7 @@ class ExpenseService
                 'type' => 'success'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al eliminar gasto: ' . $e->getMessage(),

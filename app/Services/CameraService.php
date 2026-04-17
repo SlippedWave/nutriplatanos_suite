@@ -86,6 +86,7 @@ class CameraService
             DB::rollBack();
             return [
                 'success' => false,
+                'type' => 'error',
                 'message' => 'Error al actualizar la cámara: ' . $e->getMessage()
             ];
         }
@@ -95,18 +96,22 @@ class CameraService
     {
         try {
             $camera = Camera::findOrFail($id);
+            DB::beginTransaction();
             $camera->delete();
 
             $this->createCameraNote($camera, 'Cámara "' . $camera->name . '" eliminada el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Cámara eliminada exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar la cámara: ' . $e->getMessage()
+                'message' => 'Error al eliminar la cámara: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }

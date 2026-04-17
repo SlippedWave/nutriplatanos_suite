@@ -81,23 +81,23 @@ class UpdateSaleModal extends Component
         $this->customer_id = $contextCustomerId;
     }
 
-    public function openUpdateSaleModal(Sale $sale)
+    public function openUpdateSaleModal($id)
     {
-        $this->showUpdateModal = true;
-        $this->selectedSale = $sale;
-        $this->customer_id = $sale->customer_id;
-        $this->route_id = $sale->route_id;
-        $this->payment_status = $sale->payment_status;
-        $this->paid_amount = $sale->paid_amount;
+        $this->selectedSale = Sale::findOrFail($id);
+        $this->customer_id = $this->selectedSale->customer_id;
+        $this->route_id = $this->selectedSale->route_id;
+        $this->payment_status = $this->selectedSale->payment_status;
+        $this->paid_amount = $this->selectedSale->paid_amount;
 
         $this->notes = '';
-        $this->saleProducts = $sale->productList->map(function ($detail) {
+        $this->saleProducts = $this->selectedSale->productList->map(function ($detail) {
             return [
                 'product_id' => $detail->product_id,
                 'quantity' => $detail->quantity,
                 'price_per_unit' => $detail->price_per_unit,
-            ];
-        })->toArray();
+                ];
+                })->toArray();
+        $this->showUpdateModal = true;
     }
 
     public function clearErrorsForModal()

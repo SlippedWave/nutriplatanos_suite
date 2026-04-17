@@ -5,6 +5,7 @@ namespace App\Livewire\Refunds;
 use App\Models\Refund;
 use App\Models\User;
 use App\Services\RefundService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class UpdateRefundModal extends Component
@@ -25,7 +26,7 @@ class UpdateRefundModal extends Component
     public array $refund_methods = Refund::REFUND_METHODS;
 
     public $listeners = [
-        'open-update-refund-modal' => 'openUpdateRefundModal',
+        'open-update-refund-modal' => 'openUpdateRefundModal' ,
     ];
 
     public function boot()
@@ -38,24 +39,37 @@ class UpdateRefundModal extends Component
         $this->users = User::where('active', true)->get();
     }
 
-    public function openUpdateRefundModal($id)
+    public function openUpdateRefundModal($sale_id)
     {
-        $refund = Refund::findOrFail($id);
+        $refund = Refund::findOrFail($sale_id);
         $this->selectedRefund = $refund;
         $this->user_id = $refund->user_id;
         $this->sale_id = $refund->sale_id;
         $this->refunded_amount = $refund->refunded_amount;
         $this->refund_method = $refund->refund_method;
         $this->reason = $refund->reason;
+        $this->resetValidation();
         $this->showUpdateModal = true;
     }
 
     public function updateRefund(): void
     {
         try {
-            $this->refundService->updateRefund($this->selectedRefund, $this->getFormData());
-            $this->dispatch('refunds-info-updated');
-            $this->showUpdateModal = false;
+            $result = $this->refundService->updateRefund($this->selectedRefund->id, $this->getFormData());
+
+            if ($result['success']) {
+                $this->resetValidation();
+                $this->dispatch('refunds-info-updated', $result);
+                $this->showUpdateModal = false;
+                return;
+            }
+
+            if (($result['type'] ?? 'error') === 'validation') {
+                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+                return;
+            }
+
+            $this->dispatch('refund-update-failed', $result['message']);
         } catch (\Exception $e) {
             $this->dispatch('refund-update-failed', $e->getMessage());
         }

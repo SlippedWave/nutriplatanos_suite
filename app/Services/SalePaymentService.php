@@ -39,7 +39,6 @@ class SalePaymentService
 
             return [
                 'success' => true,
-                'type' => 'success',
                 'message' => 'Pago agregado exitosamente.',
                 'payment' => $payment,
                 'sale' => $sale->fresh(['payments', 'productList']),
@@ -48,15 +47,15 @@ class SalePaymentService
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'validation',
-                'message' => 'Error de validación en los datos del pago.',
-                'errors' => $e->errors(),
+                'type' => 'validation-exception',
+                'message' => 'Error de validación en los datos del pago. Hay ' . count($e->errors()) . ' error(es).',
+                'validation-errors' => $e->errors(),
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'error',
+                'type' => 'exception',
                 'message' => 'Error al procesar el pago: ' . $e->getMessage(),
             ];
         }
@@ -102,15 +101,15 @@ class SalePaymentService
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'validation',
-                'message' => 'Error de validación en los datos del pago.',
-                'errors' => $e->errors(),
+                'type' => 'validation-exception',
+                'message' => 'Error de validación en los datos del pago. Hay ' . count($e->errors()) . ' error(es).',
+                'validation-errors' => $e->errors(),
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'error',
+                'type' => 'exception',
                 'message' => 'Error al actualizar el pago: ' . $e->getMessage(),
             ];
         }
@@ -148,7 +147,6 @@ class SalePaymentService
 
             return [
                 'success' => true,
-                'type' => 'success',
                 'message' => 'Pago eliminado exitosamente.',
                 'sale' => $sale->fresh(['payments', 'productList']),
             ];
@@ -156,7 +154,7 @@ class SalePaymentService
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'error',
+                'type' => 'exception',
                 'message' => 'Error al eliminar el pago: ' . $e->getMessage(),
             ];
         }
@@ -178,7 +176,7 @@ class SalePaymentService
             if ($remainingBalance <= 0.01) {
                 return [
                     'success' => false,
-                    'type' => 'validation',
+                    'type' => 'validation-exception',
                     'message' => 'La venta ya está completamente pagada.',
                 ];
             }
@@ -206,7 +204,6 @@ class SalePaymentService
 
             return [
                 'success' => true,
-                'type' => 'success',
                 'message' => 'Venta marcada como pagada completamente.',
                 'payment' => $payment,
                 'sale' => $sale->fresh(['payments', 'productList']),
@@ -215,7 +212,7 @@ class SalePaymentService
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'error',
+                'type' => 'exception',
                 'message' => 'Error al marcar como pagada: ' . $e->getMessage(),
             ];
         }
@@ -329,15 +326,15 @@ class SalePaymentService
         $method = $payment->payment_method_label;
         $date = $payment->payment_date->format('d/m/Y');
 
-        $content = $customMessage ?? "Pago de ${amount} recibido";
-        $content .= " (${method}) el ${date}";
+        $content = $customMessage ?? 'Pago de ' . $amount . ' recibido';
+        $content .= ' (' . $method . ') el ' . $date;
 
         if ($payment->route) {
-            $content .= " en ruta: {$payment->route->title}";
+            $content .= ' en ruta: ' . $payment->route->title;
         }
 
         if ($user) {
-            $content .= " por {$user->name}";
+            $content .= ' por ' . $user->name;
         }
 
         Note::create([
@@ -357,11 +354,11 @@ class SalePaymentService
         $oldAmountFormatted = number_format($oldAmount, 2);
         $newAmountFormatted = number_format($payment->amount, 2);
 
-        $content = "Pago actualizado de ${oldAmountFormatted} a ${newAmountFormatted}";
-        $content .= " el " . now()->format('d/m/Y H:i');
+        $content = 'Pago actualizado de ' . $oldAmountFormatted . ' a ' . $newAmountFormatted;
+        $content .= ' el ' . now()->format('d/m/Y H:i');
 
         if ($user) {
-            $content .= " por {$user->name}";
+            $content .= ' por ' . $user->name;
         }
 
         Note::create([
@@ -380,11 +377,11 @@ class SalePaymentService
         $user = Auth::user();
         $amountFormatted = number_format($amount, 2);
 
-        $content = "Pago de ${amountFormatted} del ${paymentDate} eliminado";
-        $content .= " el " . now()->format('d/m/Y H:i');
+        $content = 'Pago de ' . $amountFormatted . ' del ' . $paymentDate . ' eliminado';
+        $content .= ' el ' . now()->format('d/m/Y H:i');
 
         if ($user) {
-            $content .= " por {$user->name}";
+            $content .= ' por ' . $user->name;
         }
 
         Note::create([

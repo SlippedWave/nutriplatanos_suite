@@ -3,6 +3,7 @@
 namespace App\Livewire\Settings\Users;
 
 use App\Services\UserService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class CreateUserModal extends Component
@@ -43,17 +44,44 @@ class CreateUserModal extends Component
             'role', 'password', 'password_confirmation', 'active', 'notes'
         ]);
         $this->showCreateModal = true;
+        $this->resetValidation();
     }
 
     public function createUser()
     {
         try {
-            $result = $this->userService->createUser($this->getFormData());
-            $this->dispatch('users-info-updated');
-            $this->dispatch('show-users-table-message', $result);
-            $this->showCreateModal = false;
+            $response = $this->userService->createUser($this->getFormData());
+
+            if ($response['success']) {
+                $this->resetValidation();
+                $this->dispatch('users-info-updated');
+                $this->dispatch('show-users-table-success-message', [
+                    'message' => $response['message'] ?? 'Creación de usuario exitosa',
+                ]);
+                $this->showCreateModal = false;
+                return;
+            }
+
+            if (($response['type'] ?? 'error') === 'validation') {
+                $this->setErrorBag(new MessageBag($response['errors'] ?? []));  
+                $this->dispatch('show-users-table-error-message', [
+                    'message' => 'Creación de usuario fallida',
+                    'validation-errors' => $response['errors'] ?? [],
+                    'error-type' => 'validation',
+                ]);
+                return;
+            }   
+
+            $this->dispatch('show-users-table-error-message', [
+                'message' => $response['message'] ?? 'Creación de usuario fallida',
+                'error-type' => 'error',
+            ]);
+                
         } catch (\Exception $e) {
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('show-users-table-error-message', [
+                'message' => 'Creación de usuario fallida',
+                'error-type' => 'error',
+            ]);
         }
     }
 

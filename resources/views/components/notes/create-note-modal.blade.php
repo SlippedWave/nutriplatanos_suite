@@ -5,7 +5,6 @@
     <form wire:submit="createNote" class="space-y-4">
         <flux:field>
             <flux:textarea wire:model="content" label="{{ __('Notas:') }}" class="text-[var(--color-text)]!" />
-            <flux:error name="content" />
         </flux:field>
 
         <div class="flex justify-end gap-3 pt-4">

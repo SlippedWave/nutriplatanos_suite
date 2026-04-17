@@ -4,11 +4,6 @@
         <flux:heading size="lg">{{ __('Actualizar Venta') }}</flux:heading>
     </div>
 
-    @if ($selectedSale)
-        <livewire:refunds.refund-visualizer
-            :sale_id="$selectedSale->id"
-        />
-    @endif
 
     @if ($showUpdateModal && session()->has('error'))
         <div class="bg-red-50 border border-red-200 rounded-md p-4">
@@ -131,7 +126,15 @@
                 @enderror
             </div>
         </div>
+
+        <livewire:refunds.refund-visualizer
+            :sale_id="$selectedSale->id"
+            :key="'refund-visualizer-' . $selectedSale->id"
+        />
     @endif
+
+
+
 
     <div class="flex justify-end gap-3 pt-4 flex-col sm:flex-row">
         <flux:button wire:click="$set('showUpdateModal', false)" variant="outline" wire:loading.attr="disabled"

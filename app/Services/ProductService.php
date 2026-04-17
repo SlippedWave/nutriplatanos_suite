@@ -93,7 +93,6 @@ class ProductService
                 'success' => false,
                 'message' => 'Error al actualizar el producto: ' . $e->getMessage(),
                 'type' => 'error',
-
             ];
         }
     }
@@ -102,15 +101,21 @@ class ProductService
     {
         try {
             $product = Product::findOrFail($id);
+
+            DB::beginTransaction();
+
             $product->delete();
 
             $this->createProductNote($product, 'Producto "' . $product->name . '" eliminado el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Producto eliminado exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al eliminar el producto: ' . $e->getMessage(),

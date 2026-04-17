@@ -16,7 +16,6 @@
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="customer_id" />
                 </flux:field>
             @endif
 
@@ -26,17 +25,14 @@
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </flux:select>
-                <flux:error name="refund_method" />
             </flux:field>
 
             <flux:field>
                 <flux:input wire:model="reason" label="{{ __('Razón del reembolso') }}" required />
-                <flux:error name="reason" />
             </flux:field>
 
             <flux:field>
                 <flux:input wire:model="refunded_amount" label="{{ __('Monto reembolsado') }}" required />
-                <flux:error name="refunded_amount" />
             </flux:field>
             <div class="flex justify-end mt-4">
                 <flux:button wire:click="updateRefund" variant="primary" wire:loading.attr="disabled"

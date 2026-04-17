@@ -5,10 +5,10 @@
     </div>
 
     @if (session()->has('error'))
-            <div class="bg-danger-50 border border-danger-200 text-danger-700 px-3 py-2 rounded">
-                {{ session('error') }}
-            </div>
-        @endif
+        <div class="bg-danger-50 border border-danger-200 text-danger-700 px-3 py-2 rounded">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <div class="space-y-4">
         <form wire:submit.prevent="createRefund">
@@ -21,7 +21,6 @@
                             <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="user_id" />
                 </flux:field>
             @endif
 
@@ -31,7 +30,6 @@
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </flux:select>
-                <flux:error name="refund_method" />
             </flux:field>
 
             @if ($refund_method === 'product')
@@ -41,13 +39,11 @@
             @elseif ($refund_method === 'discount')
                 <flux:field>
                     <flux:input wire:model="refunded_amount" label="{{ __('Monto reembolsado') }}" required />
-                    <flux:error name="refunded_amount" />
                 </flux:field>
             @endif
 
             <flux:field>
                 <flux:input wire:model="reason" label="{{ __('Razón del reembolso') }}" required />
-                <flux:error name="reason" />
             </flux:field>
 
             <div class="flex justify-end mt-4">

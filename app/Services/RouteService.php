@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\BoxMovement;
 use App\Models\Route;
 use App\Models\Note;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -209,19 +207,25 @@ class RouteService
                 ];
             }
 
+            DB::beginTransaction();
+
             // Soft delete the route
             $route->delete();
 
             $this->createRouteNote($route, "Ruta eliminada el " . now()->format('d/m/Y H:i'));
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Ruta eliminada exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar ruta: ' . $e->getMessage()
+                'message' => 'Error al eliminar ruta: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }

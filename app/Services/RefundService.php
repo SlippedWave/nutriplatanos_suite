@@ -85,9 +85,19 @@ class RefundService
                 'refund' => $refund,
                 'message' => 'Reembolso actualizado exitosamente.'
             ];
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
             return [
                 'success' => false,
+                'type' => 'validation',
+                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
+                'errors' => $e->errors()
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'type' => 'error',
                 'message' => 'Error al actualizar el reembolso: ' . $e->getMessage()
             ];
         }
@@ -97,18 +107,24 @@ class RefundService
     {
         try {
             $refund = Refund::findOrFail($id);
+
+            DB::beginTransaction();
             $refund->delete();
 
             $this->createRefundNote($refund, 'Reembolso eliminado el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+
+            DB::commit();
 
             return [
                 'success' => true,
                 'message' => 'Reembolso eliminado exitosamente.'
             ];
         } catch (\Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error al eliminar el reembolso: ' . $e->getMessage()
+                'message' => 'Error al eliminar el reembolso: ' . $e->getMessage(),
+                'type' => 'error'
             ];
         }
     }
