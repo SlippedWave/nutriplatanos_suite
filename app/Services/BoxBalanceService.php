@@ -35,11 +35,10 @@ class BoxBalanceService
             ];
         } catch (\Exception $e) {
             DB::rollBack();
-
             return [
                 'success' => false,
                 'message' => 'Error al actualizar saldo de caja: ' . $e->getMessage(),
-                'type' => 'error',
+                'type' => 'exception',
             ];
         }
     }

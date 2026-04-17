@@ -37,14 +37,13 @@ class ExpenseService
                 'success' => true,
                 'expense' => $expense,
                 'message' => 'Gasto creado exitosamente.',
-                'type' => 'success'
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación.',
-                'type' => 'validation',
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
+                'type' => 'validation-exception',
                 'errors' => $e->errors()
             ];
         } catch (\Exception $e) {
@@ -52,7 +51,7 @@ class ExpenseService
             return [
                 'success' => false,
                 'message' => 'Error al crear gasto: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -81,14 +80,13 @@ class ExpenseService
                 'success' => true,
                 'expense' => $expense,
                 'message' => 'Gasto actualizado exitosamente.',
-                'type' => 'success'
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación.',
-                'type' => 'validation',
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
+                'type' => 'validation-exception',
                 'errors' => $e->errors()
             ];
         } catch (\Exception $e) {
@@ -96,7 +94,7 @@ class ExpenseService
             return [
                 'success' => false,
                 'message' => 'Error al crear gasto: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -120,14 +118,13 @@ class ExpenseService
             return [
                 'success' => true,
                 'message' => 'Gasto eliminado exitosamente.',
-                'type' => 'success'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al eliminar gasto: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }

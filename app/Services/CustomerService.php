@@ -35,16 +35,16 @@ class CustomerService
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                 'errors' => $e->errors(),
-                'type' => 'validation'
+                'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear cliente: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -74,16 +74,16 @@ class CustomerService
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                 'errors' => $e->errors(),
-                'type' => 'validation'
+                'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al actualizar cliente: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -95,7 +95,8 @@ class CustomerService
             if ($this->hasActiveSales($customer)) {
                 return [
                     'success' => false,
-                    'message' => 'No se puede eliminar el cliente porque tiene ventas registradas.'
+                    'message' => 'No se puede eliminar el cliente porque tiene ventas registradas.',
+                    'type' => 'exception'
                 ];
             }
 
@@ -118,7 +119,7 @@ class CustomerService
             return [
                 'success' => false,
                 'message' => 'Error al eliminar cliente: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -151,7 +152,7 @@ class CustomerService
             return [
                 'success' => false,
                 'message' => 'Error al eliminar permanentemente el cliente: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }

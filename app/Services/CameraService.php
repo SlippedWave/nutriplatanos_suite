@@ -40,8 +40,8 @@ class CameraService
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación: ' . $e->getMessage(),
-                'type' => 'validation',
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
+                'type' => 'validation-exception',
                 'errors' => $e->errors(),
             ]; 
         } catch (\Exception $e) {
@@ -49,7 +49,7 @@ class CameraService
             return [
                 'success' => false,
                 'message' => 'Error al crear la cámara: ' . $e->getMessage(),
-                'type' => 'error',
+                'type' => 'exception',
             ];
         }
     }
@@ -78,16 +78,16 @@ class CameraService
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación: ' . $e->getMessage(),
-                'type' => 'validation',
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
+                'type' => 'validation-exception',
                 'errors' => $e->errors(),
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'error',
-                'message' => 'Error al actualizar la cámara: ' . $e->getMessage()
+                'message' => 'Error al actualizar la cámara: ' . $e->getMessage(),
+                'type' => 'exception',
             ];
         }
     }
@@ -111,7 +111,7 @@ class CameraService
             return [
                 'success' => false,
                 'message' => 'Error al eliminar la cámara: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }

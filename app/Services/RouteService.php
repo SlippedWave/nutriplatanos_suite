@@ -6,6 +6,7 @@ use App\Models\Route;
 use App\Models\Note;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RouteService
 {
@@ -24,6 +25,7 @@ class RouteService
                         'success' => false,
                         'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
                         'errors' => $result['errors'] ?? null,
+                        'type' => $result['type'] ?? 'error'
                     ];
                 }
             }
@@ -42,8 +44,9 @@ class RouteService
             } catch (\Illuminate\Validation\ValidationException $ve) {
                 return [
                     'success' => false,
-                    'message' => 'Datos inválidos para crear la ruta.',
+                    'message' => 'Datos inválidos para crear la ruta. Hay ' . count($ve->errors()) . ' error(es).',
                     'errors' => $ve->errors(),
+                    'type' => 'validation-exception'
                 ];
             }
 
@@ -82,11 +85,13 @@ class RouteService
                     DB::rollBack();
                 }
             } catch (\Throwable $te) {
-                // Ignore rollback errors
+                // Log transaction rollback failure if needed
+                Log::error('Error al revertir transacción: ' . $te->getMessage());
             }
             return [
                 'success' => false,
-                'message' => 'Error al crear ruta: ' . $e->getMessage()
+                'message' => 'Error al crear ruta: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -100,12 +105,23 @@ class RouteService
         if (!$this->canEditRoute($route)) {
             return [
                 'success' => false,
-                'message' => 'No tienes permiso para editar esta ruta.'
+                'message' => 'No tienes permiso para editar esta ruta.',
+                'type' => 'insufficient-permissions'
             ];
         }
 
         try {
-            $validated = $this->validateRouteData($data);
+
+            try {
+                $validated = $this->validateRouteData($data);
+            } catch (\Illuminate\Validation\ValidationException $ve) {
+                return [
+                    'success' => false,
+                    'message' => 'Datos inválidos para actualizar la ruta. Hay ' . count($ve->errors()) . ' error(es).',
+                    'errors' => $ve->errors(),
+                    'type' => 'validation-exception'
+                ];
+            }
 
             DB::beginTransaction();
 
@@ -129,9 +145,11 @@ class RouteService
                 'route' => $route->fresh()
             ];
         } catch (\Exception $e) {
+            Log::error('Error al actualizar la ruta: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Error al actualizar la ruta: ' . $e->getMessage()
+                'message' => 'Error al actualizar la ruta: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -145,14 +163,16 @@ class RouteService
         if (!$this->canEditRoute($route)) {
             return [
                 'success' => false,
-                'message' => 'No tienes permiso para cerrar esta ruta.'
+                'message' => 'No tienes permiso para cerrar esta ruta.',
+                'type' => 'insufficient-permissions'
             ];
         }
 
         if (!$route->isActive()) {
             return [
                 'success' => false,
-                'message' => 'Esta ruta ya está cerrada.'
+                'message' => 'Esta ruta ya está cerrada.',
+                'type' => 'already-closed'
             ];
         }
 
@@ -171,9 +191,11 @@ class RouteService
                 'route' => $route->fresh()
             ];
         } catch (\Exception $e) {
+            Log::error('Error al cerrar la ruta: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Error al cerrar la ruta: ' . $e->getMessage()
+                'message' => 'Error al cerrar la ruta: ' . $e->getMessage(),
+                'type' => 'exception'
             ];
         }
     }
@@ -195,7 +217,8 @@ class RouteService
             if ($this->hasActiveSales($route)) {
                 return [
                     'success' => false,
-                    'message' => 'No se puede eliminar la ruta porque tiene ventas registradas.'
+                    'message' => 'No se puede eliminar la ruta porque tiene ventas registradas.',
+                    'type' => 'has-sales'
                 ];
             }
 
@@ -203,7 +226,8 @@ class RouteService
             if ($route->isActive()) {
                 return [
                     'success' => false,
-                    'message' => 'La ruta debe estar cerrada antes de eliminarla.'
+                    'message' => 'La ruta debe estar cerrada antes de eliminarla.',
+                    'type' => 'not-closed-route'
                 ];
             }
 

@@ -176,7 +176,7 @@ class SalePaymentService
             if ($remainingBalance <= 0.01) {
                 return [
                     'success' => false,
-                    'type' => 'validation-exception',
+                    'type' => 'already-paid',
                     'message' => 'La venta ya está completamente pagada.',
                 ];
             }

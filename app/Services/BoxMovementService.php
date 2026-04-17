@@ -21,9 +21,9 @@ class BoxMovementService
             } catch (\Illuminate\Validation\ValidationException $ve) {
                 return [
                     'success' => false,
-                    'message' => 'Datos inválidos para el movimiento de caja.',
+                    'message' => 'Datos inválidos para el movimiento de caja. Hay ' . count($ve->errors()) . ' error(es).',
                     'errors' => $ve->errors(),
-                    'type' => 'error',
+                    'type' => 'validation-exception',
                 ];
             }
 
@@ -45,22 +45,13 @@ class BoxMovementService
                 'success' => true,
                 'boxMovement' => $boxMovement,
                 'message' => 'Movimiento de caja creado exitosamente.',
-                'type' => 'success'
-            ];
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return [
-                'success' => false,
-                'message' => 'Datos inválidos para el movimiento de caja.',
-                'errors' => $e->errors(),
-                'type' => 'error',
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear movimiento de caja: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception',
             ];
         }
     }

@@ -41,22 +41,21 @@ class RefundService
                 'success' => true,
                 'message' => 'Reembolso creado exitosamente.',
                 'refund' => $refund,
-                'type' => 'success'
             ];
         } catch (\Illuminate\Validation\ValidationException $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                 'errors' => $e->errors(),
-                'type' => 'validation'
+                'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Error al crear el reembolso: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }
@@ -89,15 +88,15 @@ class RefundService
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'validation',
-                'message' => 'Error de validación. Por favor, revisa los datos ingresados.' . $e->getMessage(),
+                'type' => 'validation-exception',
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                 'errors' => $e->errors()
             ];
         } catch (\Exception $e) {
             DB::rollBack();
             return [
                 'success' => false,
-                'type' => 'error',
+                'type' => 'exception',
                 'message' => 'Error al actualizar el reembolso: ' . $e->getMessage()
             ];
         }
@@ -124,7 +123,7 @@ class RefundService
             return [
                 'success' => false,
                 'message' => 'Error al eliminar el reembolso: ' . $e->getMessage(),
-                'type' => 'error'
+                'type' => 'exception'
             ];
         }
     }

@@ -43,8 +43,8 @@ class ProductService
             DB::rollBack();
             return [
                 'success' => false,
-                'message' => 'Error de validación: ' . $e->getMessage(),
-                'type' => 'validation',
+                'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
+                'type' => 'validation-exception',
                 'errors' => $e->errors(),
             ];
         }
@@ -53,7 +53,7 @@ class ProductService
             return [
                 'success' => false,
                 'message' => 'Error al crear el producto: ' . $e->getMessage(),
-                'type' => 'error',
+                'type' => 'exception',
             ];
         }
     }
@@ -83,8 +83,8 @@ class ProductService
                 DB::rollBack();
                 return [
                     'success' => false,
-                    'message' => 'Error de validación: ' . $e->getMessage(),
-                    'type' => 'validation',
+                    'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
+                    'type' => 'validation-exception',
                     'errors' => $e->errors(),
                 ];
         } catch (\Exception $e) {
@@ -92,7 +92,7 @@ class ProductService
             return [
                 'success' => false,
                 'message' => 'Error al actualizar el producto: ' . $e->getMessage(),
-                'type' => 'error',
+                'type' => 'exception',
             ];
         }
     }
@@ -119,7 +119,7 @@ class ProductService
             return [
                 'success' => false,
                 'message' => 'Error al eliminar el producto: ' . $e->getMessage(),
-                'type' => 'error',
+                'type' => 'exception',
             ];
         }
     }
