@@ -2,9 +2,7 @@
 
 namespace App\Livewire\Settings\Users\Tables;
 
-use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -17,41 +15,16 @@ class UsersTable extends Component
     public string $sortField = 'name';
     public string $sortDirection = 'asc';
     public bool $includeDeleted = false;
-    
+
     protected $listeners = [
         'users-info-updated' => '$refresh',
-        'show-users-table--message' => 'showUsersTableMessage',
     ];
 
-    
     protected UserService $userService;
 
     public function boot(UserService $userService)
     {
         $this->userService = $userService;
-    }
-
-    public function showUsersTableMessage($result)
-    {
-        $message = is_array($result)
-            ? ($result['message'] ?? 'Operación completada')
-            : (string) $result;
-
-        $type = is_array($result)
-            ? ($result['success'] ?? true ? 'success' : 'error')
-            : 'error';
-
-        $this->flashUsersTableMessage($message, $type);
-        $this->resetPage();
-    }
-
-    public function flashUsersTableMessage(string $text, string $type = 'success'): void
-    {
-        session()->flash('message', [
-            'header' => 'users-table',
-            'text' => $text,
-            'type' => $type,
-        ]);
     }
 
     public function toggleIncludeDeleted()

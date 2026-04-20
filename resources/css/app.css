@@ -360,5 +360,9 @@
     --color-accent-content: var(--color-primary-600);
     --color-accent-foreground: var(--color-text-primary-950);
 
-
+     /* Map Flux toast variants to our design tokens */
+     --color-toast-success: var(--color-success-500);
+     --color-toast-warning: var(--color-warning-500);
+     --color-toast-danger: var(--color-danger-500);
+     --color-toast-info: var(--color-info-500);
 }

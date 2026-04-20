@@ -22,10 +22,6 @@
             ]),
         ])>
             <div>{{ data_get($flash, 'text') }}</div>
-            <button type="button" @click="show = false" class="opacity-70 hover:opacity-100">
-                <span class="sr-only">Cerrar</span>
-                <flux:icon.x-mark class="w-4 h-4" />
-            </button>
         </div>
     @endif
 

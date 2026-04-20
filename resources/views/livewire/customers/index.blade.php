@@ -13,5 +13,10 @@ new class extends Component {
             <livewire:customers.tables.customers-table />
         </div>
     </div>
+
+    <livewire:customers.create-customer-modal />
+    <livewire:customers.update-customer-modal />
+    <livewire:customers.view-customer-modal />
+    <livewire:customers.delete-customer-modal />
 </section>
 

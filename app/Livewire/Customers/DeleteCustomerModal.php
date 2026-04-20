@@ -32,12 +32,36 @@ class DeleteCustomerModal extends Component
     public function deleteCustomer()
     {
         try {
-            $result = $this->customerService->deleteCustomer($this->selectedCustomer);
-            $this->dispatch('customers-info-updated');
-            $this->dispatch('show-customers-table-message', $result);
-            $this->showDeleteModal = false;
+            $response = $this->customerService->deleteCustomer($this->selectedCustomer);
+
+            $success = $response['success'] ?? false;
+
+            $message = $response['message'] ?? ($success
+                ? 'Cliente eliminado exitosamente'
+                : 'Error al eliminar cliente');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'customers-table',
+            ]);
+
+            if ($success) {
+                $this->dispatch('customers-info-updated');
+                $this->showDeleteModal = false;
+                return;
+            }  
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-customers-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al eliminar cliente',
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'customers-table',
+            ]);
         }
     }
 

@@ -4,6 +4,7 @@ namespace App\Livewire\Customers;
 
 use App\Models\Customer;
 use App\Services\CustomerService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class UpdateCustomerModal extends Component
@@ -47,12 +48,41 @@ class UpdateCustomerModal extends Component
     public function updateCustomer()
     {
         try {
-            $result = $this->customerService->updateCustomer($this->selectedCustomer, $this->getFormData());
-            $this->dispatch('customers-info-updated');
-            $this->dispatch('show-customers-table-message', $result);
-            $this->showUpdateModal = false;
+            $response = $this->customerService->updateCustomer($this->selectedCustomer, $this->getFormData());
+
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Cliente actualizado exitosamente'
+                : 'Error al actualizar cliente');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'customers-table',
+            ]);
+
+            if ($success) {
+                $this->resetValidation();
+                $this->dispatch('customers-info-updated');
+                $this->showUpdateModal = false;
+                return;
+            }
+
+            if (($response['type'] ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                return;
+            }   
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-customers-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al actualizar cliente',
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'customers-table',
+            ]);
         }
     }
 

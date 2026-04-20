@@ -48,7 +48,7 @@ new class extends Component {
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <x-settings.layout :heading="__('Perfil')" :subheading="__('Actualiza tu nombre y dirección de correo electrónico')" :showSidebar="true">
+    <x-layouts.routes.layout :heading="__('Perfil')" :subheading="__('Actualiza tu nombre y dirección de correo electrónico')" :showSidebar="true">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-4 max-w-md">
             <flux:input wire:model="name" :label="__('Nombre')" type="text" required autofocus autocomplete="name" />
 
@@ -64,6 +64,6 @@ new class extends Component {
                 </x-action-message>
             </div>
         </form>
-    </x-settings.layout>
+    </x-layouts.routes.layout>
 </section>
     

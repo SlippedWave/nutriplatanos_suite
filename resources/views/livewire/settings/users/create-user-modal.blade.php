@@ -9,7 +9,7 @@
                 <flux:input wire:model="name" label="{{ __('Nombre completo') }}" required class="text-[var(--color-text)]!" />
             </flux:field>
             <flux:field>
-                <flux:input wire:model="email" type="email" label="{{ __('Correo electrónico') }}" required class="text-[var(--color-text)]!" />
+                <flux:input wire:model="email" label="{{ __('Correo electrónico') }}" required class="text-[var(--color-text)]!" />
             </flux:field>
             <flux:field>
                 <flux:input wire:model="phone" label="{{ __('Teléfono') }}" class="text-[var(--color-text)]!" />
@@ -44,8 +44,8 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <flux:input wire:model="password" type="password" label="{{ __('Contraseña') }}" required class="text-[var(--color-text)]!" />
-            <flux:input wire:model="password_confirmation" type="password" label="{{ __('Confirmar contraseña') }}" required class="text-[var(--color-text)]!" />
+            <flux:input wire:model="password" type="password" label="{{ __('Contraseña') }}"  class="text-[var(--color-text)]!" />
+            <flux:input wire:model="password_confirmation" type="password" label="{{ __('Confirmar contraseña') }}"  class="text-[var(--color-text)]!" />
         </div>
 
         <flux:checkbox wire:model="active" label="{{ __('Usuario activo') }}" />

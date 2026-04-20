@@ -48,11 +48,17 @@ new class extends Component {
 
 <section class="w-full">
     @include('partials.settings-heading')
-    <x-settings.layout :heading="__('Gestión de usuarios')" :subheading="__('Administra los usuarios dentro del sistema')" :showSidebar="false">
+
+    <x-layouts.routes.layout :heading="__('Gestión de usuarios')" :subheading="__('Administra los usuarios dentro del sistema')" :showSidebar="false">
         <div class="mt-6 w-full max-w-full overflow-hidden">
             <div class="overflow-x-auto">
                 <livewire:settings.users.tables.users-table />
             </div>
         </div>
-    </x-settings.layout>
+
+        <livewire:settings.users.create-user-modal />
+        <livewire:settings.users.update-user-modal />
+        <livewire:settings.users.view-user-modal />
+        <livewire:settings.users.delete-user-modal />
+    </x-layouts.routes.layout>
 </section>

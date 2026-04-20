@@ -33,12 +33,35 @@ class DeleteUserModal extends Component
     public function deleteUser()
     {
         try {
-            $result = $this->userService->deleteUser($this->selectedUser, Auth::user());
-            $this->dispatch('users-info-updated');
-            $this->dispatch('show-users-table-message', $result);
-            $this->showDeleteModal = false;
+            $response = $this->userService->deleteUser($this->selectedUser, Auth::user());
+
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Usuario eliminado exitosamente'
+                : 'Error al eliminar usuario');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'users-table',
+            ]);
+
+            if ($success) {
+                $this->dispatch('users-info-updated');
+                $this->showDeleteModal = false;
+                return;
+            }
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al eliminar usuario',
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'users-table',
+            ]);
         }
     }
 

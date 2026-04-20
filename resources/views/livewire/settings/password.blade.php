@@ -40,7 +40,7 @@ new class extends Component {
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <x-settings.layout :heading="__('Actualiza tu contraseña')" :subheading="__('Asegúrate de que tu cuenta esté usando una contraseña larga y aleatoria para mantenerla segura.')">
+    <x-layouts.routes.layout :heading="__('Actualiza tu contraseña')" :subheading="__('Asegúrate de que tu cuenta esté usando una contraseña larga y aleatoria para mantenerla segura.')">
         <form wire:submit="updatePassword" class="mt-6 space-y-2 max-w-md">
             <flux:input
                 wire:model="current_password"
@@ -74,5 +74,5 @@ new class extends Component {
                 </x-action-message>
             </div>
         </form>
-    </x-settings.layout>
+    </x-layouts.routes.layout>
 </section>

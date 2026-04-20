@@ -52,35 +52,39 @@ class CreateUserModal extends Component
         try {
             $response = $this->userService->createUser($this->getFormData());
 
-            if ($response['success']) {
+            $success = $response['success'] ?? false;
+
+            $message = $response['message'] ?? ($success
+                ? 'Usuario creado exitosamente'
+                : 'Error al crear usuario');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'users-table',
+            ]);
+
+            if ($success) {
                 $this->resetValidation();
                 $this->dispatch('users-info-updated');
-                $this->dispatch('show-users-table-success-message', [
-                    'message' => $response['message'] ?? 'Creación de usuario exitosa',
-                ]);
                 $this->showCreateModal = false;
                 return;
             }
 
-            if (($response['type'] ?? 'error') === 'validation') {
-                $this->setErrorBag(new MessageBag($response['errors'] ?? []));  
-                $this->dispatch('show-users-table-error-message', [
-                    'message' => 'Creación de usuario fallida',
-                    'validation-errors' => $response['errors'] ?? [],
-                    'error-type' => 'validation',
-                ]);
+            if (($response['type'] ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }   
-
-            $this->dispatch('show-users-table-error-message', [
-                'message' => $response['message'] ?? 'Creación de usuario fallida',
-                'error-type' => 'error',
-            ]);
-                
+ 
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-users-table-error-message', [
-                'message' => 'Creación de usuario fallida',
-                'error-type' => 'error',
+            $this->dispatch('show-message-banner', [
+                'text' => 'Creación de usuario fallida',
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'users-table',
             ]);
         }
     }

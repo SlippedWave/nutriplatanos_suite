@@ -1,34 +1,6 @@
 <div class="space-y-6">
-    <!-- Flash Messages -->
-    @php
-        $flash = session('message');
-    @endphp
-
-    @if ($flash && data_get($flash, 'header') === 'customers-table')
-        @php
-            $type = data_get($flash, 'type', 'info');
-        @endphp
-
-        <div
-            x-data="{ show: true }"
-            x-init="setTimeout(() => show = false, 4000)"
-            x-show="show"
-            x-transition
-            @class([
-                'px-4 py-3 rounded-lg flex justify-between items-center',
-                'bg-green-50 border border-green-200 text-green-700' => $type === 'success',
-                'bg-danger-50 border border-danger-200 text-danger-700' => $type === 'error',
-                'bg-yellow-50 border border-yellow-200 text-yellow-700' => $type === 'warning',
-                'bg-blue-50 border border-blue-200 text-blue-700' => !in_array($type, ['success','error','warning']),
-            ])
-        >
-            <div>{{ data_get($flash, 'text') }}</div>
-            <button type="button" @click="show = false" class="opacity-70 hover:opacity-100">
-                <span class="sr-only">Close</span>
-                <flux:icon.x-mark class="w-4 h-4" />
-            </button>
-        </div>
-    @endif
+    
+    <livewire:alerts.message-banner banner-id="customers-table" />
 
     <div class="flex flex-col gap-4">
         <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 sm:p-4">
@@ -58,7 +30,7 @@
                         <option value="100">100</option>
                     </flux:select>
 
-                    <flux:button variant="primary" icon="plus" wire:click="openCreateModal">
+                    <flux:button variant="primary" icon="plus" wire:click="$dispatch('open-create-customer-modal')">
                         {{ __('Agregar Cliente') }}
                     </flux:button>
                 </div>
@@ -351,9 +323,4 @@
             </button>
         @endif
     </div>
-
-    <livewire:customers.create-customer-modal />
-    <livewire:customers.update-customer-modal />
-    <livewire:customers.view-customer-modal />
-    <livewire:customers.delete-customer-modal />
 </div>

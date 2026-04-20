@@ -3,6 +3,7 @@
 namespace App\Livewire\Customers;
 
 use App\Services\CustomerService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class CreateCustomerModal extends Component
@@ -39,12 +40,42 @@ class CreateCustomerModal extends Component
     public function createCustomer()
     {
         try {
-            $result = $this->customerService->createCustomer($this->getFormData());
-            $this->dispatch('customers-info-updated');
-            $this->dispatch('show-customers-table-message', $result);
-            $this->showCreateModal = false;
+            $response = $this->customerService->createCustomer($this->getFormData());
+
+            $success = $response['success'] ?? false;
+
+            $message = $response['message'] ?? ($success
+                ? 'Cliente creado exitosamente'
+                : 'Error al crear cliente');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'customers-table',
+            ]);
+            
+            if ($success) {
+                $this->resetValidation();
+                $this->dispatch('customers-info-updated');
+                $this->showCreateModal = false;
+                return;
+            } 
+
+            if (($response['type'] ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                return;
+            }   
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-customers-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Creación de usuario fallida',
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'customers-table',
+            ]);
         }
     }
 

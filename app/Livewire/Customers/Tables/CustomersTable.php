@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Customers\Tables;
 
-use App\Models\Customer;
 use App\Services\CustomerService;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -19,8 +18,6 @@ class CustomersTable extends Component
 
     protected $listeners = [
         'customers-info-updated' => '$refresh',
-        'show-customers-table-message' => 'showCustomersTableMessage',
-        'flash-customers-table-message' => 'flashCustomersTableMessage'
     ];
 
     protected CustomerService $customerService;
@@ -28,21 +25,6 @@ class CustomersTable extends Component
     public function boot(CustomerService $customerService)
     {
         $this->customerService = $customerService;
-    }
-
-    public function showCustomersTableMessage($result)
-    {
-        $this->flashCustomersTableMessage($result['message'], $result['success'] ? 'success' : 'error');
-        $this->resetPage();
-    }
-
-    public function flashCustomersTableMessage($message, $type)
-    {
-        session()->flash('message', [
-            'header' => 'customers-table',
-            'text' => $message,
-            'type' => $type,
-        ]);
     }
 
     protected $queryString = [

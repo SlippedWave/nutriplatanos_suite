@@ -7,15 +7,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <flux:field>
                 <flux:input wire:model="name" label="{{ __('Nombre completo') }}" required class="text-[var(--color-text)]!" />
-                <flux:error name="name" />
             </flux:field>
             <flux:field>
                 <flux:input wire:model="email" type="email" label="{{ __('Correo electrónico') }}" required class="text-[var(--color-text)]!" />
-                <flux:error name="email" />
             </flux:field>
             <flux:field>
                 <flux:input wire:model="phone" label="{{ __('Teléfono') }}" class="text-[var(--color-text)]!" />
-                <flux:error name="phone" />
             </flux:field>
             <flux:field>
                 <flux:select wire:model="role" label="{{ __('Rol') }}" required class="text-[var(--color-text)]!">
@@ -23,15 +20,12 @@
                         <option value="{{ $value }}">{{ __($label) }}</option>
                     @endforeach
                 </flux:select>
-                <flux:error name="role" />
             </flux:field>
             <flux:field>
                 <flux:input wire:model="curp" label="{{ __('CURP') }}" required class="text-[var(--color-text)]!" />
-                <flux:error name="curp" />
             </flux:field>
             <flux:field>
                 <flux:input wire:model="rfc" label="{{ __('RFC') }}" required class="text-[var(--color-text)]!" />
-                <flux:error name="rfc" />
             </flux:field>
         </div>
 

@@ -4,6 +4,7 @@ namespace App\Livewire\Settings\Users;
 
 use App\Models\User;
 use App\Services\UserService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class UpdateUserModal extends Component
@@ -63,12 +64,42 @@ class UpdateUserModal extends Component
     public function updateUser()
     {
         try {
-            $result = $this->userService->updateUser($this->selectedUser, $this->getFormData());
-            $this->dispatch('users-info-updated');
-            $this->dispatch('show-users-table-message', $result);
-            $this->showUpdateModal = false;
+            $response = $this->userService->updateUser($this->selectedUser, $this->getFormData());
+
+            $success = $response['success'] ?? false;
+
+            $message = $response['message'] ?? ($success
+                ? 'Usuario actualizado exitosamente'
+                : 'Error al actualizar usuario');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'users-table',
+            ]);
+
+            if ($success) {
+                $this->resetValidation();
+                $this->dispatch('users-info-updated');
+                $this->showUpdateModal = false;
+                return;
+            }
+
+            if (($response['type'] ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                return;
+            }
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-users-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al actualizar usuario',
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'users-table',
+            ]);
         }
     }
 
