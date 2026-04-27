@@ -8,6 +8,7 @@ use App\Models\Route;
 use App\Models\SalePayment;
 use App\Services\SalePaymentService;
 use App\Services\SaleService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class CreateSaleModal extends Component
@@ -81,9 +82,9 @@ class CreateSaleModal extends Component
 
     public function openCreateSaleModal()
     {
-        $this->showCreateModal = true;
         $this->customer_id = $this->contextCustomerId ?? null;
         $this->route_id = $this->contextRouteId ?? null;
+        $this->resetValidation();
         $this->reset([
             'payment_status',
             'paid_amount',
@@ -91,8 +92,9 @@ class CreateSaleModal extends Component
             'saleProducts',
             'box_balance_delivered',
             'box_balance_returned'
-        ]);
-        $this->dispatch('add-product');
+            ]);
+            $this->dispatch('add-product');
+        $this->showCreateModal = true;
     }
 
     public function clearErrorsForModal()
@@ -103,56 +105,42 @@ class CreateSaleModal extends Component
     public function createSale()
     {
         try {
-            $result = $this->saleService->createSale($this->getFormData());
+            $response = $this->saleService->createSale($this->getFormData());
 
-            if ($result['success']) {
-                $sale = $result['sale'] ?? null;
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Venta creada exitosamente'
+                : 'Error al crear la venta');
+            $type = $success ? 'success' : ($response['type'] ?? 'error');
+             
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]);
 
-                // Create a payment record if the sale has a paid amount
-                if ($sale && ($this->payment_status === 'paid' || $this->payment_status === 'partial')) {
-                    $paymentAmount = $this->payment_status === 'paid' ? $sale->total_amount : $this->paid_amount;
-
-                    $paymentData = [
-                        'sale_id' => $sale->id,
-                        'amount' => $paymentAmount,
-                        'payment_date' => now()->toDateString(),
-                        'payment_method' => $this->payment_method, // Default payment method
-                        'route_id' => $this->route_id ?: null,
-                        'notes' => 'Pago inicial registrado con la venta',
-                    ];
-
-                    $this->salePaymentService->addPayment($sale, $paymentData);
-                }
+            if ($success) {
+                $this->resetValidation();
                 $this->dispatch('refresh-sales-table');
-                $this->dispatch('show-sales-table-message', $result);
                 $this->showCreateModal = false;
-                if ($sale) {
-                    // Target the refunds component class so the modal opens reliably
-                    $this->dispatch('open-create-refund-modal', $sale->id)
-                        ->to(\App\Livewire\Refunds\CreateRefundModal::class);
-                }
-            } else {
-                // Handle different types of errors
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        // Don't close modal for validation errors
-                        if (isset($result['errors'])) {
-                            // Set validation errors for display
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->dispatch('flash-sales-table-message', $result['message'], 'error');
-                        break;
-                    default:
-                        // Don't close modal for other errors, let user retry
-                        $this->dispatch('show-sales-table-message', $result);
-                        break;
-                }
+                return;
             }
-        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            if (($type ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                return;
+            }
+
+            return;
+        } catch (\Exception $e) {
             // Livewire validation failed, don't close modal
-            $this->dispatch('flash-sales-table-message', $e->getMessage(), 'error');
+            $this->dispatch('show-message-banner', [
+                'text' => 'Ocurrió un error inesperado al crear la venta: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]);
         }
     }
 

@@ -32,12 +32,35 @@ class DeleteExpenseModal extends Component
     public function deleteExpense()
     {
         try {
-            $result = $this->expenseService->deleteExpense($this->selectedExpense->id);
-            $this->dispatch('expenses-info-updated');
-            $this->dispatch('show-expenses-table-message', $result);
-            $this->showDeleteModal = false;
+            $response = $this->expenseService->deleteExpense($this->selectedExpense->id);
+
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Gasto eliminado exitosamente'
+                : 'Error al eliminar el gasto');
+            $type = $success ? 'success' : ($response['type'] ?? 'error');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'expenses',
+            ]);
+
+            if ($success) {
+                $this->showDeleteModal = false;
+                $this->dispatch('expenses-info-updated');
+                return;
+            }
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-expenses-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Ocurrió un error inesperado al eliminar el gasto: ' . $e->getMessage(),
+                'type' => 'error',
+                'duration' => 5000,
+                'bannerId' => 'expenses',
+            ]);
         }
     }
 

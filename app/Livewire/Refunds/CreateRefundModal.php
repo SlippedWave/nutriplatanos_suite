@@ -70,8 +70,8 @@ class CreateRefundModal extends Component
                 return;
             }
 
-            if (($response['type'] ?? 'error') === 'validation') {
-                $this->setErrorBag(new MessageBag($response['errors'] ?? []));
+            if (($response['type'] ?? 'exception') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 $this->dispatch('refund-creation-failed', $response['message'] ?? 'Refund creation failed');
                 return;
             }

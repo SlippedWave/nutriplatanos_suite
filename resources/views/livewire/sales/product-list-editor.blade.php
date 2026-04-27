@@ -28,7 +28,6 @@
                             </option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="saleProducts.{{ $index }}.product_id" />
                 </flux:field>
 
                 <!-- Quantity -->
@@ -39,7 +38,6 @@
                         x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
                         x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                         class="text-[var(--color-text)]!" />
-                    <flux:error name="saleProducts.{{ $index }}.quantity" />
                 </flux:field>
 
                 <!-- Price per Unit -->
@@ -50,7 +48,6 @@
                         x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
                         x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                         class="text-[var(--color-text)]!" />
-                    <flux:error name="saleProducts.{{ $index }}.price_per_unit" />
                 </flux:field>
             </div>
 

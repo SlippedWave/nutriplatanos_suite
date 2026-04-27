@@ -10,6 +10,9 @@ new class extends Component {
     <x-welcome-section welcome-message="Gestiona los clientes del negocio desde aquí." />
     <div class="mt-6 w-full max-w-full overflow-hidden">
         <div class="overflow-x-auto">
+            <div class="py-4">
+                <livewire:alerts.message-banner banner-id="customers" />
+            </div>
             <livewire:customers.tables.customers-table />
         </div>
     </div>

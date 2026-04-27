@@ -1,30 +1,4 @@
 <div>
-    @php
-        $flash = session('message');
-    @endphp
-
-    @if ($flash && data_get($flash, 'header') === 'cameras-table')
-        @php
-            $type = data_get($flash, 'type', 'info');
-        @endphp
-
-        <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 4000)" x-show="show" x-transition @class([
-            'px-4 py-3 rounded-lg flex justify-between items-center',
-            'bg-green-50 border border-green-200 text-green-700' => $type === 'success',
-            'bg-danger-50 border border-danger-200 text-danger-700' =>
-                $type === 'error',
-            'bg-yellow-50 border border-yellow-200 text-yellow-700' =>
-                $type === 'warning',
-            'bg-blue-50 border border-blue-200 text-blue-700' => !in_array($type, [
-                'success',
-                'error',
-                'warning',
-            ]),
-        ])>
-            <div>{{ data_get($flash, 'text') }}</div>
-        </div>
-    @endif
-
     <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 sm:p-4 mb-4">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex-1"></div>

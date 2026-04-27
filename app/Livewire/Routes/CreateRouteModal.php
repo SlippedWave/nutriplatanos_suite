@@ -73,38 +73,49 @@ class CreateRouteModal extends Component
     public function createRoute()
     {
         try {
-            $this->validate();
+            $response = $this->routeService->createRoute($this->getFormData());
 
-            $result = $this->routeService->createRoute($this->getFormData());
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Ruta creada exitosamente'
+                : 'Error al crear la ruta');
+            $type = $success ? 'success' : ($response['type'] ?? 'error');
 
-            if (!($result['success'] ?? false)) {
-                // Map service validation errors back to Livewire error bag
-                if (!empty($result['errors']) && is_array($result['errors'])) {
-                    foreach ($result['errors'] as $field => $messages) {
-                        // Prefix nested boxMovements errors to match Livewire properties if needed
-                        $this->addError($field, is_array($messages) ? implode("\n", $messages) : (string) $messages);
-                    }
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'routes',
+            ]);
+
+            if ($success) {
+                $this->resetValidation();
+                $this->dispatch('routes-info-updated');
+                //! REVISA PARA QUE FUNCIONA ESTE PEDO
+                $this->dispatch('route-created');
+                $this->showCreateModal = false;
+                if (!empty($result['route'])) {
+                    return redirect()->route('routes.show', ['route' => $result['route']->id]);
                 }
-                session()->flash('error', $result['message'] ?? 'No se pudo crear la ruta.');
-                // Notify parent so it can show a toast/banner
-                $this->dispatch('route-create-failed', message: $result['message'] ?? 'Fallo al crear la ruta', errors: $result['errors'] ?? null);
                 return;
             }
 
-            $this->resetFormFields();
-            $this->showCreateModal = false;
-
-            session()->flash('message', 'Ruta creada exitosamente!');
-            $this->dispatch('route-created');
-
-            // Redirect to the new route detail
-            if (!empty($result['route'])) {
-                return redirect()->route('routes.show', ['route' => $result['route']->id]);
+            if (($type ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new \Illuminate\Support\MessageBag($response['errors'] ?? []));
+                return;
             }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            session()->flash('error', 'Por favor, completa todos los campos requeridos correctamente.');
-        } catch (\Throwable $e) {
-            session()->flash('error', 'Error al crear la ruta: ' . $e->getMessage());
+            $this->resetFormFields();
+
+            return;
+
+
+        } catch (\Exception $e) {
+            $this->dispatch('show-message-banner', [
+                'text' => 'Creación de ruta fallida: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'routes',
+            ]);
         }
     }
 

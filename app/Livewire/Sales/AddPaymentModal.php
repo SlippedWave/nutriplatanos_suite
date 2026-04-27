@@ -6,6 +6,7 @@ use App\Models\Route;
 use App\Models\Sale;
 use App\Models\SalePayment;
 use App\Services\SalePaymentService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class AddPaymentModal extends Component
@@ -16,7 +17,7 @@ class AddPaymentModal extends Component
     protected function getPaymentRules(): array
     {
         return [
-            'payment_amount' => 'required|numeric|min:0.01|max:999999.99',
+            'amount' => 'required|numeric|min:0.01|max:999999.99',
             'payment_date' => 'required|date|before_or_equal:today',
             'payment_method' => 'required|in:cash,transfer,check,card,other',
             'payment_route_id' => 'nullable|exists:routes,id',
@@ -33,10 +34,10 @@ class AddPaymentModal extends Component
     protected function getPaymentMessages(): array
     {
         return [
-            'payment_amount.required' => 'El monto del pago es obligatorio.',
-            'payment_amount.numeric' => 'El monto del pago debe ser un número.',
-            'payment_amount.min' => 'El monto del pago debe ser mayor que 0.',
-            'payment_amount.max' => 'El monto del pago es demasiado alto.',
+            'amount.required' => 'El monto del pago es obligatorio.',
+            'amount.numeric' => 'El monto del pago debe ser un número.',
+            'amount.min' => 'El monto del pago debe ser mayor que 0.',
+            'amount.max' => 'El monto del pago es demasiado alto.',
             'payment_date.required' => 'La fecha de pago es obligatoria.',
             'payment_date.date' => 'La fecha de pago debe ser una fecha válida.',
             'payment_date.before_or_equal' => 'La fecha de pago no puede ser futura.',
@@ -48,7 +49,7 @@ class AddPaymentModal extends Component
         ];
     }
 
-    public $payment_amount = 0.00;
+    public $amount = 0.00;
     public $payment_date = '';
     public $payment_method = 'cash';
     public $payment_route_id = '';
@@ -73,17 +74,18 @@ class AddPaymentModal extends Component
         $this->contextRouteId = $contextRouteId;
     }
 
-    public function openAddPaymentModal(int $saleId)
+    public function openAddPaymentModal($saleId)
     {
         $this->showAddPaymentModal = true;
         $this->selectedSale = Sale::with(['productList', 'payments'])->findOrFail($saleId);
         $this->payment_date = now()->toDateString();
         $this->payment_route_id = $this->contextRouteId ?? '';
         $this->reset([
-            'payment_amount',
+            'amount',
             'payment_method',
             'payment_notes',
         ]);
+        $this->resetValidation();
         session()->forget(['error', 'message']);
     }
 
@@ -91,52 +93,54 @@ class AddPaymentModal extends Component
     {
         if (!$this->selectedSale) {
             $this->dispatch(
-                'flash-sales-table-message',
-                'No se ha seleccionado ninguna venta.',
-                'error'
+                'show-message-banner',
+                [
+                    'text' => 'No se ha seleccionado ninguna venta.',
+                    'type' => 'error',
+                    'duration' => 5000,
+                    'bannerId' => 'sales',
+                ]
             );
             return;
         }
 
         try {
-            // Validate payment data
-            $this->validate($this->getPaymentRules(), $this->getPaymentMessages());
-
             $result = $this->salePaymentService->addPayment($this->selectedSale, $this->getPaymentFormData());
 
-            if ($result['success']) {
+            $success = $result['success'] ?? false;
+
+            $message = $result['message'] ?? ($success
+                ? 'Pago agregado exitosamente'
+                : 'Error al agregar el pago');
+            $type = $success ? 'success' : ($result['type'] ?? 'error');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]);
+
+            if ($success) {
                 $this->showAddPaymentModal = false;
                 $this->dispatch('refresh-sales-table');
-                $this->dispatch('show-sales-table-message', $result);
-            } else {
-                // Handle different types of errors
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        // Don't close modal for validation errors
-                        if (isset($result['errors'])) {
-                            // Set validation errors for display
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->dispatch(
-                            'flash-sales-table-message',
-                            $result['message'],
-                            'error'
-                        );
-                        break;
-                    default:
-                        // Don't close modal for other errors, let user retry
-                        $this->dispatch('show-sales-table-message', $result);
-                        break;
-                }
+                $this->showAddPaymentModal = false;
+                return;
             }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Livewire validation failed, don't close modal
-            $this->dispatch(
-                'flash-sales-table-message',
-                $e->getMessage(),
-                'error'
+
+            if (($type ?? 'exception') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($result['validation-errors'] ?? []));
+                return;
+            }
+            
+            return;
+        } catch (\Exception $e) {
+            $this->dispatch('show-message-banner', [
+                'text' => 'Ocurrió un error inesperado al agregar el pago: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]
             );
         }
     }
@@ -145,7 +149,7 @@ class AddPaymentModal extends Component
     {
         return [
             'sale_id' => $this->selectedSale->id,
-            'amount' => $this->payment_amount,
+            'amount' => $this->amount,
             'payment_date' => $this->payment_date,
             'payment_method' => $this->payment_method,
             'route_id' => $this->payment_route_id ?: null,

@@ -31,13 +31,36 @@ class DeleteProductModal extends Component
     public function deleteProduct(): void
     {
         try {
-            if ($this->selectedProduct) {
-                $this->productService->deleteProduct($this->selectedProduct->id);
+            $response = $this->productService->deleteProduct($this->selectedProduct->id);
+
+            $success = $response['success'] ?? false;
+
+            $message = $response['message'] ?? ($success
+                ? 'Producto eliminado exitosamente'
+                : 'Error al eliminar producto');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'products',
+            ]);
+
+            if ($success) {
                 $this->dispatch('products-info-updated');
                 $this->showDeleteModal = false;
+                return;
             }
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('product-deletion-failed', $e->getMessage());
+            $this->dispatch('show-message-banner', [
+                'text' => 'Eliminación de producto fallida: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'products',
+            ]);
         }
     }
 

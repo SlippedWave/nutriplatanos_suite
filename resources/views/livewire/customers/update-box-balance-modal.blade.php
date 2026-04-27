@@ -20,7 +20,6 @@
                                 placeholder=""
                                 class="text-[var(--color-text)]!"
                             />
-                            <flux:error name="box_balance_delivered" />
                         </flux:field>
 
                         <flux:field>
@@ -31,7 +30,6 @@
                                 placeholder=""
                                 class="text-[var(--color-text)]!"
                             />
-                            <flux:error name="box_balance_returned" />
                         </flux:field>
                     </div>
                 </div>

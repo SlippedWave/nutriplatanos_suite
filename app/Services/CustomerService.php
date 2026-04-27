@@ -36,7 +36,7 @@ class CustomerService
             return [
                 'success' => false,
                 'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
-                'errors' => $e->errors(),
+                'validation-errors' => $e->errors(),
                 'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {
@@ -75,7 +75,7 @@ class CustomerService
             return [
                 'success' => false,
                 'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
-                'errors' => $e->errors(),
+                'validation-errors' => $e->errors(),
                 'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {

@@ -45,7 +45,7 @@ class ProductService
                 'success' => false,
                 'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                 'type' => 'validation-exception',
-                'errors' => $e->errors(),
+                'validation-errors' => $e->errors(),
             ];
         }
         catch (\Exception $e) {
@@ -85,7 +85,7 @@ class ProductService
                     'success' => false,
                     'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                     'type' => 'validation-exception',
-                    'errors' => $e->errors(),
+                    'validation-errors' => $e->errors(),
                 ];
         } catch (\Exception $e) {
             DB::rollBack();

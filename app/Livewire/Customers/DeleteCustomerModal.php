@@ -35,7 +35,6 @@ class DeleteCustomerModal extends Component
             $response = $this->customerService->deleteCustomer($this->selectedCustomer);
 
             $success = $response['success'] ?? false;
-
             $message = $response['message'] ?? ($success
                 ? 'Cliente eliminado exitosamente'
                 : 'Error al eliminar cliente');
@@ -45,7 +44,7 @@ class DeleteCustomerModal extends Component
                 'text' => $message,
                 'type' => $type,
                 'duration' => 5000,
-                'bannerId' => 'customers-table',
+                'bannerId' => 'customers',
             ]);
 
             if ($success) {
@@ -57,10 +56,10 @@ class DeleteCustomerModal extends Component
             return;
         } catch (\Exception $e) {
             $this->dispatch('show-message-banner', [
-                'text' => 'Error al eliminar cliente',
+                'text' => 'Error al eliminar cliente: ' . $e->getMessage(),
                 'type' => 'exception',
                 'duration' => 5000,
-                'bannerId' => 'customers-table',
+                'bannerId' => 'customers',
             ]);
         }
     }

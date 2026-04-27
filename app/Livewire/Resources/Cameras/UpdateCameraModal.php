@@ -43,23 +43,41 @@ class UpdateCameraModal extends Component
     public function updateCamera()
     {
         try {
-            $result = $this->cameraService->updateCamera($this->selectedCameraId, $this->getFormData());
+            $response = $this->cameraService->updateCamera($this->selectedCameraId, $this->getFormData());
 
-            if ($result['success']) {
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Cámara actualizada exitosamente'
+                : 'Error al actualizar cámara');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'cameras',
+            ]);
+
+            if ($success) {
                 $this->resetValidation();
-                $this->dispatch('cameras-info-updated', $result);
+                $this->dispatch('cameras-info-updated', $response);
                 $this->showUpdateModal = false;
                 return;
             }
 
-            if (($result['type'] ?? 'error') === 'validation') {
-                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+             if (($type ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }
 
-            $this->dispatch('camera-update-failed', $result['message']);
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('camera-update-failed', $e->getMessage());
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al actualizar cámara: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'cameras',
+            ]);
         }
     }
 

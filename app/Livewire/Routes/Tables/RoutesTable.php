@@ -8,7 +8,6 @@ use App\Services\RouteService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\Attributes\On;
 
 class RoutesTable extends Component
 {
@@ -24,8 +23,6 @@ class RoutesTable extends Component
 
     protected $listeners = [
         'routes-info-updated' => '$refresh',
-        'show-routes-table-message' => 'showRoutesTableMessage',
-        'flash-routes-table-message' => 'flashRoutesTableMessage',
     ];
 
 
@@ -36,21 +33,6 @@ class RoutesTable extends Component
     public function boot(RouteService $routeService)
     {
         $this->routeService = $routeService;
-    }
-
-    public function showRoutesTableMessage($result)
-    {
-        $this->flashRoutesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
-        $this->resetPage();
-    }
-
-    public function flashRoutesTableMessage(string $text, string $type = 'success'): void
-    {
-        session()->flash('message', [
-            'header' => 'routes-table',
-            'text' => $text,
-            'type' => $type,
-        ]);
     }
 
     protected $queryString = [

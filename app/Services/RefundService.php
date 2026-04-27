@@ -47,7 +47,7 @@ class RefundService
             return [
                 'success' => false,
                 'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
-                'errors' => $e->errors(),
+                'validation-errors' => $e->errors(),
                 'type' => 'validation-exception'
             ];
         } catch (\Exception $e) {
@@ -90,7 +90,7 @@ class RefundService
                 'success' => false,
                 'type' => 'validation-exception',
                 'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
-                'errors' => $e->errors()
+                'validation-errors' => $e->errors()
             ];
         } catch (\Exception $e) {
             DB::rollBack();

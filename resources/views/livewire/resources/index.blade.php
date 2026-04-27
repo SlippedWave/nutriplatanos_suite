@@ -22,6 +22,9 @@ new class extends Component {};
 
         <div class="border-t pt-3">
             <div class="overflow-x-auto -mx-4 px-4">
+                <div class="py-4">
+                    <livewire:alerts.message-banner banner-id="cameras" />
+                </div>
                 <livewire:resources.cameras.tables.cameras-table />
             </div>
         </div>
@@ -40,6 +43,9 @@ new class extends Component {};
 
         <div class="border-t pt-3">
             <div class="overflow-x-auto -mx-4 px-4">
+                <div class="py-4">
+                    <livewire:alerts.message-banner banner-id="products" />
+                </div>
                 <livewire:resources.products.tables.products-table />
             </div>
         </div>

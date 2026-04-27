@@ -138,6 +138,9 @@ new class extends Component {
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Historial de Gastos en Ruta</h3>
             </div>
+            <div class="py-4">
+                <livewire:alerts.message-banner banner-id="expenses" />
+            </div>
             @livewire('accounting.expenses.tables.expenses-table', ['route_id' => $selectedRoute->id])
         </div>
 

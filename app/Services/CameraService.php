@@ -42,7 +42,7 @@ class CameraService
                 'success' => false,
                 'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                 'type' => 'validation-exception',
-                'errors' => $e->errors(),
+                'validation-errors' => $e->errors(),
             ]; 
         } catch (\Exception $e) {
             DB::rollBack(); 
@@ -80,7 +80,7 @@ class CameraService
                 'success' => false,
                 'message' => 'Error de validación. Hay ' . count($e->errors()) . ' error(es).',
                 'type' => 'validation-exception',
-                'errors' => $e->errors(),
+                'validation-errors' => $e->errors(),
             ];
         } catch (\Exception $e) {
             DB::rollBack();

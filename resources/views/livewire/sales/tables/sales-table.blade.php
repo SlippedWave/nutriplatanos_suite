@@ -1,34 +1,5 @@
 <div class="space-y-6">
-    <!-- Flash Messages -->
-    @php
-        $flash = session('message');
-    @endphp
-
-    @if ($flash && data_get($flash, 'header') === 'sales-table')
-        @php
-            $type = data_get($flash, 'type', 'info');
-        @endphp
-
-        <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 4000)" x-show="show" x-transition @class([
-            'px-4 py-3 rounded-lg flex justify-between items-center',
-            'bg-green-50 border border-green-200 text-green-700' => $type === 'success',
-            'bg-danger-50 border border-danger-200 text-danger-700' =>
-                $type === 'error',
-            'bg-yellow-50 border border-yellow-200 text-yellow-700' =>
-                $type === 'warning',
-            'bg-blue-50 border border-blue-200 text-blue-700' => !in_array($type, [
-                'success',
-                'error',
-                'warning',
-            ]),
-        ])>
-            <div>{{ data_get($flash, 'text') }}</div>
-            <button type="button" @click="show = false" class="opacity-70 hover:opacity-100">
-                <span class="sr-only">Close</span>
-                <flux:icon.x-mark class="w-4 h-4" />
-            </button>
-        </div>
-    @endif
+    <livewire:alerts.message-banner banner-id="sales" />
 
     <div class="flex flex-col gap-4">
         <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 sm:p-4">
@@ -240,14 +211,14 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex items-center justify-center space-x-2">
                                     <flux:button size="sm" variant="ghost"
-                                        wire:click="dispatch('open-view-sale-modal', { id: {{ $sale->id }} })" icon="eye"
+                                        wire:click="$dispatch('open-view-sale-modal', { saleId: {{ $sale->id }} })" icon="eye"
                                         aria-label="Ver venta" />
 
                                     @if (!$sale->trashed())
                                         <!-- Payment Actions (only for unpaid/partial sales) -->
                                         @if (in_array($sale->payment_status, ['pending', 'partial']))
                                             <flux:button size="sm" variant="ghost"
-                                                wire:click="dispatch('open-add-payment-modal', { id: {{ $sale->id }} })"
+                                                wire:click="$dispatch('open-add-payment-modal', { saleId: {{ $sale->id }} })"
                                                 icon="credit-card" aria-label="Agregar pago"
                                                 class="text-green-600 hover:text-green-700" />
                                         @endif
@@ -255,17 +226,17 @@
                                         <!-- Payment History (for all sales with payments) -->
                                         @if ($sale->payments && $sale->payments->count() > 0)
                                             <flux:button size="sm" variant="ghost"
-                                                wire:click="dispatch('open-payment-history-modal', { id: {{ $sale->id }} })"
+                                                wire:click="$dispatch('open-payment-history-modal', { saleId: {{ $sale->id }} })"
                                                 icon="clock" aria-label="Historial de pagos"
                                                 class="text-blue-600 hover:text-blue-700" />
                                         @endif
 
                                         <flux:button size="sm" variant="ghost"
-                                            wire:click="dispatch('open-update-sale-modal', { id: {{ $sale->id }} })" icon="pencil"
+                                            wire:click="$dispatch('open-update-sale-modal', { saleId: {{ $sale->id }} })" icon="pencil"
                                             aria-label="Editar venta" />
 
                                         <flux:button size="sm" variant="ghost"
-                                            wire:click="dispatch('open-delete-sale-modal', { id: {{ $sale->id }} })" icon="trash"
+                                            wire:click="$dispatch('open-delete-sale-modal', { saleId: {{ $sale->id }} })" icon="trash"
                                             aria-label="Eliminar venta" />
                                     @endif
                                 </div>

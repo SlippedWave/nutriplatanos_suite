@@ -109,7 +109,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <flux:label class="text-accent-foreground">{{ __('Correo electrónico') }}</flux:label>
             <flux:input wire:model="email" type="email" required autofocus autocomplete="email"
                 placeholder="email@ejemplo.com" class="text-[var(--color-text)]!" />
-            <flux:error name="email" />
         </flux:field>
 
 
@@ -117,7 +116,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <flux:label>{{ __('Contraseña') }}</flux:label>
             <flux:input wire:model="password" type="password" required autocomplete="current-password"
                 :placeholder="__('Contraseña')" viewable class="text-[var(--color-text)]!" />
-            <flux:error name="password" />
         </flux:field>
 
         <!-- Remember Me -->

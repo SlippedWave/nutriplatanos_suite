@@ -31,10 +31,9 @@ class ExpensesTable extends Component
 
     public $contextRouteId = null;
     public $contextUserId = null;
+    
     protected $listeners = [
         'expenses-info-updated' => '$refresh',
-        'show-expenses-table-message' => 'showExpensesTableMessage',
-        'flash-expenses-table-message' => 'flashExpensesTableMessage',
     ];
 
     public ?Expense $selectedExpense = null;
@@ -43,12 +42,6 @@ class ExpensesTable extends Component
     public ?float $lastDispatchedExpensesTotal = null;
 
     protected ExpenseService $expenseService;
-
-    public function showExpensesTableMessage($result)
-    {
-        $this->flashExpensesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
-        $this->resetPage();
-    }
 
     public function boot(ExpenseService $expenseService)
     {
@@ -64,7 +57,7 @@ class ExpensesTable extends Component
 
         $this->canCreateNewExpense = !empty($this->contextRouteId)
             && Route::where('id', $this->contextRouteId)->where('status', 'active')->exists()
-            && (Auth::user()->role === 'admin' || Route::where('id', $this->contextRouteId)->where('user_id', Auth::id())->exists())
+            && (Auth::user()->role === 'admin' || Route::where('id', $this->contextRouteId)->where('id', Auth::id())->exists())
             || empty($this->contextRouteId) && empty($this->contextUserId);
 
         // Initialize date filter window
@@ -126,15 +119,6 @@ class ExpensesTable extends Component
             $this->sortDirection = 'asc';
         }
         $this->resetPage();
-    }
-
-    public function flashExpensesTableMessage(string $message, string $type)
-    {
-        session()->flash('message', [
-            'header' => 'expenses-table',
-            'text' => $message,
-            'type' => $type
-        ]);
     }
 
     public function render()

@@ -40,23 +40,42 @@ class UpdateProductModal extends Component
     public function updateProduct()
     {
         try {
-            $result = $this->productService->updateProduct($this->selectedProductId, $this->getFormData());
+            $response = $this->productService->updateProduct($this->selectedProductId, $this->getFormData());
 
-            if ($result['success']) {
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Producto actualizado exitosamente'
+                : 'Error al actualizar producto');  
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'products',
+            ]);
+
+            if ($success) {
                 $this->resetValidation();
-                $this->dispatch('products-info-updated', $result);
+                $this->dispatch('products-info-updated');
                 $this->showUpdateModal = false;
                 return;
             }
 
-            if (($result['type'] ?? 'error') === 'validation') {
-                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+             if (($type ?? 'error') === 'validation-exception') {
+
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }
-
-            $this->dispatch('product-update-failed', $result['message']);
+        
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('product-update-failed', $e->getMessage());
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al actualizar producto: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'products',
+            ]);
         }
     }
 

@@ -27,6 +27,7 @@ class UpdateBoxBalanceModal extends Component
     #[On('open-update-box-balance-modal')]
     public function openUpdateModal(int $customerId): void
     {
+        $this->resetValidation();
         $this->customerId = $customerId;
         $this->customer = Customer::find($customerId);
         $this->showUpdateModal = true;
@@ -53,7 +54,7 @@ class UpdateBoxBalanceModal extends Component
                 'text' => $message,
                 'type' => $type,
                 'duration' => 5000,
-                'bannerId' => 'customers-table',
+                'bannerId' => 'customers',
             ]);
 
             if ($success) {
@@ -65,10 +66,10 @@ class UpdateBoxBalanceModal extends Component
             return;
         } catch (\Exception $e) {
             $this->dispatch('show-message-banner', [
-                'text' => 'Error al actualizar balance de cajas',
+                'text' => 'Error al actualizar balance de cajas: ' . $e->getMessage(),
                 'type' => 'exception',
                 'duration' => 5000,
-                'bannerId' => 'customers-table',
+                'bannerId' => 'customers',
             ]);
         }
     }

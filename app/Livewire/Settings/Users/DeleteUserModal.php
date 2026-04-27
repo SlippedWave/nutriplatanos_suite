@@ -45,7 +45,7 @@ class DeleteUserModal extends Component
                 'text' => $message,
                 'type' => $type,
                 'duration' => 5000,
-                'bannerId' => 'users-table',
+                'bannerId' => 'users',
             ]);
 
             if ($success) {
@@ -57,10 +57,10 @@ class DeleteUserModal extends Component
             return;
         } catch (\Exception $e) {
             $this->dispatch('show-message-banner', [
-                'text' => 'Error al eliminar usuario',
+                'text' => 'Error al eliminar usuario: ' . $e->getMessage(),
                 'type' => 'exception',
                 'duration' => 5000,
-                'bannerId' => 'users-table',
+                'bannerId' => 'users',
             ]);
         }
     }

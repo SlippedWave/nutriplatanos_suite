@@ -22,7 +22,7 @@ class BoxMovementService
                 return [
                     'success' => false,
                     'message' => 'Datos inválidos para el movimiento de caja. Hay ' . count($ve->errors()) . ' error(es).',
-                    'errors' => $ve->errors(),
+                    'validation-errors' => $ve->errors(),
                     'type' => 'validation-exception',
                 ];
             }

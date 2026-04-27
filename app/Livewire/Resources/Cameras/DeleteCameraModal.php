@@ -31,13 +31,36 @@ class DeleteCameraModal extends Component
     public function deleteCamera(): void
     {
         try {
-            if ($this->selectedCamera) {
-                $this->cameraService->deleteCamera($this->selectedCamera->id);
+            $response = $this->cameraService->deleteCamera($this->selectedCamera->id);
+
+            $success = $response['success'] ?? false;
+
+            $message = $response['message'] ?? ($success
+                ? 'Cámara eliminada exitosamente'
+                : 'Error al eliminar cámara');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'cameras',
+            ]);
+
+            if ($success) {
                 $this->dispatch('cameras-info-updated');
                 $this->showDeleteModal = false;
+                return;
             }
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('camera-deletion-failed', $e->getMessage());
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al eliminar cámara: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'cameras',
+            ]);
         }
     }
 

@@ -51,6 +51,9 @@ new class extends Component {
 
     <x-layouts.routes.layout :heading="__('Gestión de usuarios')" :subheading="__('Administra los usuarios dentro del sistema')" :showSidebar="false">
         <div class="mt-6 w-full max-w-full overflow-hidden">
+            <div class="py-4">
+                <livewire:alerts.message-banner banner-id="users" />
+            </div>
             <div class="overflow-x-auto">
                 <livewire:settings.users.tables.users-table />
             </div>

@@ -63,7 +63,7 @@ class CreateUserModal extends Component
                 'text' => $message,
                 'type' => $type,
                 'duration' => 5000,
-                'bannerId' => 'users-table',
+                'bannerId' => 'users',
             ]);
 
             if ($success) {
@@ -73,7 +73,7 @@ class CreateUserModal extends Component
                 return;
             }
 
-            if (($response['type'] ?? 'error') === 'validation-exception') {
+            if (($type ?? 'error') === 'validation-exception') {
                 $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }   
@@ -81,10 +81,10 @@ class CreateUserModal extends Component
             return;
         } catch (\Exception $e) {
             $this->dispatch('show-message-banner', [
-                'text' => 'Creación de usuario fallida',
+                'text' => 'Creación de usuario fallida: ' . $e->getMessage(),
                 'type' => 'exception',
                 'duration' => 5000,
-                'bannerId' => 'users-table',
+                'bannerId' => 'users',
             ]);
         }
     }

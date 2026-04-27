@@ -45,25 +45,8 @@ class SalesTable extends Component
     public ?Sale $selectedSale = null;
 
     protected $listeners = [
-        'refresh-sales-table' => '$refresh',
-        'flash-sales-table-message' => 'flashSalesTableMessage',
-        'show-sales-table-message' => 'showSalesTableMessage',
+        'sales-info-updated' => '$refresh',
     ];
-
-    public function showSalesTableMessage($result)
-    {
-        $this->flashSalesTableMessage($result['message'], $result['success'] ? 'success' : 'error');
-        $this->resetPage();
-    }
-
-    public function flashSalesTableMessage(string $message, string $type): void
-    {
-        session()->flash('message', [
-            'header' => 'sales-table',
-            'text' => $message,
-            'type' => $type,
-        ]);
-    }
 
     protected SaleService $saleService;
 

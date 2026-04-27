@@ -36,23 +36,41 @@ class CreateCameraModal extends Component
     public function createCamera()
     {
         try {
-            $result = $this->cameraService->createCamera($this->getFormData());
+            $response = $this->cameraService->createCamera($this->getFormData());
 
-            if ($result['success']) {
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Cámara creada exitosamente'
+                : 'Error al crear cámara');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'cameras',
+            ]);
+
+            if ($success) {
                 $this->resetValidation();
-                $this->dispatch('cameras-info-updated', $result);
+                $this->dispatch('cameras-info-updated', $response);
                 $this->showCreateModal = false;
                 return;
             }
 
-            if (($result['type'] ?? 'error') === 'validation') {
-                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+            if (($type ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }
-
-            $this->dispatch('camera-creation-failed', $result['message']);
+            
+            return;     
         } catch (\Exception $e) {
-            $this->dispatch('camera-creation-failed', $e->getMessage());
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al crear cámara: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'cameras',
+            ]);
         }
     }
     public function getFormData()

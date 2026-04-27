@@ -34,23 +34,42 @@ class CreateProductModal extends Component
     public function createProduct()
     {
         try {
-            $result = $this->productService->createProduct($this->getFormData());
+            $response = $this->productService->createProduct($this->getFormData());
 
-            if ($result['success']) {
+            $success = $response['success'] ?? false;
+
+            $message = $response['message'] ?? ($success
+                ? 'Producto creado exitosamente'
+                : 'Error al crear producto');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'products',
+            ]);
+
+            if ($success) {
                 $this->resetValidation();
-                $this->dispatch('products-info-updated', $result);
+                $this->dispatch('products-info-updated');
                 $this->showCreateModal = false;
                 return;
             }
 
-            if (($result['type'] ?? 'error') === 'validation') {
-                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
-                return;
-            }
-
-            $this->dispatch('product-creation-failed', $result['message']);
+            if (($type ?? 'error') === 'validation-exception') {
+                 $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                 return;
+            }   
+    
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('product-creation-failed', $e->getMessage());
+            $this->dispatch('show-message-banner', [
+                'text' => 'Creación de producto fallida: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'products',
+            ]);     
         }
     }
 

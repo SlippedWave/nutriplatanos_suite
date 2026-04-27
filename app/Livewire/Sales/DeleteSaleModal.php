@@ -9,13 +9,14 @@ use Livewire\Component;
 class DeleteSaleModal extends Component
 {
     public bool $showDeleteModal = false;
+
     public ?Sale $selectedSale = null;
+
+    protected SaleService $saleService;
 
     public $listeners = [
         'open-delete-sale-modal' => 'openDeleteModal',
     ];
-
-    protected SaleService $saleService;
 
     public function boot()
     {
@@ -24,49 +25,55 @@ class DeleteSaleModal extends Component
 
     public function openDeleteModal(int $saleId)
     {
+        $this->selectedSale = Sale::findOrFail($saleId);        
         $this->showDeleteModal = true;
-        $this->selectedSale = Sale::findOrFail($saleId);
-        session()->forget(['error', 'message']);
     }
 
     public function deleteSale()
     {
         if (!$this->selectedSale) {
             $this->dispatch(
-                'flash-sales-table-message',
-                'No se ha seleccionado ninguna venta.',
-                'error'
+                'show-message-banner',
+                [
+                    'text' => 'No se ha seleccionado ninguna venta.',
+                    'type' => 'exception',
+                    'duration' => 5000,
+                    'bannerId' => 'sales',
+                ]
             );
             return;
         }
 
-        $result = $this->saleService->deleteSale($this->selectedSale);
+        try {
+            $response = $this->saleService->deleteSale($this->selectedSale);
 
-        if ($result['success']) {
-            $this->showDeleteModal = false;
-            $this->dispatch('refresh-sales-table');
-            $this->dispatch('show-sales-table-message', $result);
-        } else {
-            // Handle different types of errors
-            switch ($result['type'] ?? 'error') {
-                case 'validation':
-                    // Don't close modal for validation errors
-                    if (isset($result['errors'])) {
-                        // Set validation errors for display
-                        foreach ($result['errors'] as $field => $messages) {
-                            $this->addError($field, implode(' ', $messages));
-                        }
-                    }
-                    $this->dispatch(
-                        'flash-sales-table-message',
-                        $result['message'],
-                        'error'
-                    );
-                    break;
-                default:
-                    $this->dispatch('show-sales-table-message', $result);
-                    break;
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Venta eliminada exitosamente'
+                : 'Error al eliminar la venta');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]);
+            
+            if ($success) {
+
+                $this->dispatch('refresh-sales-table');
+                $this->showDeleteModal = false;
+                return;
             }
+
+        } catch (\Exception $e) {
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al eliminar la venta: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]);
         }
     }
 

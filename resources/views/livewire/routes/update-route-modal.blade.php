@@ -13,7 +13,6 @@
         <form wire:submit.prevent="updateRoute" class="space-y-4">
             <flux:field>
                 <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" />
-                <flux:error name="title" />
             </flux:field>
 
             <livewire:routes.box-movements-editor

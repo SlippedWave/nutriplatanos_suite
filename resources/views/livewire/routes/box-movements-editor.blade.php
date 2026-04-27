@@ -18,7 +18,6 @@
                             <flux:select.option value="{{ $camera->id }}">{{ $camera->name }}</flux:select.option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="model.{{ $index }}.camera_id" />
                 </flux:field>
 
                 <flux:field>
@@ -28,7 +27,6 @@
                             <flux:select.option value="{{ $type_key }}">{{ __(ucfirst($type)) }}</flux:select.option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="model.{{ $index }}.movement_type" />
                 </flux:field>
 
                 <flux:field>
@@ -42,7 +40,6 @@
                         class="text-[var(--color-text)]!"
                         :disabled="!$editable"
                     />
-                    <flux:error name="model.{{ $index }}.quantity" />
                 </flux:field>
 
                 <flux:field class="md:col-span-3">
@@ -52,7 +49,6 @@
                             <flux:select.option value="{{ $status_key }}">{{ __(ucfirst($status)) }}</flux:select.option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="model.{{ $index }}.box_content_status" />
                 </flux:field>
             </div>
         </div>

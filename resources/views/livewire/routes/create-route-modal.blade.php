@@ -19,7 +19,6 @@
         <form wire:submit.prevent="createRoute" class="space-y-4">
             <flux:field>
                 <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" />
-                <flux:error name="title" />
             </flux:field>
 
             <livewire:routes.box-movements-editor
@@ -30,7 +29,6 @@
 
             <flux:field>
                 <flux:textarea wire:model="notes" label="{{ __('Notas adicionales') }}" class="text-[var(--color-text)]!" />
-                <flux:error name="notes" />
             </flux:field>
 
             <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">

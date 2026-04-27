@@ -6,6 +6,7 @@ use App\Models\Route;
 use App\Models\User;
 use App\Services\ExpenseService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class CreateExpenseModal extends Component
@@ -57,12 +58,41 @@ class CreateExpenseModal extends Component
     public function createExpense()
     {
         try {
-            $result = $this->expenseService->createExpense($this->getFormData());
-            $this->dispatch('expenses-info-updated');
-            $this->dispatch('show-expenses-table-message', $result);
-            $this->showCreateModal = false;
+            $response = $this->expenseService->createExpense($this->getFormData());
+                        
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Gasto creado exitosamente'
+                : 'Error al crear gasto');
+            $type = $success ? 'success' : ($response['type'] ?? 'error');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'expenses',
+            ]);
+
+            if ($success) {
+                $this->resetValidation();
+                $this->dispatch('expenses-info-updated');
+                $this->showCreateModal = false;
+                return;
+            }
+
+            if (($type ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                return;
+            }
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-expenses-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Ocurrió un error inesperado al crear el gasto: ' . $e->getMessage(),
+                'type' => 'error',
+                'duration' => 5000,
+                'bannerId' => 'expenses',
+            ]);
         }
     }
 

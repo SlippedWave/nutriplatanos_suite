@@ -41,6 +41,7 @@ class UpdateUserModal extends Component
 
     public function openUpdateUserModal(int $userId)
     {
+        $this->resetValidation();
         $this->selectedUser = User::findOrFail($userId);
         $this->name = $this->selectedUser->name;
         $this->email = $this->selectedUser->email;
@@ -77,7 +78,7 @@ class UpdateUserModal extends Component
                 'text' => $message,
                 'type' => $type,
                 'duration' => 5000,
-                'bannerId' => 'users-table',
+                'bannerId' => 'users',
             ]);
 
             if ($success) {
@@ -87,7 +88,7 @@ class UpdateUserModal extends Component
                 return;
             }
 
-            if (($response['type'] ?? 'error') === 'validation-exception') {
+             if (($type ?? 'error') === 'validation-exception') {
                 $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }
@@ -95,10 +96,10 @@ class UpdateUserModal extends Component
             return;
         } catch (\Exception $e) {
             $this->dispatch('show-message-banner', [
-                'text' => 'Error al actualizar usuario',
+                'text' => 'Error al actualizar usuario: ' . $e->getMessage(),
                 'type' => 'exception',
                 'duration' => 5000,
-                'bannerId' => 'users-table',
+                'bannerId' => 'users',
             ]);
         }
     }

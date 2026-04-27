@@ -45,7 +45,7 @@ class RouteService
                 return [
                     'success' => false,
                     'message' => 'Datos inválidos para crear la ruta. Hay ' . count($ve->errors()) . ' error(es).',
-                    'errors' => $ve->errors(),
+                    'validation-errors' => $ve->errors(),
                     'type' => 'validation-exception'
                 ];
             }
@@ -118,7 +118,7 @@ class RouteService
                 return [
                     'success' => false,
                     'message' => 'Datos inválidos para actualizar la ruta. Hay ' . count($ve->errors()) . ' error(es).',
-                    'errors' => $ve->errors(),
+                    'validation-errors' => $ve->errors(),
                     'type' => 'validation-exception'
                 ];
             }

@@ -47,7 +47,6 @@
                             <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="customer_id" />
                 </flux:field>
             @endif
 
@@ -60,7 +59,6 @@
                             <option value="{{ $route->id }}">{{ $route->title }}</option>
                         @endforeach
                     </flux:select>
-                    <flux:error name="route_id" />
                 </flux:field>
             @endif
         </div>
@@ -68,6 +66,7 @@
         <flux:separator class="my-6" />
 
         <livewire:sales.product-list-editor wire:model="saleProducts" />
+        <flux:error name="products" />
 
         <!-- Payment Status -->
         <flux:field>
@@ -76,20 +75,17 @@
                 <option value="paid">Pagado</option>
                 <option value="partial">Pago Parcial</option>
             </flux:select>
-            <flux:error name="payment_status" />
         </flux:field>
 
         <!-- Register box movement -->
         <flux:field>
             <flux:input wire:model="box_balance_delivered" label="{{ __('Cajas dejadas') }}" type="text"
                 placeholder="" class="text-[var(--color-text)]!" />
-            <flux:error name="box_balance_delivered" />
         </flux:field>
 
         <flux:field>
             <flux:input wire:model="box_balance_returned" label="{{ __('Cajas recogidas') }}" type="text"
                 placeholder="" class="text-[var(--color-text)]!" />
-            <flux:error name="box_balance_returned" />
         </flux:field>
 
         @if ($payment_status === 'partial')
@@ -99,7 +95,6 @@
                     x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
                     x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
                     class="text-[var(--color-text)]!" />
-                <flux:error name="paid_amount" />
             </flux:field>
         @endif
 
@@ -112,7 +107,6 @@
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
                 </flux:select>
-                <flux:error name="payment_method" />
             </flux:field>
         @endif
 
@@ -121,7 +115,6 @@
         <flux:field class="mt-4">
             <flux:textarea wire:model="notes" label="{{ __('Notas') }}"
                 placeholder="Notas adicionales sobre la venta..." rows="3" class="text-[var(--color-text)]!" />
-            <flux:error name="notes" />
         </flux:field>
 
 

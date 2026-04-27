@@ -72,7 +72,6 @@ new class extends Component {
         </div>
     </div>
 
-    <livewire:alerts.message-banner banner-id="customers-table"/>
 
     @livewire('notes.notes-displayer', ['notable_type' => Customer::class, 'notable_id' => $customer->id])
 

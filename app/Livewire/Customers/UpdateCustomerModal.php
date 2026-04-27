@@ -34,6 +34,7 @@ class UpdateCustomerModal extends Component
 
     public function openUpdateCustomerModal(int $customerId)
     {
+        $this->resetValidation();
         $this->selectedCustomer = Customer::findOrFail($customerId);
         $this->name = $this->selectedCustomer->name;
         $this->email = $this->selectedCustomer->email;
@@ -60,7 +61,7 @@ class UpdateCustomerModal extends Component
                 'text' => $message,
                 'type' => $type,
                 'duration' => 5000,
-                'bannerId' => 'customers-table',
+                'bannerId' => 'customers',
             ]);
 
             if ($success) {
@@ -70,7 +71,7 @@ class UpdateCustomerModal extends Component
                 return;
             }
 
-            if (($response['type'] ?? 'error') === 'validation-exception') {
+            if (($type ?? 'error') === 'validation-exception') {
                 $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }   
@@ -78,10 +79,10 @@ class UpdateCustomerModal extends Component
             return;
         } catch (\Exception $e) {
             $this->dispatch('show-message-banner', [
-                'text' => 'Error al actualizar cliente',
+                'text' => 'Error al actualizar cliente: ' . $e->getMessage(),
                 'type' => 'exception',
                 'duration' => 5000,
-                'bannerId' => 'customers-table',
+                'bannerId' => 'customers',
             ]);
         }
     }

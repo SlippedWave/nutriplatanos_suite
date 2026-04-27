@@ -7,6 +7,7 @@ use App\Models\Route;
 use App\Models\User;
 use App\Services\ExpenseService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class UpdateExpenseModal extends Component
@@ -47,7 +48,7 @@ class UpdateExpenseModal extends Component
 
     public function openUpdateExpenseModal(int $expenseId)
     {
-
+        $this->resetValidation();
         $this->selectedExpense = Expense::with('user', 'route')->findOrFail($expenseId);
         $this->user_id = $this->selectedExpense->user_id;
         $this->route_id = $this->selectedExpense->route_id;
@@ -65,12 +66,41 @@ class UpdateExpenseModal extends Component
     public function updateExpense()
     {
         try {
-            $result = $this->expenseService->updateExpense($this->selectedExpense->id, $this->getFormData());
-            $this->dispatch('expenses-info-updated');
-            $this->dispatch('show-expenses-table-message', $result);
-            $this->showUpdateModal = false;
+            $response = $this->expenseService->updateExpense($this->selectedExpense->id, $this->getFormData());
+
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Gasto actualizado exitosamente'
+                : 'Error al actualizar el gasto');
+            $type = $success ? 'success' : ($response['type'] ?? 'error');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'expenses',
+            ]);
+
+            if ($success) {
+                $this->dispatch('expenses-info-updated');
+                $this->resetValidation();
+                $this->showUpdateModal = false;
+                return;
+            }
+
+            if (($type ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                return;
+            }
+
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-expenses-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Ocurrió un error inesperado al actualizar el gasto: ' . $e->getMessage(),
+                'type' => 'error',
+                'duration' => 5000,
+                'bannerId' => 'expenses',
+            ]);
         }
     }
 

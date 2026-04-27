@@ -9,6 +9,7 @@ use App\Models\Sale;
 use App\Models\SalePayment;
 use App\Services\SalePaymentService;
 use App\Services\SaleService;
+use Illuminate\Support\MessageBag;
 use Livewire\Component;
 
 class UpdateSaleModal extends Component
@@ -81,9 +82,9 @@ class UpdateSaleModal extends Component
         $this->customer_id = $contextCustomerId;
     }
 
-    public function openUpdateSaleModal($id)
+    public function openUpdateSaleModal($saleId)
     {
-        $this->selectedSale = Sale::findOrFail($id);
+        $this->selectedSale = Sale::findOrFail($saleId);
         $this->customer_id = $this->selectedSale->customer_id;
         $this->route_id = $this->selectedSale->route_id;
         $this->payment_status = $this->selectedSale->payment_status;
@@ -97,6 +98,7 @@ class UpdateSaleModal extends Component
                 'price_per_unit' => $detail->price_per_unit,
                 ];
                 })->toArray();
+        $this->resetValidation();
         $this->showUpdateModal = true;
     }
 
@@ -107,59 +109,41 @@ class UpdateSaleModal extends Component
 
     public function updateSale()
     {
-        if (!$this->selectedSale) {
-            $this->dispatch(
-                'flash-sales-table-message',
-                'No se ha seleccionado ninguna venta.',
-                'error'
-            );
-            return;
-        }
-
         try {
-            $result = $this->saleService->updateSale($this->selectedSale, $this->getFormData());
+            $response = $this->saleService->updateSale($this->selectedSale, $this->getFormData());
 
-            if ($result['success']) {
-                $sale = $result['sale'] ?? null;
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Venta actualizada exitosamente'
+                : 'Error al actualizar la venta');
+            $type = $success ? 'success' : ($response['type'] ?? 'error');
 
-                if ($sale && ($this->payment_status === 'paid' || $this->payment_status === 'partial')) {
-                    $paymentAmount = $this->payment_status === 'paid' ? $sale->total_amount : $this->paid_amount;
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]);
 
-                    $paymentData = [
-                        'sale_id' => $sale->id,
-                        'amount' => $paymentAmount,
-                        'payment_date' => now()->toDateString(),
-                        'payment_method' => $this->payment_method, // Default payment method
-                        'route_id' => $this->route_id ?: null,
-                        'notes' => 'Pago registrado mediante la actualización de la información de la venta',
-                    ];
-
-                    $this->salePaymentService->addPayment($sale, $paymentData);
-                }
+            if ($success) {
+                $this->resetValidation();
                 $this->dispatch('refresh-sales-table');
-                $this->dispatch('show-sales-table-message', $result);
                 $this->showUpdateModal = false;
-            } else {
-                // Handle different types of errors
-                switch ($result['type'] ?? 'error') {
-                    case 'validation':
-                        // Don't close modal for validation errors
-                        if (isset($result['errors'])) {
-                            // Set validation errors for display
-                            foreach ($result['errors'] as $field => $messages) {
-                                $this->addError($field, implode(' ', $messages));
-                            }
-                        }
-                        $this->dispatch('flash-sales-table-message', $result['message'], 'error');
-                        break;
-                    default:
-                        $this->dispatch('show-sales-table-message', $result);
-                        break;
-                }
+                return;
             }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Livewire validation failed, don't close modal
-            $this->dispatch('flash-sales-table-message', $e->getMessage(), 'error');
+
+            if (($type ?? 'error') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+            }
+
+            return;
+        } catch (\Exception $e) {
+            $this->dispatch('show-message-banner', [
+                'text' => 'Ocurrió un error inesperado al actualizar la venta: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'sales',
+            ]);
         }
     }
 
