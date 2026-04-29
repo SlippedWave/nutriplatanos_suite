@@ -81,7 +81,7 @@ class CloseRouteModal extends Component
     
             if ($success) {
                 $this->resetFormFields();
-                $this->dispatch('route-closed');
+                $this->dispatch('routes-info-updated');
                 $this->showCloseRouteModal = false;
                 return;
             }

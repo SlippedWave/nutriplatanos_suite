@@ -135,7 +135,7 @@ class UpdateRouteModal extends Component
 
             if ($success) {
                 $this->resetValidation();
-                $this->dispatch('route-updated');
+                $this->dispatch('routes-info-updated');
                 $this->showUpdateModal = false;
                 return;
             }

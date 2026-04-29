@@ -10,12 +10,9 @@ new class extends Component {
 
     protected RouteService $routeService;
 
-    #[On('route-updated')]
-    public function onRouteUpdated(): void
-    {
-        $this->selectedRoute->refresh();
-        $this->js('window.location.reload()');
-    }
+    public $listeners = [
+        'routes-info-updated' => '$refresh',
+    ];
 
     public function boot(RouteService $routeService)
     {
@@ -29,7 +26,7 @@ new class extends Component {
 };
 ?>
 <section class="w-full">
-    
+    <livewire:alerts.message-banner banner-id="routes" />
     <x-layouts.routes.layout :heading="$selectedRoute->title ?? 'Detalles de la Ruta'" :subheading="'Información detallada de la ruta creada el ' . $selectedRoute->created_at->format('d/m/Y')">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900">Detalles de la Ruta</h2>

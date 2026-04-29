@@ -90,13 +90,12 @@ class CreateRouteModal extends Component
 
             if ($success) {
                 $this->resetValidation();
-                $this->dispatch('routes-info-updated');
                 //! REVISA PARA QUE FUNCIONA ESTE PEDO
-                $this->dispatch('route-created');
                 $this->showCreateModal = false;
                 if (!empty($result['route'])) {
                     return redirect()->route('routes.show', ['route' => $result['route']->id]);
-                }
+                    }
+                $this->dispatch('routes-info-updated');
                 return;
             }
 
