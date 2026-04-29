@@ -65,7 +65,7 @@ class UpdateCameraModal extends Component
                 return;
             }
 
-             if (($type ?? 'error') === 'validation-exception') {
+             if (($type ?? 'exception') === 'validation-exception') {
                 $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }

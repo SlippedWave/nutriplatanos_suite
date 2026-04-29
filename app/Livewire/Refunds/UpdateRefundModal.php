@@ -64,7 +64,7 @@ class UpdateRefundModal extends Component
                 return;
             }
 
-            if (($result['type'] ?? 'error') === 'validation') {
+            if (($result['type'] ?? 'exception') === 'validation') {
                 $this->setErrorBag(new MessageBag($result['errors'] ?? []));
                 return;
             }

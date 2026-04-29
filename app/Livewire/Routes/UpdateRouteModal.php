@@ -7,6 +7,7 @@ use App\Models\Camera;
 use App\Services\RouteService;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\MessageBag;
 use Livewire\Attributes\On;
 
 
@@ -115,22 +116,36 @@ class UpdateRouteModal extends Component
     public function updateRoute()
     {
         try {
-            $this->validate();
-
             $data = $this->getFormData();
-            // Use the service method that actually exists
-            $result = $this->routeService->updateRoute($this->route, $data);
 
-            if ($result['success']) {
-                $this->showUpdateModal = false;
-                $this->resetFormFields();
-                session()->flash('message', $result['message'] ?? 'Ruta actualizada exitosamente.');
+            $response = $this->routeService->updateRoute($this->route, $data);
+
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Ruta actualizada exitosamente'
+                : 'Error al actualizar la ruta');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'routes',
+            ]);
+
+            if ($success) {
+                $this->resetValidation();
                 $this->dispatch('route-updated');
-            } else {
-                session()->flash('error', $result['message'] ?? 'Error al actualizar la ruta.');
+                $this->showUpdateModal = false;
+                return;
             }
-        } catch (\Illuminate\Validation\ValidationException $ve) {
-            session()->flash('error', 'Datos inválidos para la ruta.');
+
+            if (($type ?? 'exception') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
+                return;
+            }
+
+            return;
         } catch (\Exception $e) {
             session()->flash('error', 'Error al actualizar la ruta: ' . $e->getMessage());
         }

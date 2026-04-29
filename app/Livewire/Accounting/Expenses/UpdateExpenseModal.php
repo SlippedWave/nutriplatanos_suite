@@ -72,7 +72,7 @@ class UpdateExpenseModal extends Component
             $message = $response['message'] ?? ($success
                 ? 'Gasto actualizado exitosamente'
                 : 'Error al actualizar el gasto');
-            $type = $success ? 'success' : ($response['type'] ?? 'error');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
 
             $this->dispatch('show-message-banner', [
                 'text' => $message,
@@ -88,7 +88,7 @@ class UpdateExpenseModal extends Component
                 return;
             }
 
-            if (($type ?? 'error') === 'validation-exception') {
+            if (($type ?? 'exception') === 'validation-exception') {
                 $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }
@@ -97,7 +97,7 @@ class UpdateExpenseModal extends Component
         } catch (\Exception $e) {
             $this->dispatch('show-message-banner', [
                 'text' => 'Ocurrió un error inesperado al actualizar el gasto: ' . $e->getMessage(),
-                'type' => 'error',
+                'type' => 'exception',
                 'duration' => 5000,
                 'bannerId' => 'expenses',
             ]);

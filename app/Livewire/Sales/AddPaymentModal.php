@@ -112,7 +112,7 @@ class AddPaymentModal extends Component
             $message = $result['message'] ?? ($success
                 ? 'Pago agregado exitosamente'
                 : 'Error al agregar el pago');
-            $type = $success ? 'success' : ($result['type'] ?? 'error');
+            $type = $success ? 'success' : ($result['type'] ?? 'exception');
 
             $this->dispatch('show-message-banner', [
                 'text' => $message,

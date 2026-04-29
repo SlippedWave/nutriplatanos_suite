@@ -79,7 +79,7 @@ class CreateRouteModal extends Component
             $message = $response['message'] ?? ($success
                 ? 'Ruta creada exitosamente'
                 : 'Error al crear la ruta');
-            $type = $success ? 'success' : ($response['type'] ?? 'error');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
 
             $this->dispatch('show-message-banner', [
                 'text' => $message,
@@ -100,7 +100,7 @@ class CreateRouteModal extends Component
                 return;
             }
 
-            if (($type ?? 'error') === 'validation-exception') {
+            if (($type ?? 'exception') === 'validation-exception') {
                 $this->setErrorBag(new \Illuminate\Support\MessageBag($response['errors'] ?? []));
                 return;
             }

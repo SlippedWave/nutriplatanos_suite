@@ -116,7 +116,7 @@ class UpdateSaleModal extends Component
             $message = $response['message'] ?? ($success
                 ? 'Venta actualizada exitosamente'
                 : 'Error al actualizar la venta');
-            $type = $success ? 'success' : ($response['type'] ?? 'error');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
 
             $this->dispatch('show-message-banner', [
                 'text' => $message,
@@ -132,7 +132,7 @@ class UpdateSaleModal extends Component
                 return;
             }
 
-            if (($type ?? 'error') === 'validation-exception') {
+            if (($type ?? 'exception') === 'validation-exception') {
                 $this->setErrorBag(new MessageBag($result['errors'] ?? []));
             }
 

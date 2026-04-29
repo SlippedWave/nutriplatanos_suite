@@ -63,33 +63,42 @@ class CloseRouteModal extends Component
 
     public function closeRoute()
     {
-        $this->validate();
-
-        $result = $this->routeService->closeRoute($this->selectedRoute, $this->getFormData());
-
-        if (!($result['success'] ?? false)) {
-            // Map service validation errors back to Livewire error bag
-            if (!empty($result['errors']) && is_array($result['errors'])) {
-                foreach ($result['errors'] as $field => $messages) {
-                    // Prefix nested boxMovements errors to match Livewire properties if needed
-                    $this->addError($field, is_array($messages) ? implode("\n", $messages) : (string) $messages);
-                }
+        try {
+            $response = $this->routeService->closeRoute($this->selectedRoute, $this->getFormData());
+    
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success 
+                ? 'Ruta cerrada exitosamente' 
+                : 'Error al cerrar la ruta');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+    
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'routes',
+            ]);
+    
+            if ($success) {
+                $this->resetFormFields();
+                $this->dispatch('route-closed');
+                $this->showCloseRouteModal = false;
+                return;
             }
-            session()->flash('error', $result['message'] ?? 'No se pudo cerrar la ruta.');
-            // Notify parent so it can show a toast/banner
-            $this->dispatch('route-close-failed', message: $result['message'] ?? 'Fallo al cerrar la ruta', errors: $result['errors'] ?? null);
+    
+            // Redirect to the closed route detail
+            if (!empty($result['route'])) {
+                return redirect()->route('routes.show', ['route' => $result['route']->id]);
+            }
+
+        } catch (\Exception $e) {
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al cerrar la ruta: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'routes',
+            ]);
             return;
-        }
-
-        $this->resetFormFields();
-        $this->showCloseRouteModal = false;
-
-        session()->flash('message', 'Ruta cerrada exitosamente!');
-        $this->dispatch('route-closed');
-
-        // Redirect to the closed route detail
-        if (!empty($result['route'])) {
-            return redirect()->route('routes.show', ['route' => $result['route']->id]);
         }
     }
 

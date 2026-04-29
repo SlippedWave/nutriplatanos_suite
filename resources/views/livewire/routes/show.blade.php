@@ -29,42 +29,8 @@ new class extends Component {
 };
 ?>
 <section class="w-full">
-    <x-layouts.routes.layout :heading="$selectedRoute->title ?? 'Detalles de la Ruta'" :subheading="'Información detallada de la ruta creada el ' . $selectedRoute->created_at->format('d/m/Y')">
-        @if (session()->has('message'))
-            <div x-data="{ show: true }" 
-                 x-init="setTimeout(() => show = false, 4000)" 
-                 x-show="show"
-                 x-transition:enter="transform ease-out duration-300 transition"
-                 x-transition:enter-start="translate-y-2 opacity-0"
-                 x-transition:enter-end="translate-y-0 opacity-100"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex justify-between items-center">
-                <div>{{ session('message') }}</div>
-                <button type="button" @click="show = false" class="text-green-500 hover:text-green-700">
-                    <flux:icon.x-mark class="w-4 h-4" />
-                </button>
-            </div>
-        @endif
     
-        @if (session()->has('error'))
-            <div x-data="{ show: true }" 
-                 x-init="setTimeout(() => show = false, 4000)" 
-                 x-show="show"
-                 x-transition:enter="transform ease-out duration-300 transition"
-                 x-transition:enter-start="translate-y-2 opacity-0"
-                 x-transition:enter-end="translate-y-0 opacity-100"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="mb-4 bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg flex justify-between items-center">
-                <div>{{ session('error') }}</div>
-                <button type="button" @click="show = false" class="text-danger-500 hover:text-danger-700">
-                    <flux:icon.x-mark class="w-4 h-4" />
-                </button>
-            </div>
-        @endif
+    <x-layouts.routes.layout :heading="$selectedRoute->title ?? 'Detalles de la Ruta'" :subheading="'Información detallada de la ruta creada el ' . $selectedRoute->created_at->format('d/m/Y')">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-900">Detalles de la Ruta</h2>
             @if($selectedRoute->isActive())

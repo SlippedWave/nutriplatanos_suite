@@ -32,12 +32,36 @@ class DeleteRouteModal extends Component
     public function deleteRoute()
     {
         try {
-            $result = $this->routeService->deleteRoute($this->selectedRoute);
-            $this->dispatch('routes-info-updated');
-            $this->dispatch('show-routes-table-message', $result);
-            $this->showDeleteModal = false;
+            $response = $this->routeService->deleteRoute($this->selectedRoute);
+
+            $success = $response['success'] ?? false;
+            $message = $response['message'] ?? ($success
+                ? 'Ruta eliminada exitosamente'
+                : 'Error al eliminar ruta');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
+
+            $this->dispatch('show-message-banner', [
+                'text' => $message,
+                'type' => $type,
+                'duration' => 5000,
+                'bannerId' => 'routes',
+            ]);
+
+            if ($success) {
+                $this->dispatch('routes-info-updated');
+                $this->showDeleteModal = false;
+                return;
+            }
+            
+            return;
         } catch (\Exception $e) {
-            $this->dispatch('show-routes-table-message', $result);
+            $this->dispatch('show-message-banner', [
+                'text' => 'Error al eliminar la ruta: ' . $e->getMessage(),
+                'type' => 'exception',
+                'duration' => 5000,
+                'bannerId' => 'routes',
+            ]);
+            return;
         }
     }
 

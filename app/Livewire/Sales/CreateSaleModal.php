@@ -111,7 +111,7 @@ class CreateSaleModal extends Component
             $message = $response['message'] ?? ($success
                 ? 'Venta creada exitosamente'
                 : 'Error al crear la venta');
-            $type = $success ? 'success' : ($response['type'] ?? 'error');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
              
             $this->dispatch('show-message-banner', [
                 'text' => $message,
@@ -127,7 +127,7 @@ class CreateSaleModal extends Component
                 return;
             }
 
-            if (($type ?? 'error') === 'validation-exception') {
+            if (($type ?? 'exception') === 'validation-exception') {
                 $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }

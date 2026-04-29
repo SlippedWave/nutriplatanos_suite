@@ -25,7 +25,7 @@ class RouteService
                         'success' => false,
                         'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
                         'errors' => $result['errors'] ?? null,
-                        'type' => $result['type'] ?? 'error'
+                        'type' => $result['type'] ?? 'exception'
                     ];
                 }
             }
