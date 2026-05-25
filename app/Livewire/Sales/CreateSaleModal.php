@@ -122,7 +122,7 @@ class CreateSaleModal extends Component
 
             if ($success) {
                 $this->resetValidation();
-                $this->dispatch('refresh-sales-table');
+                $this->dispatch('sales-info-updated');
                 $this->showCreateModal = false;
                 return;
             }
@@ -146,13 +146,15 @@ class CreateSaleModal extends Component
 
     private function getFormData(): array
     {
-        // Filter out empty products
-        $validProducts = array_filter($this->saleProducts, function ($product) {
-            return !empty($product['product_id']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0;
-        });
+        if (!is_numeric($this->paid_amount)) {
+            $this->setErrorBag(new MessageBag(['paid_amount' => 'El monto pagado debe ser un número.']));
+        }
+        $selectedProducts = array_values(array_filter($this->saleProducts, fn($p) => !empty($p['product_id'])));
 
-        $totalAmount = array_reduce($validProducts, function ($carry, $product) {
-            return $carry + ($product['quantity'] * $product['price_per_unit']);
+        $totalAmount = array_reduce($selectedProducts, function ($carry, $product) {
+            $qty   = is_numeric($product['quantity']) ? (float) $product['quantity'] : 0;
+            $price = is_numeric($product['price_per_unit']) ? (float) $product['price_per_unit'] : 0;
+            return $carry + ($qty * $price);
         }, 0.00);
 
         return [
@@ -167,7 +169,7 @@ class CreateSaleModal extends Component
                 default => 0,
             },
             'notes' => $this->notes,
-            'products' => array_values($validProducts), // Re-index
+            'products' => $selectedProducts,
             'box_balance_returned' => $this->box_balance_returned,
             'box_balance_delivered' => $this->box_balance_delivered,
         ];

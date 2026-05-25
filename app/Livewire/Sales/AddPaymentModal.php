@@ -105,14 +105,14 @@ class AddPaymentModal extends Component
         }
 
         try {
-            $result = $this->salePaymentService->addPayment($this->selectedSale, $this->getPaymentFormData());
+            $response = $this->salePaymentService->addPayment($this->selectedSale, $this->getPaymentFormData());
 
-            $success = $result['success'] ?? false;
+            $success = $response['success'] ?? false;
 
-            $message = $result['message'] ?? ($success
+            $message = $response['message'] ?? ($success
                 ? 'Pago agregado exitosamente'
                 : 'Error al agregar el pago');
-            $type = $success ? 'success' : ($result['type'] ?? 'exception');
+            $type = $success ? 'success' : ($response['type'] ?? 'exception');
 
             $this->dispatch('show-message-banner', [
                 'text' => $message,
@@ -122,14 +122,13 @@ class AddPaymentModal extends Component
             ]);
 
             if ($success) {
-                $this->showAddPaymentModal = false;
-                $this->dispatch('refresh-sales-table');
+                $this->dispatch('sales-info-updated');
                 $this->showAddPaymentModal = false;
                 return;
             }
 
             if (($type ?? 'exception') === 'validation-exception') {
-                $this->setErrorBag(new MessageBag($result['validation-errors'] ?? []));
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
                 return;
             }
             
@@ -161,9 +160,21 @@ class AddPaymentModal extends Component
     {
         $sale = Sale::findOrFail($saleId);
 
-        $result = $this->salePaymentService->markAsFullyPaid($sale);
+        $response = $this->salePaymentService->markAsFullyPaid($sale);
 
-        $this->showSalesTableMessage($result);
+        $success = $response['success'] ?? false;
+
+        $this->dispatch('show-message-banner', [
+            'text' => $response['message'] ?? ($success ? 'Venta marcada como pagada.' : 'Error al marcar como pagada.'),
+            'type' => $success ? 'success' : ($response['type'] ?? 'exception'),
+            'duration' => 5000,
+            'bannerId' => 'sales',
+        ]);
+
+        if ($success) {
+            $this->dispatch('sales-info-updated');
+            $this->showAddPaymentModal = false;
+        }
     }
 
 

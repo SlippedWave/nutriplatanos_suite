@@ -62,7 +62,7 @@ class DeleteSaleModal extends Component
             
             if ($success) {
 
-                $this->dispatch('refresh-sales-table');
+                $this->dispatch('sales-info-updated');
                 $this->showDeleteModal = false;
                 return;
             }

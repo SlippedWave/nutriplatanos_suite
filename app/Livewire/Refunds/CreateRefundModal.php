@@ -84,7 +84,7 @@ class CreateRefundModal extends Component
     public function getFormData()
     {
         $validProducts = array_filter($this->refund_products, function ($product) {
-            return isset($product['product_id']) && $product['quantity'] > 0 && $product['quantity'] > 0;
+            return isset($product['product_id']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0;
         });
 
         $totalAmount = array_reduce($validProducts, function ($carry, $product) {

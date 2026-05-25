@@ -90,10 +90,7 @@
 
         @if ($payment_status === 'partial')
             <flux:field>
-                <flux:input wire:model="paid_amount" label="{{ __('Monto Pagado') }}" type="number" step="0.01"
-                    min="0" placeholder="0.00" inputmode="decimal" pattern="[0-9]+(\.[0-9]{1,2})?"
-                    x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
-                    x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                <x-money-input wire:model="paid_amount" label="{{ __('Monto Pagado') }}"
                     class="text-[var(--color-text)]!" />
             </flux:field>
         @endif

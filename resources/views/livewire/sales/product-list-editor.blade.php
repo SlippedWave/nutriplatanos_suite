@@ -32,21 +32,15 @@
 
                 <!-- Quantity -->
                 <flux:field>
-                    <flux:input wire:model.live="saleProducts.{{ $index }}.quantity"
-                        label="{{ __('Cantidad') }}" placeholder="0.00" type="number" step="0.01" min="0"
-                        inputmode="decimal" pattern="[0-9]+(\.[0-9]{1,2})?"
-                        x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
-                        x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                    <x-money-input wire:model.live="saleProducts.{{ $index }}.quantity"
+                        label="{{ __('Cantidad') }}"
                         class="text-[var(--color-text)]!" />
                 </flux:field>
 
                 <!-- Price per Unit -->
                 <flux:field>
-                    <flux:input wire:model.live="saleProducts.{{ $index }}.price_per_unit"
-                        label="{{ __('Precio Unitario') }}" placeholder="0.00" type="number" step="0.01"
-                        min="0" inputmode="decimal" pattern="[0-9]+(\.[0-9]{1,2})?"
-                        x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
-                        x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                    <x-money-input wire:model.live="saleProducts.{{ $index }}.price_per_unit"
+                        label="{{ __('Precio Unitario') }}"
                         class="text-[var(--color-text)]!" />
                 </flux:field>
             </div>

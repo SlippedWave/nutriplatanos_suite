@@ -91,6 +91,8 @@ class UpdateSaleModal extends Component
         $this->paid_amount = $this->selectedSale->paid_amount;
 
         $this->notes = '';
+        $this->box_balance_delivered = 0;
+        $this->box_balance_returned = 0;
         $this->saleProducts = $this->selectedSale->productList->map(function ($detail) {
             return [
                 'product_id' => $detail->product_id,
@@ -127,13 +129,13 @@ class UpdateSaleModal extends Component
 
             if ($success) {
                 $this->resetValidation();
-                $this->dispatch('refresh-sales-table');
+                $this->dispatch('sales-info-updated');
                 $this->showUpdateModal = false;
                 return;
             }
 
             if (($type ?? 'exception') === 'validation-exception') {
-                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+                $this->setErrorBag(new MessageBag($response['validation-errors'] ?? []));
             }
 
             return;
@@ -150,13 +152,12 @@ class UpdateSaleModal extends Component
 
     private function getFormData(): array
     {
-        // Filter out empty products
-        $validProducts = array_filter($this->saleProducts, function ($product) {
-            return !empty($product['product_id']) && $product['quantity'] > 0 && $product['price_per_unit'] > 0;
-        });
+        $selectedProducts = array_values(array_filter($this->saleProducts, fn($p) => !empty($p['product_id'])));
 
-        $totalAmount = array_reduce($validProducts, function ($carry, $product) {
-            return $carry + ($product['quantity'] * $product['price_per_unit']);
+        $totalAmount = array_reduce($selectedProducts, function ($carry, $product) {
+            $qty   = is_numeric($product['quantity']) ? (float) $product['quantity'] : 0;
+            $price = is_numeric($product['price_per_unit']) ? (float) $product['price_per_unit'] : 0;
+            return $carry + ($qty * $price);
         }, 0.00);
 
         return [
@@ -171,7 +172,7 @@ class UpdateSaleModal extends Component
                 default => 0,
             },
             'notes' => $this->notes,
-            'products' => array_values($validProducts), // Re-index
+            'products' => $selectedProducts,
             'box_balance_returned' => $this->box_balance_returned,
             'box_balance_delivered' => $this->box_balance_delivered,
         ];

@@ -22,9 +22,9 @@ class DeleteRefundModal extends Component
         $this->refundService = app(RefundService::class);
     }
 
-    public function openDeleteRefundModal(int $id)
+    public function openDeleteRefundModal(int $refund_id)
     {
-        $this->selectedRefund = Refund::find($id);
+        $this->selectedRefund = Refund::find($refund_id);
         $this->showDeleteModal = true;
     }
 

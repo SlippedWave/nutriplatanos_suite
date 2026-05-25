@@ -19,14 +19,14 @@ class RouteService
                 $movementData['route_id'] = $route->id;
                 $movementData['moved_at'] = $movementData['moved_at'] ?? now();
 
-                $result = $boxMovementService->createBoxMovement($movementData);
-                if (!($result['success'] ?? false)) {
+                $response = $boxMovementService->createBoxMovement($movementData);
+                if (!($response['success'] ?? false)) {
                     DB::rollBack();
                     return [
                         'success' => false,
-                        'message' => 'Error al crear movimiento de caja: ' . ($result['message'] ?? 'desconocido'),
-                        'errors' => $result['errors'] ?? null,
-                        'type' => $result['type'] ?? 'exception'
+                        'message' => 'Error al crear movimiento de caja: ' . ($response['message'] ?? 'desconocido'),
+                        'errors' => $response['errors'] ?? null,
+                        'type' => $response['type'] ?? 'exception'
                     ];
                 }
             }

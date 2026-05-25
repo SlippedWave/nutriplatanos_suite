@@ -14,8 +14,8 @@ class UpdateRefundModal extends Component
 
     public ?Refund $selectedRefund = null;
 
+    public int $refund_id;
     public int $user_id;
-    public int $sale_id;
     public float $refunded_amount;
     public string $refund_method = '';
     public string $reason = '';
@@ -39,15 +39,13 @@ class UpdateRefundModal extends Component
         $this->users = User::where('active', true)->get();
     }
 
-    public function openUpdateRefundModal($sale_id)
+    public function openUpdateRefundModal(int $refund_id)
     {
-        $refund = Refund::findOrFail($sale_id);
-        $this->selectedRefund = $refund;
-        $this->user_id = $refund->user_id;
-        $this->sale_id = $refund->sale_id;
-        $this->refunded_amount = $refund->refunded_amount;
-        $this->refund_method = $refund->refund_method;
-        $this->reason = $refund->reason;
+        $this->selectedRefund = Refund::findOrFail($refund_id);
+        $this->user_id = $this->selectedRefund->user_id;
+        $this->refunded_amount = $this->selectedRefund->refunded_amount;
+        $this->refund_method = $this->selectedRefund->refund_method;
+        $this->reason = $this->selectedRefund->reason;
         $this->resetValidation();
         $this->showUpdateModal = true;
     }
@@ -55,7 +53,7 @@ class UpdateRefundModal extends Component
     public function updateRefund(): void
     {
         try {
-            $result = $this->refundService->updateRefund($this->selectedRefund->id, $this->getFormData());
+            $result = $this->refundService->updateRefund($this->selectedRefund, $this->getFormData());
 
             if ($result['success']) {
                 $this->resetValidation();
@@ -64,8 +62,8 @@ class UpdateRefundModal extends Component
                 return;
             }
 
-            if (($result['type'] ?? 'exception') === 'validation') {
-                $this->setErrorBag(new MessageBag($result['errors'] ?? []));
+            if (($result['type'] ?? 'exception') === 'validation-exception') {
+                $this->setErrorBag(new MessageBag($result['validation-errors'] ?? []));
                 return;
             }
 
@@ -79,7 +77,7 @@ class UpdateRefundModal extends Component
     {
         return [
             'user_id' => $this->user_id,
-            'sale_id' => $this->sale_id,
+            'sale_id' => $this->selectedRefund->sale_id,
             'refunded_amount' => $this->refunded_amount,
             'refund_method' => $this->refund_method,
             'reason' => $this->reason,

@@ -174,11 +174,14 @@
                                 ${{ number_format($sale->productList->sum('total_price'), 2) }}
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @if ($sale->refund)
-
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                                        <flux:icon.arrow-uturn-left class="w-3 h-3" />
+                                        ${{ number_format($sale->refund->refunded_amount, 2) }}
+                                    </span>
                                 @else
-                                    {{ __('Sin reembolso') }}
+                                    <span class="text-xs text-gray-400">—</span>
                                 @endif
                             </td>
 
@@ -229,6 +232,13 @@
                                                 wire:click="$dispatch('open-payment-history-modal', { saleId: {{ $sale->id }} })"
                                                 icon="clock" aria-label="Historial de pagos"
                                                 class="text-blue-600 hover:text-blue-700" />
+                                        @endif
+
+                                        @if (!$sale->refund)
+                                            <flux:button size="sm" variant="ghost"
+                                                wire:click="openRefundModal({{ $sale->id }})"
+                                                icon="arrow-uturn-left" aria-label="Agregar reembolso"
+                                                class="text-orange-600 hover:text-orange-700" />
                                         @endif
 
                                         <flux:button size="sm" variant="ghost"
@@ -300,4 +310,6 @@
     <livewire:sales.add-payment-modal :contextRouteId="$contextRouteId" />
 
     <livewire:refunds.create-refund-modal />
+    <livewire:refunds.update-refund-modal />
+    <livewire:refunds.delete-refund-modal />
 </div>

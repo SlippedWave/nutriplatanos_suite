@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Note;
 use App\Models\Route;
 use App\Models\Customer;
+use App\Models\SalePayment;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -27,14 +28,30 @@ class SaleService
                 $validated['user_id'] = Auth::id();
             }
 
-            // Create the sale without products data
-            $saleData = collect($validated)->except(['products', 'notes'])->toArray();
+            // Create the sale — payment_status and paid_amount are derived below
+            $saleData = collect($validated)->except(['products', 'notes', 'payment_status', 'paid_amount'])->toArray();
             $sale = Sale::create($saleData);
 
             // Create sale details if products are provided
             if (!empty($validated['products'])) {
                 $this->createProductList($sale, $validated['products']);
             }
+
+            // If an upfront payment was provided, record it as a SalePayment row
+            $upfrontAmount = (float) ($validated['paid_amount'] ?? 0);
+            if ($upfrontAmount > 0) {
+                SalePayment::create([
+                    'sale_id'        => $sale->id,
+                    'amount'         => $upfrontAmount,
+                    'payment_date'   => now()->toDateString(),
+                    'payment_method' => 'cash',
+                    'route_id'       => $validated['route_id'],
+                    'user_id'        => $validated['user_id'],
+                ]);
+            }
+
+            // Derive payment_status and sync paid_amount from actual payment rows
+            $sale->updatePaymentStatus();
 
             // Create note if provided
             if (!empty($validated['notes'])) {
@@ -109,6 +126,22 @@ class SaleService
 
                 if (!empty($validated['products'])) {
                     $this->createProductList($sale, $validated['products']);
+                }
+            }
+
+            // Apply box balance delta if provided
+            $boxDelivered = (int) ($validated['box_balance_delivered'] ?? 0);
+            $boxReturned  = (int) ($validated['box_balance_returned'] ?? 0);
+            if ($boxDelivered > 0 || $boxReturned > 0) {
+                $boxBalanceService = app(BoxBalanceService::class);
+                $res = $boxBalanceService->updateBoxBalance(
+                    customer_id: $validated['customer_id'],
+                    box_balance_delivered: $boxDelivered,
+                    box_balance_returned: $boxReturned
+                );
+
+                if (!($res['success'] ?? false)) {
+                    throw new \RuntimeException($res['message'] ?? 'Error al actualizar saldo de caja');
                 }
             }
 

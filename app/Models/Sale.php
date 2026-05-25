@@ -178,6 +178,23 @@ class Sale extends Model
     }
 
     /**
+     * Sum of all recorded payments against this sale.
+     */
+    public function getTotalPaidAttribute(): float
+    {
+        $this->loadMissing('payments');
+        return (float) $this->payments->sum('amount');
+    }
+
+    /**
+     * Amount still owed on this sale (never negative).
+     */
+    public function getRemainingBalanceAttribute(): float
+    {
+        return max(0.0, (float) $this->total_amount - $this->total_paid);
+    }
+
+    /**
      * Check if the sale is fully paid.
      */
     public function isFullyPaid(): bool

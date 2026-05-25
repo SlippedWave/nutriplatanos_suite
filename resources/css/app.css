@@ -58,6 +58,19 @@
     --color-yellow-900: #78350f;
     --color-yellow-950: #451a03;
 
+    --color-orange-50: #fff7ed;
+    --color-orange-100: #ffedd5;
+    --color-orange-200: #fed7aa;
+    --color-orange-300: #fdba74; 
+    --color-orange-400: #fb923c;
+    --color-orange-500: #f97316;
+    /* Main brand orange */
+    --color-orange-600: #ea580c;
+    --color-orange-700: #c2410c;
+    --color-orange-800: #9a3412;
+    --color-orange-900: #7c2d12;
+    --color-orange-950: #4d1306;
+
     --color-green-50: #f0fdf4;
     --color-green-100: #dcfce7;
     --color-green-200: #bbf7d0;

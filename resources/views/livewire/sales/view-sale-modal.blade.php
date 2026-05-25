@@ -177,6 +177,13 @@
                 </div>
             </div>
 
+            <!-- Refund Section -->
+            <livewire:refunds.refund-visualizer
+                :sale_id="$selectedSale->id"
+                :allow-create="!$selectedSale->trashed()"
+                :key="'refund-visualizer-' . $selectedSale->id"
+            />
+
             <!-- Notes Section -->
             @if ($selectedSale->notes()->count() > 0)
                 <div>

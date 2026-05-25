@@ -87,8 +87,8 @@ class CloseRouteModal extends Component
             }
     
             // Redirect to the closed route detail
-            if (!empty($result['route'])) {
-                return redirect()->route('routes.show', ['route' => $result['route']->id]);
+            if (!empty($response['route'])) {
+                return redirect()->route('routes.show', ['route' => $response['route']->id]);
             }
 
         } catch (\Exception $e) {

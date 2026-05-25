@@ -8,6 +8,7 @@ use Livewire\Component;
 class RefundVisualizer extends Component
 {
     public int $sale_id;
+    public bool $allowCreate = true;
     public ?Refund $refund = null;
 
     protected $listeners = [
@@ -31,7 +32,8 @@ class RefundVisualizer extends Component
 
     public function reload(): void
     {
-        $this->refund = Refund::where('sale_id', $this->sale_id)
+        $this->refund = Refund::with('productList.product')
+            ->where('sale_id', $this->sale_id)
             ->whereNull('deleted_at')
             ->first();
     }

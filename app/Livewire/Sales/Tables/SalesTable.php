@@ -45,7 +45,8 @@ class SalesTable extends Component
     public ?Sale $selectedSale = null;
 
     protected $listeners = [
-        'sales-info-updated' => '$refresh',
+        'sales-info-updated'   => '$refresh',
+        'refunds-info-updated' => '$refresh',
     ];
 
     protected SaleService $saleService;
@@ -179,6 +180,11 @@ class SalesTable extends Component
     public function openPaymentHistoryModal($saleId)
     {
         $this->dispatch('open-payment-history-modal', $saleId);
+    }
+
+    public function openRefundModal($saleId)
+    {
+        $this->dispatch('open-create-refund-modal', $saleId);
     }
 
     public function render()

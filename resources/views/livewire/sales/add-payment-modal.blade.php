@@ -42,11 +42,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Payment Amount -->
                 <flux:field>
-                    <flux:input wire:model="amount" label="{{ __('Monto del Pago') }}" placeholder="0.00"
-                        type="number" step="0.01" min="0.01" max="{{ $selectedSale->remaining_balance }}"
-                        inputmode="decimal" pattern="[0-9]+(\.[0-9]{1,2})?"
-                        x-on:keypress="$event.charCode >= 48 && $event.charCode <= 57 || $event.charCode === 46"
-                        x-on:input="$event.target.value = $event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')"
+                    <x-money-input wire:model="amount" label="{{ __('Monto del Pago') }}"
                         class="text-[var(--color-text)]!" required />
                 </flux:field>
 

@@ -38,7 +38,7 @@
                 </div>
             @elseif ($refund_method === 'discount')
                 <flux:field>
-                    <flux:input wire:model="refunded_amount" label="{{ __('Monto reembolsado') }}" required />
+                    <x-money-input wire:model="refunded_amount" label="{{ __('Monto reembolsado') }}" required />
                 </flux:field>
             @endif
 
