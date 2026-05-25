@@ -10,7 +10,7 @@ new class extends Component {
 
     protected RouteService $routeService;
 
-    public $listeners = [
+    protected $listeners = [
         'routes-info-updated' => '$refresh',
     ];
 
@@ -22,6 +22,14 @@ new class extends Component {
     public function mount()
     {
         $this->selectedRoute = Route::findOrFail(request()->route('route'));
+        if (session()->has('banner')) {
+            $this->dispatch('show-message-banner', [
+                'text' => session('banner.text'),
+                'type' => session('banner.type'),
+                'duration' => session('banner.duration', 5000),
+                'bannerId' => session('banner.bannerId', 'default'),
+            ]);
+        }
     }
 };
 ?>

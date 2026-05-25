@@ -6,18 +6,23 @@ use Livewire\Component;
 use App\Services\RouteService;
 use App\Models\Camera;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 class CreateRouteModal extends Component
 {
     public bool $showCreateModal = false;
 
     public array $boxMovements = [];
-    public $cameras = [];
+    public Collection $cameras;
 
     public string $title = '';
     public ?string $notes = null;
+    public ?int $carrier_id = null;
 
-    public $user;
+    public User $user;
+
+    public Collection $carriers;
 
     protected RouteService $routeService;
 
@@ -29,10 +34,10 @@ class CreateRouteModal extends Component
     public function mount()
     {
         $this->user = Auth::user();
-
         $this->title = 'Ruta del día ' . now()->format('d M Y');
-
         $this->cameras = Camera::select('id', 'name')->orderBy('name')->get();
+        $this->carriers = User::select('id', 'name')->orderBy('name')->get();
+        $this->carrier_id = $this->user->id;
     }
 
     protected function rules()
@@ -50,6 +55,7 @@ class CreateRouteModal extends Component
     private function resetFormFields(): void
     {
         $this->title = 'Ruta del día ' . now()->format('d M Y');
+        $this->carrier_id = $this->user->id;
         $this->notes = null;
         $this->boxMovements = [];
     }
@@ -90,12 +96,18 @@ class CreateRouteModal extends Component
 
             if ($success) {
                 $this->resetValidation();
-                //! REVISA PARA QUE FUNCIONA ESTE PEDO
+
+                session()->flash('banner', [
+                    'text' => $message,
+                    'type' => 'success',
+                    'duration' => 5000,
+                    'bannerId' => 'routes',
+                ]);
+
                 $this->showCreateModal = false;
-                if (!empty($result['route'])) {
-                    return redirect()->route('routes.show', ['route' => $result['route']->id]);
-                    }
-                $this->dispatch('routes-info-updated');
+                if (!empty($response['route'])) {
+                    $this->redirect(route('routes.show', ['route' => $response['route']->id]), navigate: true);
+                }
                 return;
             }
 

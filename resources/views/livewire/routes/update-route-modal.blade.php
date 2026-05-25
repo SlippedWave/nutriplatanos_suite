@@ -4,16 +4,22 @@
             <flux:heading size="lg">{{ __('Actualizar Ruta') }}</flux:heading>
         </div>
 
-        @if (session()->has('error'))
-            <div class="bg-danger-50 border border-danger-200 text-danger-700 px-3 py-2 rounded">
-                {{ session('error') }}
-            </div>
-        @endif
-
         <form wire:submit.prevent="updateRoute" class="space-y-4">
             <flux:field>
                 <flux:input wire:model="title" label="{{ __('Título de la ruta') }}" required class="text-[var(--color-text)]!" />
             </flux:field>
+
+            @if ($user && ($user->isAdmin() || $user->isCoordinator()))
+                <flux:field>
+                    <flux:label>{{ __('Asignar transportista') }}</flux:label>
+                    <flux:select wire:model="carrier_id" placeholder="{{ __('Buscar transportista...') }}">
+                        <flux:select.option value="">{{ __('Sin asignar') }}</flux:select.option>
+                        @foreach($carriers as $carrier)
+                            <flux:select.option value="{{ $carrier->id }}" >{{ $carrier->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </flux:field>
+            @endif
 
             <livewire:routes.box-movements-editor
                 wire:model="boxMovements"

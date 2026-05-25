@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Route;
 use App\Models\Note;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -38,6 +39,14 @@ class RouteService
     public function createRoute(array $data): array
     {
         try {
+            if (Auth::user()->activeRoute()) {
+                return [
+                    'success' => false,
+                    'message' => 'Usuario ya tiene ruta activa.',
+                    'type' => 'exception'
+                ];
+            }
+
             // Validate input and surface field-level errors when possible
             try {
                 $validated = $this->validateRouteData($data);
