@@ -358,7 +358,7 @@ class RouteService
             'status' => ['nullable', 'string', 'in:active,closed,cancelled'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'boxMovements' => ['nullable', 'array'],
-            'boxMovements.*.camera_id' => ['required_with:boxMovements', 'exists:cameras,id'],
+            'boxMovements.*.camera_id' => ['nullable', 'exists:cameras,id'],
             'boxMovements.*.movement_type' => ['required_with:boxMovements', \Illuminate\Validation\Rule::in(array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES))],
             'boxMovements.*.quantity' => ['required_with:boxMovements', 'integer', 'min:1'],
             'boxMovements.*.box_content_status' => ['required_with:boxMovements', \Illuminate\Validation\Rule::in(array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES))],

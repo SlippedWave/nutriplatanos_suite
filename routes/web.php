@@ -22,9 +22,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['password.confirm'])->group(function () {
         Route::middleware(['role:admin'])->group(function () {
             Volt::route('configuracion/usuarios', 'settings.users')->name('settings.users');
-        });
-
-        Route::middleware(['role:admin,coordinator'])->group(function () {
+            });
+            
+            Route::middleware(['role:admin,coordinator'])->group(function () {
+            Volt::route('cajas', 'box-audit.index')->name('box-audit.index');
             Volt::route('clientes', 'customers.index')->name('customers.index');
             Volt::route('clientes/detalles/{customer}', 'customers.show')->name('customers.show');
             Volt::route('contabilidad', 'accounting.index')->name('accounting.index');

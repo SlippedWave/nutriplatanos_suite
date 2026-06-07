@@ -34,9 +34,9 @@
                             </div>
                         </th>
                         <th
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <div class="flex items-center justify-center">
-                                <span>Cantidad de cajas</span>
+                                <span>Stock actual</span>
                             </div>
                         </th>
                         <th
@@ -57,7 +57,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                {{ $camera->box_stock }}
+                                {{ $camera->getCurrentStock() }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                 <flux:button variant="ghost" size="sm" icon="pencil"

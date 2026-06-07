@@ -12,6 +12,11 @@
             <flux:navlist.group :heading="__('Acciones')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>{{ __('Panel de inicio') }}</flux:navlist.item>
+
+                @if(auth()->user()->role === 'admin')
+                    <flux:navlist.item icon="archive-box" :href="route('box-audit.index')" :current="request()->routeIs('box-audit.index')"
+                        wire:navigate>{{ __('Cajas') }}</flux:navlist.item>
+                @endif
             </flux:navlist.group>
         </flux:navlist>
 

@@ -51,15 +51,26 @@ class Camera extends Model
         return $this->hasMany(Sale::class);
     }
 
-    public function addBoxStock(int $quantity): void
+    public function getCurrentStock(): int
     {
-        $this->box_stock += $quantity;
-        $this->save();
+        return $this->box_stock + $this->getMovementsDelta() + $this->getAdjustmentsDelta();
     }
 
-    public function removeBoxStock(int $quantity): void
+    public function getMovementsDelta(): int
     {
-        $this->box_stock -= $quantity;
-        $this->save();
+        $incoming = $this->boxMovements()->where('movement_type', 'route_to_warehouse')->sum('quantity');
+        $outgoing = $this->boxMovements()->where('movement_type', 'warehouse_to_route')->sum('quantity');
+
+        return $incoming - $outgoing;
+    }
+
+    public function getAdjustmentsDelta(): int
+    {
+        return (int) $this->stockAdjustments()->sum('quantity');
+    }
+
+    public function stockAdjustments()
+    {
+        return $this->hasMany(CameraStockAdjustment::class);
     }
 }

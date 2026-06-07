@@ -147,6 +147,32 @@ class Route extends Model
         return $this->morphMany(Note::class, 'notable');
     }
 
+    public function getBoxSummary(): array
+    {
+        $takenFromCameras     = $this->boxMovements()->where('movement_type', 'warehouse_to_route')->sum('quantity');
+        $returnedToCameras    = $this->boxMovements()->where('movement_type', 'route_to_warehouse')->sum('quantity');
+        $deliveredToCustomers = $this->sales()->sum('boxes_delivered');
+        $returnedByCustomers  = $this->sales()->sum('boxes_returned');
+
+        return [
+            'taken_from_cameras'      => (int) $takenFromCameras,
+            'returned_to_cameras'     => (int) $returnedToCameras,
+            'delivered_to_customers'  => (int) $deliveredToCustomers,
+            'returned_by_customers'   => (int) $returnedByCustomers,
+            'net_on_truck'            => (int) ($takenFromCameras - $returnedToCameras - $deliveredToCustomers + $returnedByCustomers),
+        ];
+    }
+
+    public function getAvailableBoxesOnTruck(?int $excludeSaleId = null): int
+    {
+        $taken           = (int) $this->boxMovements()->where('movement_type', 'warehouse_to_route')->sum('quantity');
+        $returnedCamera  = (int) $this->boxMovements()->where('movement_type', 'route_to_warehouse')->sum('quantity');
+        $delivered       = (int) $this->sales()->when($excludeSaleId, fn($q) => $q->where('id', '!=', $excludeSaleId))->sum('boxes_delivered');
+        $returnedByCustomers = (int) $this->sales()->when($excludeSaleId, fn($q) => $q->where('id', '!=', $excludeSaleId))->sum('boxes_returned');
+
+        return max(0, $taken - $returnedCamera - $delivered + $returnedByCustomers);
+    }
+
     /**
      * Scope to order by carrier name.
      */

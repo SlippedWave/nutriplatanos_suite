@@ -91,8 +91,8 @@ class UpdateSaleModal extends Component
         $this->paid_amount = $this->selectedSale->paid_amount;
 
         $this->notes = '';
-        $this->box_balance_delivered = 0;
-        $this->box_balance_returned = 0;
+        $this->box_balance_delivered = $this->selectedSale->boxes_delivered ?? 0;
+        $this->box_balance_returned  = $this->selectedSale->boxes_returned  ?? 0;
         $this->saleProducts = $this->selectedSale->productList->map(function ($detail) {
             return [
                 'product_id' => $detail->product_id,

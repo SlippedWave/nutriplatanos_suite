@@ -10,16 +10,11 @@
                 @endif
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <flux:field>
-                    <flux:label>{{ __('Seleccionar Cámara') }}</flux:label>
-                    <flux:select wire:model="model.{{ $index }}.camera_id" :disabled="!$editable">
-                        @foreach($cameras as $camera)
-                            <flux:select.option value="{{ $camera->id }}">{{ $camera->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                </flux:field>
+            @php
+                $needsCamera = in_array($movement['movement_type'] ?? '', ['warehouse_to_route', 'route_to_warehouse']);
+            @endphp
 
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <flux:field>
                     <flux:label>{{ __('Tipo de movimiento') }}</flux:label>
                     <flux:select group wire:model="model.{{ $index }}.movement_type" :disabled="!$editable">
@@ -28,6 +23,19 @@
                         @endforeach
                     </flux:select>
                 </flux:field>
+
+                @if($needsCamera)
+                <flux:field>
+                    <flux:label>{{ __('Cámara') }}</flux:label>
+                    <flux:select wire:model="model.{{ $index }}.camera_id" :disabled="!$editable">
+                        @foreach($cameras as $camera)
+                            <flux:select.option value="{{ $camera->id }}">
+                                {{ $camera->name }} ({{ $camera->getCurrentStock() }} cajas)
+                            </flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </flux:field>
+                @endif
 
                 <flux:field>
                     <flux:input

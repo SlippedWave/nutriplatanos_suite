@@ -20,8 +20,16 @@
                     </flux:field>
 
                     <flux:field>
-                        <flux:input wire:model="box_stock" label="{{ __('Stock de cajas') }}" type="text"
-                            placeholder="Cantidad de cajas en existencia" class="text-[var(--color-text)]!" />
+                        <flux:label>{{ __('Stock actual') }}</flux:label>
+                        <flux:description>{{ __('Calculado: cajas base + movimientos registrados.') }}</flux:description>
+                        <p class="text-sm font-semibold py-1">{{ $current_stock }}</p>
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>{{ __('Cajas base') }}</flux:label>
+                        <flux:description>{{ __('Cajas físicas almacenadas en la cámara, sin contar movimientos de rutas.') }}</flux:description>
+                        <flux:input wire:model="box_stock" type="number" min="0"
+                            placeholder="0" class="text-[var(--color-text)]!" />
                     </flux:field>
                 </div>
                 <div class="flex justify-end mt-4">

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\BoxBalance;
 use App\Models\Sale;
 use App\Models\ProductList;
 use App\Models\Product;
@@ -10,6 +9,7 @@ use App\Models\Note;
 use App\Models\Route;
 use App\Models\Customer;
 use App\Models\SalePayment;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +21,11 @@ class SaleService
         try {
             $validated = $this->validateSaleData($data);
 
+            $this->validateBoxDelivery(
+                routeId: (int) $validated['route_id'],
+                boxesDelivered: (int) ($validated['box_balance_delivered'] ?? 0),
+            );
+
             DB::beginTransaction();
 
             // Set user_id to current user if not provided
@@ -29,7 +34,13 @@ class SaleService
             }
 
             // Create the sale — payment_status and paid_amount are derived below
-            $saleData = collect($validated)->except(['products', 'notes', 'payment_status', 'paid_amount'])->toArray();
+            $saleData = collect($validated)
+                ->except(['products', 'notes', 'payment_status', 'paid_amount', 'box_balance_delivered', 'box_balance_returned'])
+                ->merge([
+                    'boxes_delivered' => (int) ($validated['box_balance_delivered'] ?? 0),
+                    'boxes_returned'  => (int) ($validated['box_balance_returned'] ?? 0),
+                ])
+                ->toArray();
             $sale = Sale::create($saleData);
 
             // Create sale details if products are provided
@@ -56,17 +67,6 @@ class SaleService
             // Create note if provided
             if (!empty($validated['notes'])) {
                 $this->createSaleNote($sale, $validated['notes']);
-            }
-
-            $boxBalanceService = app(BoxBalanceService::class);
-            $res = $boxBalanceService->updateBoxBalance(
-                customer_id: $validated['customer_id'],
-                box_balance_delivered: $validated['box_balance_delivered'] ?? 0,
-                box_balance_returned: $validated['box_balance_returned'] ?? 0
-            );
-
-            if (!($res['success'] ?? false)) {
-                throw new \RuntimeException($res['message'] ?? 'Error al actualizar saldo de caja (returned)');
             }
 
             DB::commit();
@@ -108,6 +108,12 @@ class SaleService
 
             $validated = $this->validateSaleData($data);
 
+            $this->validateBoxDelivery(
+                routeId: (int) $validated['route_id'],
+                boxesDelivered: (int) ($validated['box_balance_delivered'] ?? 0),
+                excludeSaleId: $sale->id,
+            );
+
             DB::beginTransaction();
 
             if ($sale->payment_status === 'paid' && $sale->paid_amount !== $validated['total_amount']) {
@@ -115,34 +121,19 @@ class SaleService
             }
 
             // Update the sale without products data
-            $saleData = collect($validated)->except(['products', 'notes'])->toArray();
+            $saleData = collect($validated)
+                ->except(['products', 'notes', 'box_balance_delivered', 'box_balance_returned'])
+                ->merge([
+                    'boxes_delivered' => (int) ($validated['box_balance_delivered'] ?? 0),
+                    'boxes_returned'  => (int) ($validated['box_balance_returned'] ?? 0),
+                ])
+                ->toArray();
             $sale->update($saleData);
             $this->createSaleNote($sale, "Venta actualizada el " . now()->format('d/m/Y H:i') . " por " . Auth::user()->name);
 
             $sale->productList()->delete();
-            // Update sale details if products are provided
-            if (isset($validated['products'])) {
-                // Delete existing sale details
-
-                if (!empty($validated['products'])) {
-                    $this->createProductList($sale, $validated['products']);
-                }
-            }
-
-            // Apply box balance delta if provided
-            $boxDelivered = (int) ($validated['box_balance_delivered'] ?? 0);
-            $boxReturned  = (int) ($validated['box_balance_returned'] ?? 0);
-            if ($boxDelivered > 0 || $boxReturned > 0) {
-                $boxBalanceService = app(BoxBalanceService::class);
-                $res = $boxBalanceService->updateBoxBalance(
-                    customer_id: $validated['customer_id'],
-                    box_balance_delivered: $boxDelivered,
-                    box_balance_returned: $boxReturned
-                );
-
-                if (!($res['success'] ?? false)) {
-                    throw new \RuntimeException($res['message'] ?? 'Error al actualizar saldo de caja');
-                }
+            if (isset($validated['products']) && !empty($validated['products'])) {
+                $this->createProductList($sale, $validated['products']);
             }
 
             // Create note if provided
@@ -497,6 +488,22 @@ class SaleService
         return $sales->sum(function ($sale) {
             return $sale->productList->sum('total_price');
         });
+    }
+
+    private function validateBoxDelivery(int $routeId, int $boxesDelivered, ?int $excludeSaleId = null): void
+    {
+        if ($boxesDelivered <= 0) return;
+
+        $route = Route::find($routeId);
+        if (!$route) return;
+
+        $available = $route->getAvailableBoxesOnTruck($excludeSaleId);
+
+        if ($boxesDelivered > $available) {
+            throw ValidationException::withMessages([
+                'box_balance_delivered' => "No hay suficientes cajas en el camión. Disponibles: {$available}, solicitadas: {$boxesDelivered}.",
+            ]);
+        }
     }
 
     private function validateSaleData(array $data): array

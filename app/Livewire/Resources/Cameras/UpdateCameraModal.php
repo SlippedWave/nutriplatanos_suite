@@ -16,6 +16,7 @@ class UpdateCameraModal extends Component
     public string $name = '';
     public string $location = '';
     public int $box_stock = 0;
+    public int $current_stock = 0;
 
     protected CameraService $cameraService;
 
@@ -36,6 +37,7 @@ class UpdateCameraModal extends Component
         $this->name = $camera->name;
         $this->location = $camera->location;
         $this->box_stock = $camera->box_stock;
+        $this->current_stock = $camera->getCurrentStock();
         $this->resetValidation();
         $this->showUpdateModal = true;
     }
@@ -81,11 +83,11 @@ class UpdateCameraModal extends Component
         }
     }
 
-    public function getFormData()
+    public function getFormData(): array
     {
         return [
-            'name' => $this->name,
-            'location' => $this->location,
+            'name'      => $this->name,
+            'location'  => $this->location,
             'box_stock' => $this->box_stock,
         ];
     }

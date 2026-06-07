@@ -115,6 +115,115 @@ new class extends Component {
             @livewire('accounting.expenses.tables.expenses-table', ['route_id' => $selectedRoute->id])
         </div>
 
+    <flux:separator class="my-6" />
+
+        {{-- Box summary + movements history --}}
+        <div class="mt-2">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Movimientos de Cajas</h3>
+            </div>
+
+            @php
+                $boxSummary = $selectedRoute->getBoxSummary();
+            @endphp
+
+            {{-- Summary card --}}
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                <div class="bg-blue-50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-blue-500 font-medium uppercase tracking-wide">Tomadas de cámaras</p>
+                    <p class="text-2xl font-bold text-blue-700 mt-1">{{ $boxSummary['taken_from_cameras'] }}</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-green-500 font-medium uppercase tracking-wide">Entregadas a clientes</p>
+                    <p class="text-2xl font-bold text-green-700 mt-1">{{ $boxSummary['delivered_to_customers'] }}</p>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-yellow-600 font-medium uppercase tracking-wide">Recibidas de clientes</p>
+                    <p class="text-2xl font-bold text-yellow-700 mt-1">{{ $boxSummary['returned_by_customers'] }}</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-purple-500 font-medium uppercase tracking-wide">Devueltas a cámaras</p>
+                    <p class="text-2xl font-bold text-purple-700 mt-1">{{ $boxSummary['returned_to_cameras'] }}</p>
+                </div>
+                <div class="bg-gray-100 rounded-lg p-3 text-center col-span-2 md:col-span-1">
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Neto en camión</p>
+                    <p class="text-2xl font-bold text-gray-700 mt-1">{{ $boxSummary['net_on_truck'] }}</p>
+                </div>
+            </div>
+
+            {{-- Movements history --}}
+            @php
+                $movements = $selectedRoute->boxMovements()->withTrashed()->with('camera')->orderBy('moved_at')->get();
+            @endphp
+
+            @if($movements->isNotEmpty())
+                <div class="overflow-hidden bg-white shadow-sm ring-1 ring-gray-200 rounded-lg">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cámara</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cajas</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contenido</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($movements as $movement)
+                                    @php
+                                        $superseded = $movement->trashed();
+                                        $typeColors = [
+                                            'warehouse_to_route'  => 'blue',
+                                            'route_to_warehouse'  => 'purple',
+                                            'route_to_route'      => 'yellow',
+                                            'truck_inventory'     => 'gray',
+                                        ];
+                                        $color = $typeColors[$movement->movement_type] ?? 'gray';
+                                        $typeLabel = \App\Models\BoxMovement::MOVEMENT_TYPES[$movement->movement_type] ?? $movement->movement_type;
+                                        $contentLabel = \App\Models\BoxMovement::BOX_CONTENT_STATUSES[$movement->box_content_status] ?? $movement->box_content_status;
+                                    @endphp
+                                    <tr class="{{ $superseded ? 'opacity-40' : 'hover:bg-gray-50' }}">
+                                        <td class="px-4 py-3 text-sm">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-{{ $color }}-100 text-{{ $color }}-800">
+                                                {{ $typeLabel }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-700">
+                                            {{ $movement->camera?->name ?? '—' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-900 text-center font-semibold">
+                                            {{ $movement->quantity }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">
+                                            {{ $contentLabel }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">
+                                            {{ $movement->moved_at->format('d/m/Y H:i') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">
+                                            @if($superseded)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                                    Invalidado
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                                    Confirmado
+                                                </span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @else
+                <p class="text-sm text-gray-400">No hay movimientos de cajas registrados para esta ruta.</p>
+            @endif
+        </div>
+
         <livewire:routes.update-route-modal />
         <livewire:routes.close-route-modal />
     </x-layouts.routes.layout>

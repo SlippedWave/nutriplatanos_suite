@@ -35,6 +35,9 @@ $role = auth()->user()->role ?? 'guest';
                     :current="request()->routeIs('resources.*')" wire:navigate>
                     {{ __('Recursos') }}
                 </flux:navbar.item>
+                <flux:navbar.item icon="archive-box" :href="route('box-audit.index')" :current="request()->routeIs('box-audit.*')" wire:navigate>
+                    {{ __('Cajas') }}
+                </flux:navbar.item>
             @endif
             <flux:navbar.item :current="request()->routeIs('routes.*')" icon="map" :href="route('routes.index')"
                 :current="request()->routeIs('routes.*')" wire:navigate>
@@ -114,6 +117,9 @@ $role = auth()->user()->role ?? 'guest';
                     <flux:navlist.item icon="chart-bar" :href="route('resources.index')"
                         :current="request()->routeIs('resources.*')" wire:navigate>
                         {{ __('Recursos') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="archive-box" :href="route('box-audit.index')" :current="request()->routeIs('box-audit.*')" wire:navigate>
+                        {{ __('Cajas') }}
                     </flux:navlist.item>
                 @endif
                 <flux:navlist.item icon="map" :href="route('routes.index')"

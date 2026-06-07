@@ -28,6 +28,8 @@ class Sale extends Model
         'total_amount',
         'refunded_amount',
         'total_amount_excluding_refunds',
+        'boxes_delivered',
+        'boxes_returned',
     ];
 
     /**
@@ -44,6 +46,8 @@ class Sale extends Model
         'refunded_amount' => 'decimal:2',
         'total_amount_excluding_refunds' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'boxes_delivered' => 'integer',
+        'boxes_returned' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

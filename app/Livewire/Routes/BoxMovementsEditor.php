@@ -39,6 +39,19 @@ class BoxMovementsEditor extends Component
         ];
     }
 
+    public function updatedModel(mixed $value, ?string $key = null): void
+    {
+        if ($key === null) return;
+
+        // When movement_type changes to a type that doesn't need a camera, clear camera_id
+        if (str_ends_with($key, '.movement_type')) {
+            $index = (int) explode('.', $key)[0];
+            if (!in_array($value, ['warehouse_to_route', 'route_to_warehouse'])) {
+                $this->model[$index]['camera_id'] = null;
+            }
+        }
+    }
+
     public function removeMovement(int $index): void
     {
         if (! $this->editable) return;

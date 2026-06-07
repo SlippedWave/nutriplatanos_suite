@@ -25,11 +25,14 @@ class UpdateRouteModal extends Component
 
     public $user;
 
+    public $carriers = [];
+
     protected RouteService $routeService;
 
     public function boot()
     {
         $this->routeService = app(RouteService::class);
+        $this->carriers = \App\Models\User::where('role', 'carrier')->select('id', 'name')->orderBy('name')->get();
     }
 
     #[On('open-update-route-modal')]

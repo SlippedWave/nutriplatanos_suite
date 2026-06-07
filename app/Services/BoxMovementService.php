@@ -58,14 +58,16 @@ class BoxMovementService
 
     private function validateBoxMovementData(array $data): array
     {
+        $cameraRequired = in_array($data['movement_type'] ?? '', ['warehouse_to_route', 'route_to_warehouse']);
+
         $rules = [
-            'camera_id' => 'required|exists:cameras,id',
-            'route_id' => 'required|exists:routes,id',
-            'movement_type' => 'required|in:' . implode(',', array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES)),
-            'quantity' => 'required|integer|min:1',
+            'camera_id'          => $cameraRequired ? 'required|exists:cameras,id' : 'nullable|exists:cameras,id',
+            'route_id'           => 'required|exists:routes,id',
+            'movement_type'      => 'required|in:' . implode(',', array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES)),
+            'quantity'           => 'required|integer|min:1',
             'box_content_status' => 'required|in:' . implode(',', array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES)),
-            'moved_at' => 'required|date',
-            'notes' => 'nullable|string|max:1000',
+            'moved_at'           => 'required|date',
+            'notes'              => 'nullable|string|max:1000',
         ];
 
         return validator($data, $rules)->validate();

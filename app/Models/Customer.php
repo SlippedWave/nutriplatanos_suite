@@ -59,24 +59,20 @@ class Customer extends Model
         return $this->morphMany(Note::class, 'notable');
     }
 
-    /**
-     * Get the box balance for this customer.
-     * @return int
-     */
-    public function getBoxBalance()
+    public function getBoxBalance(): int
     {
-        // Check if BoxBalance record exists for this customer
-        $boxBalance = $this->boxBalance()->first();
-        // Return the current balance if exists, otherwise 0
-        return $boxBalance ? $boxBalance->getCurrentBalance() : 0;
+        $fromSales = (int) $this->sales()
+            ->selectRaw('COALESCE(SUM(boxes_delivered) - SUM(boxes_returned), 0) as balance')
+            ->value('balance');
+
+        $fromAdjustments = (int) $this->boxBalanceAdjustments()->sum('quantity');
+
+        return $fromSales + $fromAdjustments;
     }
 
-    /**
-     * Get the box balance relationship.
-     */
-    public function boxBalance()
+    public function boxBalanceAdjustments()
     {
-        return $this->hasOne(BoxBalance::class);
+        return $this->hasMany(BoxBalanceAdjustment::class);
     }
 
     /**

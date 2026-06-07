@@ -78,15 +78,18 @@
         </flux:field>
 
         <!-- Register box movement -->
-        <flux:field>
-            <flux:input wire:model="box_balance_delivered" label="{{ __('Cajas dejadas') }}" type="text"
-                placeholder="" class="text-[var(--color-text)]!" />
-        </flux:field>
+        <div class="grid grid-cols-2 gap-4">
+            <flux:field>
+                <flux:input wire:model="box_balance_delivered" label="{{ __('Cajas dejadas') }}" type="number"
+                    min="0" class="text-[var(--color-text)]!" />
+                <flux:error name="box_balance_delivered" />
+            </flux:field>
 
-        <flux:field>
-            <flux:input wire:model="box_balance_returned" label="{{ __('Cajas recogidas') }}" type="text"
-                placeholder="" class="text-[var(--color-text)]!" />
-        </flux:field>
+            <flux:field>
+                <flux:input wire:model="box_balance_returned" label="{{ __('Cajas recogidas') }}" type="number"
+                    min="0" class="text-[var(--color-text)]!" />
+            </flux:field>
+        </div>
 
         @if ($payment_status === 'partial')
             <flux:field>

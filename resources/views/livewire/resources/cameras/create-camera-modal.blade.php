@@ -20,8 +20,10 @@
                     </flux:field>
 
                     <flux:field>
-                        <flux:input wire:model="box_stock" label="{{ __('Stock de cajas') }}" type="text"
-                            placeholder="Cantidad de cajas en existencia" class="text-[var(--color-text)]!" />
+                        <flux:label>{{ __('Stock inicial de cajas') }}</flux:label>
+                        <flux:description>{{ __('Cantidad de cajas actualmente en esta cámara antes de cualquier movimiento registrado.') }}</flux:description>
+                        <flux:input wire:model="box_stock" type="number" min="0"
+                            placeholder="0" class="text-[var(--color-text)]!" />
                     </flux:field>
                 </div>
                 <div class="flex justify-end mt-4">
