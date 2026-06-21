@@ -99,6 +99,16 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    public function isCarrier(): bool
+    {
+        return $this->role === 'carrier';
+    }
+
+    public function isCoordinator(): bool
+    {
+        return $this->role === 'coordinator';
+    }
+
     /**
      * Get the user's initials
      */
