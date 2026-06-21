@@ -169,7 +169,7 @@ class Sale extends Model
 
     public function applyDiscountFromRefund(float $discountAmount): void
     {
-        $this->loadMissing('productList');
+        $this->load('productList');
 
         $currentTotal = $this->total_amount;
         $newTotal = max(0, $currentTotal - $discountAmount);
@@ -186,7 +186,7 @@ class Sale extends Model
      */
     public function getTotalPaidAttribute(): float
     {
-        $this->loadMissing('payments');
+        $this->load('payments');
         return (float) $this->payments->sum('amount');
     }
 
@@ -233,7 +233,7 @@ class Sale extends Model
      */
     public function updatePaymentStatus(): void
     {
-        $this->loadMissing(['payments', 'productList']);
+        $this->load(['payments', 'productList']);
 
         if ($this->payments->isEmpty()) {
             $this->payment_status = 'pending';

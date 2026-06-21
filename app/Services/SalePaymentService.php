@@ -168,7 +168,7 @@ class SalePaymentService
         try {
             DB::beginTransaction();
 
-            $sale->loadMissing('productList');
+            $sale->load('productList');
             $totalAmount = $sale->productList->sum('total_price');
             $totalPaid = $sale->total_paid;
             $remainingBalance = $totalAmount - $totalPaid;
@@ -263,7 +263,7 @@ class SalePaymentService
      */
     private function validatePaymentData(array $data, Sale $sale, ?int $paymentId = null): array
     {
-        $sale->loadMissing('productList');
+        $sale->load('productList');
         $totalAmount = $sale->productList->sum('total_price');
         $currentPaid = $sale->total_paid;
 
