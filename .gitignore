@@ -21,3 +21,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Local Claude Code instructions (kept local, not tracked)
+CLAUDE.md
