@@ -20,6 +20,7 @@ class UpdateRouteModal extends Component
     public array $boxMovements = [];
 
     public $cameras = [];
+    public array $routes = [];
 
     public string $title = '';
 
@@ -54,13 +55,16 @@ class UpdateRouteModal extends Component
     public function mount()
     {
         $this->cameras = Camera::select('id', 'name')->orderBy('name')->get();
+        $this->routes = Route::routeTransferOptions();
     }
 
     protected function rules(): array
     {
         return [
             'title' => 'required|string|max:255',
-            'boxMovements.*.camera_id' => 'required|integer|exists:cameras,id',
+            'boxMovements.*.camera_id' => 'nullable|integer|exists:cameras,id',
+            'boxMovements.*.related_route_id' => 'nullable|integer|exists:routes,id',
+            'boxMovements.*.transfer_direction' => 'nullable|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::TRANSFER_DIRECTIONS)),
             'boxMovements.*.movement_type' => 'required|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES)),
             'boxMovements.*.quantity' => 'required|integer|min:1',
             'boxMovements.*.box_content_status' => 'required|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES)),
@@ -79,6 +83,8 @@ class UpdateRouteModal extends Component
 
         $this->boxMovements[] = [
             'camera_id' => $defaultCameraId,
+            'related_route_id' => null,
+            'transfer_direction' => array_key_first(\App\Models\BoxMovement::TRANSFER_DIRECTIONS) ?? 'out',
             'movement_type' => array_key_first(\App\Models\BoxMovement::MOVEMENT_TYPES) ?? 'warehouse_to_route',
             'quantity' => 1,
             'box_content_status' => array_key_first(\App\Models\BoxMovement::BOX_CONTENT_STATUSES) ?? 'full',
@@ -103,10 +109,7 @@ class UpdateRouteModal extends Component
 
     private function getFormData(): array
     {
-        $valid = array_filter($this->boxMovements, function ($bm) {
-            return isset($bm['camera_id'], $bm['movement_type'], $bm['quantity'], $bm['box_content_status'])
-                && (int)$bm['quantity'] >= 1;
-        });
+        $valid = array_filter($this->boxMovements, fn ($bm) => Route::isCompleteBoxMovementRow($bm));
 
         return [
             'title' => $this->title,

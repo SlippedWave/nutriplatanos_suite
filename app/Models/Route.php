@@ -147,6 +147,64 @@ class Route extends Model
         return $this->morphMany(Note::class, 'notable');
     }
 
+    /**
+     * Lightweight list of routes usable as route-to-route transfer counterparts,
+     * shaped for passing to the box movements editor.
+     *
+     * @return array<int, array{id:int, title:?string, carrier_name:?string}>
+     */
+    public static function routeTransferOptions(int $limit = 100): array
+    {
+        return self::with('carrier:id,name')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get(['id', 'title', 'carrier_id', 'created_at'])
+            ->map(fn (Route $route) => [
+                'id' => $route->id,
+                'title' => $route->title,
+                'carrier_name' => $route->carrier_name,
+            ])
+            ->all();
+    }
+
+    /**
+     * Whether an editor box-movement row has all the fields its type requires,
+     * so incomplete rows can be filtered out before submitting.
+     */
+    public static function isCompleteBoxMovementRow(array $row): bool
+    {
+        if (! isset($row['movement_type'], $row['quantity'], $row['box_content_status']) || (int) $row['quantity'] < 1) {
+            return false;
+        }
+
+        return match ($row['movement_type']) {
+            'warehouse_to_route', 'route_to_warehouse' => ! empty($row['camera_id']),
+            'route_to_route' => ! empty($row['related_route_id']) && ! empty($row['transfer_direction']),
+            default => true,
+        };
+    }
+
+    /**
+     * Box movements to show on this route's detail view: movements the route
+     * owns, plus route-to-route transfers where this route is the counterpart
+     * (so the receiving route can see incoming transfers created by the other
+     * route). Includes superseded (soft-deleted) rows for the audit history.
+     */
+    public function boxMovementsForDisplay()
+    {
+        return BoxMovement::withTrashed()
+            ->where(function ($query) {
+                $query->where('route_id', $this->id)
+                    ->orWhere(function ($counterpart) {
+                        $counterpart->where('movement_type', 'route_to_route')
+                            ->where('related_route_id', $this->id);
+                    });
+            })
+            ->with(['camera', 'route', 'relatedRoute'])
+            ->orderBy('moved_at')
+            ->get();
+    }
+
     public function getBoxSummary(): array
     {
         $takenFromCameras     = $this->boxMovements()->where('movement_type', 'warehouse_to_route')->sum('quantity');
@@ -154,12 +212,18 @@ class Route extends Model
         $deliveredToCustomers = $this->sales()->sum('boxes_delivered');
         $returnedByCustomers  = $this->sales()->sum('boxes_returned');
 
+        $transfers      = BoxMovement::routeTransferNet($this->id);
+        $sentToRoutes   = $transfers['sent'];
+        $receivedRoutes = $transfers['received'];
+
         return [
             'taken_from_cameras'      => (int) $takenFromCameras,
             'returned_to_cameras'     => (int) $returnedToCameras,
             'delivered_to_customers'  => (int) $deliveredToCustomers,
             'returned_by_customers'   => (int) $returnedByCustomers,
-            'net_on_truck'            => (int) ($takenFromCameras - $returnedToCameras - $deliveredToCustomers + $returnedByCustomers),
+            'sent_to_routes'          => $sentToRoutes,
+            'received_from_routes'    => $receivedRoutes,
+            'net_on_truck'            => (int) ($takenFromCameras - $returnedToCameras - $deliveredToCustomers + $returnedByCustomers - $sentToRoutes + $receivedRoutes),
         ];
     }
 
@@ -170,7 +234,9 @@ class Route extends Model
         $delivered       = (int) $this->sales()->when($excludeSaleId, fn($q) => $q->where('id', '!=', $excludeSaleId))->sum('boxes_delivered');
         $returnedByCustomers = (int) $this->sales()->when($excludeSaleId, fn($q) => $q->where('id', '!=', $excludeSaleId))->sum('boxes_returned');
 
-        return max(0, $taken - $returnedCamera - $delivered + $returnedByCustomers);
+        $transfers = BoxMovement::routeTransferNet($this->id);
+
+        return max(0, $taken - $returnedCamera - $delivered + $returnedByCustomers - $transfers['sent'] + $transfers['received']);
     }
 
     /**

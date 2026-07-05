@@ -15,6 +15,7 @@ class CreateRouteModal extends Component
 
     public array $boxMovements = [];
     public Collection $cameras;
+    public array $routes = [];
 
     public string $title = '';
     public ?string $notes = null;
@@ -38,6 +39,7 @@ class CreateRouteModal extends Component
         $this->cameras = Camera::select('id', 'name')->orderBy('name')->get();
         $this->carriers = User::select('id', 'name')->orderBy('name')->get();
         $this->carrier_id = $this->user->id;
+        $this->routes = \App\Models\Route::routeTransferOptions();
     }
 
     protected function rules()
@@ -45,7 +47,9 @@ class CreateRouteModal extends Component
         return [
             'title' => 'required|string|max:255',
             'notes' => 'nullable|string|max:1000',
-            'boxMovements.*.camera_id' => 'required|integer|exists:cameras,id',
+            'boxMovements.*.camera_id' => 'nullable|integer|exists:cameras,id',
+            'boxMovements.*.related_route_id' => 'nullable|integer|exists:routes,id',
+            'boxMovements.*.transfer_direction' => 'nullable|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::TRANSFER_DIRECTIONS)),
             'boxMovements.*.movement_type' => 'required|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES)),
             'boxMovements.*.quantity' => 'required|integer|min:1',
             'boxMovements.*.box_content_status' => 'required|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES)),
@@ -62,10 +66,7 @@ class CreateRouteModal extends Component
 
     private function getFormData(): array
     {
-        $valid = array_filter($this->boxMovements, function ($bm) {
-            return isset($bm['camera_id'], $bm['movement_type'], $bm['quantity'], $bm['box_content_status'])
-                && (int)$bm['quantity'] >= 1;
-        });
+        $valid = array_filter($this->boxMovements, fn ($bm) => \App\Models\Route::isCompleteBoxMovementRow($bm));
 
         return [
             'title' => $this->title,

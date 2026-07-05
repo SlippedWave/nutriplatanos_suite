@@ -19,6 +19,15 @@ class RouteService
                 $movementData['route_id'] = $route->id;
                 $movementData['moved_at'] = $movementData['moved_at'] ?? now();
 
+                // Normalize fields that only apply to specific movement types so
+                // stale values from the editor don't leak across types.
+                if (($movementData['movement_type'] ?? null) === 'route_to_route') {
+                    $movementData['camera_id'] = null;
+                } else {
+                    $movementData['related_route_id']   = null;
+                    $movementData['transfer_direction'] = null;
+                }
+
                 $response = $boxMovementService->createBoxMovement($movementData);
                 if (!($response['success'] ?? false)) {
                     DB::rollBack();
@@ -359,6 +368,8 @@ class RouteService
             'notes' => ['nullable', 'string', 'max:1000'],
             'boxMovements' => ['nullable', 'array'],
             'boxMovements.*.camera_id' => ['nullable', 'exists:cameras,id'],
+            'boxMovements.*.related_route_id' => ['nullable', 'exists:routes,id'],
+            'boxMovements.*.transfer_direction' => ['nullable', \Illuminate\Validation\Rule::in(array_keys(\App\Models\BoxMovement::TRANSFER_DIRECTIONS))],
             'boxMovements.*.movement_type' => ['required_with:boxMovements', \Illuminate\Validation\Rule::in(array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES))],
             'boxMovements.*.quantity' => ['required_with:boxMovements', 'integer', 'min:1'],
             'boxMovements.*.box_content_status' => ['required_with:boxMovements', \Illuminate\Validation\Rule::in(array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES))],

@@ -15,6 +15,7 @@ class CloseRouteModal extends Component
 
     public array $boxMovements = [];
     public $cameras = [];
+    public array $routes = [];
 
     public $user;
     public $selectedRoute;
@@ -37,12 +38,15 @@ class CloseRouteModal extends Component
     public function mount()
     {
         $this->cameras = Camera::select('id', 'name')->orderBy('name')->get();
+        $this->routes = Route::routeTransferOptions();
     }
 
     protected function rules(): array
     {
         return [
-            'boxMovements.*.camera_id' => 'required|integer|exists:cameras,id',
+            'boxMovements.*.camera_id' => 'nullable|integer|exists:cameras,id',
+            'boxMovements.*.related_route_id' => 'nullable|integer|exists:routes,id',
+            'boxMovements.*.transfer_direction' => 'nullable|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::TRANSFER_DIRECTIONS)),
             'boxMovements.*.movement_type' => 'required|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::MOVEMENT_TYPES)),
             'boxMovements.*.quantity' => 'required|integer|min:1',
             'boxMovements.*.box_content_status' => 'required|string|in:' . implode(',', array_keys(\App\Models\BoxMovement::BOX_CONTENT_STATUSES)),
@@ -56,8 +60,10 @@ class CloseRouteModal extends Component
 
     private function getFormData(): array
     {
+        $valid = array_filter($this->boxMovements, fn ($bm) => Route::isCompleteBoxMovementRow($bm));
+
         return [
-            'boxMovements' => $this->boxMovements,
+            'boxMovements' => array_values($valid),
         ];
     }
 

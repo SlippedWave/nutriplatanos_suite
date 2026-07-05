@@ -100,6 +100,12 @@
                                 @else
                                     —
                                 @endif
+                                @if($movement->movement_type === 'route_to_route' && $movement->relatedRoute)
+                                    <span class="text-gray-400">{{ ($movement->transfer_direction === 'in') ? '←' : '→' }}</span>
+                                    <a href="{{ route('routes.show', $movement->related_route_id) }}" class="text-primary-600 hover:underline" wire:navigate>
+                                        {{ $movement->relatedRoute->title }}
+                                    </a>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
                                 {{ $movement->route?->carrier?->name ?? '—' }}

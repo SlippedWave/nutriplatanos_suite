@@ -86,4 +86,3 @@ class ProfileUpdateTest extends TestCase
         $this->assertNotNull($user->fresh());
     }
 }
-}

@@ -128,7 +128,7 @@ new class extends Component {
             @endphp
 
             {{-- Summary card --}}
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
                 <div class="bg-blue-50 rounded-lg p-3 text-center">
                     <p class="text-xs text-blue-500 font-medium uppercase tracking-wide">Tomadas de cámaras</p>
                     <p class="text-2xl font-bold text-blue-700 mt-1">{{ $boxSummary['taken_from_cameras'] }}</p>
@@ -145,7 +145,15 @@ new class extends Component {
                     <p class="text-xs text-purple-500 font-medium uppercase tracking-wide">Devueltas a cámaras</p>
                     <p class="text-2xl font-bold text-purple-700 mt-1">{{ $boxSummary['returned_to_cameras'] }}</p>
                 </div>
-                <div class="bg-gray-100 rounded-lg p-3 text-center col-span-2 md:col-span-1">
+                <div class="bg-orange-50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-orange-500 font-medium uppercase tracking-wide">Enviadas a rutas</p>
+                    <p class="text-2xl font-bold text-orange-700 mt-1">{{ $boxSummary['sent_to_routes'] }}</p>
+                </div>
+                <div class="bg-teal-50 rounded-lg p-3 text-center">
+                    <p class="text-xs text-teal-500 font-medium uppercase tracking-wide">Recibidas de rutas</p>
+                    <p class="text-2xl font-bold text-teal-700 mt-1">{{ $boxSummary['received_from_routes'] }}</p>
+                </div>
+                <div class="bg-gray-100 rounded-lg p-3 text-center col-span-2 md:col-span-4 lg:col-span-1">
                     <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Neto en camión</p>
                     <p class="text-2xl font-bold text-gray-700 mt-1">{{ $boxSummary['net_on_truck'] }}</p>
                 </div>
@@ -153,7 +161,7 @@ new class extends Component {
 
             {{-- Movements history --}}
             @php
-                $movements = $selectedRoute->boxMovements()->withTrashed()->with('camera')->orderBy('moved_at')->get();
+                $movements = $selectedRoute->boxMovementsForDisplay();
             @endphp
 
             @if($movements->isNotEmpty())
@@ -164,6 +172,7 @@ new class extends Component {
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cámara</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ruta contraparte</th>
                                     <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cajas</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contenido</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
@@ -192,6 +201,22 @@ new class extends Component {
                                         </td>
                                         <td class="px-4 py-3 text-sm text-gray-700">
                                             {{ $movement->camera?->name ?? '—' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-700">
+                                            @if($movement->movement_type === 'route_to_route')
+                                                @php
+                                                    $counterpart = $movement->counterpartRouteFor($selectedRoute->id);
+                                                    $direction   = $movement->transferDirectionFor($selectedRoute->id);
+                                                    $dirLabel     = \App\Models\BoxMovement::TRANSFER_DIRECTIONS[$direction] ?? '';
+                                                    $counterpartId = (int) $movement->route_id === (int) $selectedRoute->id
+                                                        ? $movement->related_route_id
+                                                        : $movement->route_id;
+                                                @endphp
+                                                <span class="text-gray-500">{{ $dirLabel }}</span>
+                                                {{ $counterpart->title ?? ('Ruta #' . $counterpartId) }}
+                                            @else
+                                                —
+                                            @endif
                                         </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 text-center font-semibold">
                                             {{ $movement->quantity }}

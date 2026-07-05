@@ -12,12 +12,13 @@
 
             @php
                 $needsCamera = in_array($movement['movement_type'] ?? '', ['warehouse_to_route', 'route_to_warehouse']);
+                $isRouteTransfer = ($movement['movement_type'] ?? '') === 'route_to_route';
             @endphp
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <flux:field>
                     <flux:label>{{ __('Tipo de movimiento') }}</flux:label>
-                    <flux:select group wire:model="model.{{ $index }}.movement_type" :disabled="!$editable">
+                    <flux:select group wire:model.live="model.{{ $index }}.movement_type" :disabled="!$editable">
                         @foreach(App\Models\BoxMovement::MOVEMENT_TYPES as $type_key => $type)
                             <flux:select.option value="{{ $type_key }}">{{ __(ucfirst($type)) }}</flux:select.option>
                         @endforeach
@@ -32,6 +33,35 @@
                             <flux:select.option value="{{ $camera->id }}">
                                 {{ $camera->name }} ({{ $camera->getCurrentStock() }} cajas)
                             </flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </flux:field>
+                @endif
+
+                @if($isRouteTransfer)
+                <flux:field>
+                    <flux:label>{{ __('Dirección') }}</flux:label>
+                    <flux:select wire:model="model.{{ $index }}.transfer_direction" :disabled="!$editable">
+                        @foreach(App\Models\BoxMovement::TRANSFER_DIRECTIONS as $dir_key => $dir_label)
+                            <flux:select.option value="{{ $dir_key }}">{{ __($dir_label) }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>{{ __('Ruta contraparte') }}</flux:label>
+                    <flux:select wire:model="model.{{ $index }}.related_route_id" :disabled="!$editable" placeholder="{{ __('Selecciona una ruta...') }}">
+                        @foreach($routes as $route)
+                            @php
+                                $routeId = is_array($route) ? ($route['id'] ?? null) : ($route->id ?? null);
+                                $routeTitle = is_array($route) ? ($route['title'] ?? null) : ($route->title ?? null);
+                                $routeCarrier = is_array($route) ? ($route['carrier_name'] ?? null) : ($route->carrier_name ?? null);
+                            @endphp
+                            @if($routeId !== null && (int) $routeId !== (int) $currentRouteId)
+                                <flux:select.option value="{{ $routeId }}">
+                                    {{ $routeTitle ?? ('Ruta #' . $routeId) }}{{ $routeCarrier ? ' — ' . $routeCarrier : '' }}
+                                </flux:select.option>
+                            @endif
                         @endforeach
                     </flux:select>
                 </flux:field>

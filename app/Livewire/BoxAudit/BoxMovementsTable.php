@@ -56,7 +56,7 @@ class BoxMovementsTable extends Component
         }
 
         $movements = $query
-            ->with(['camera', 'route.carrier'])
+            ->with(['camera', 'route.carrier', 'relatedRoute'])
             ->orderBy('moved_at', 'desc')
             ->paginate($this->perPage);
 

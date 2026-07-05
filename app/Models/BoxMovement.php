@@ -13,6 +13,8 @@ class BoxMovement extends Model
     protected $fillable = [
         'camera_id',
         'route_id',
+        'related_route_id',
+        'transfer_direction',
         'movement_type',
         'quantity',
         'box_content_status',
@@ -32,6 +34,12 @@ class BoxMovement extends Model
         'truck_inventory' => 'Inventario de camión',           // Boxes remaining on truck
     ];
 
+    // Direction of a route_to_route transfer, relative to the owning route (route_id).
+    const TRANSFER_DIRECTIONS = [
+        'out' => 'Envía a',     // this route sends boxes to the counterpart
+        'in'  => 'Recibe de',   // this route receives boxes from the counterpart
+    ];
+
     public $timestamps = false;
 
     const BOX_CONTENT_STATUSES = [
@@ -47,6 +55,53 @@ class BoxMovement extends Model
     public function route(): BelongsTo
     {
         return $this->belongsTo(Route::class);
+    }
+
+    /**
+     * The counterpart route in a route-to-route transfer.
+     */
+    public function relatedRoute(): BelongsTo
+    {
+        return $this->belongsTo(Route::class, 'related_route_id');
+    }
+
+    /**
+     * The counterpart route as seen from a given viewing route.
+     *
+     * A route_to_route transfer is stored as a single row owned by one route
+     * (route_id) pointing at the other (related_route_id). When the viewing
+     * route owns the row, the counterpart is related_route; when the viewing
+     * route is the counterpart of someone else's row, the counterpart is the
+     * owner (route).
+     */
+    public function counterpartRouteFor(int $viewerRouteId): ?Route
+    {
+        if ($this->movement_type !== 'route_to_route') {
+            return null;
+        }
+
+        return (int) $this->route_id === $viewerRouteId
+            ? $this->relatedRoute
+            : $this->route;
+    }
+
+    /**
+     * Transfer direction ('in'|'out') as seen from a given viewing route.
+     *
+     * Direction is stored relative to the owning route, so it must be inverted
+     * when the viewing route is the counterpart rather than the owner.
+     */
+    public function transferDirectionFor(int $viewerRouteId): ?string
+    {
+        if ($this->movement_type !== 'route_to_route' || $this->transfer_direction === null) {
+            return null;
+        }
+
+        if ((int) $this->route_id === $viewerRouteId) {
+            return $this->transfer_direction;
+        }
+
+        return $this->transfer_direction === 'out' ? 'in' : 'out';
     }
 
     // Scopes
@@ -73,90 +128,53 @@ class BoxMovement extends Model
     // Enhanced inventory calculation
     public static function getRouteBoxInventory(int $routeId): array
     {
-        $movements = self::where('route_id', $routeId)->get();
+        $fromWarehouse = self::where('route_id', $routeId)->where('movement_type', 'warehouse_to_route')->sum('quantity');
+        $toWarehouse   = self::where('route_id', $routeId)->where('movement_type', 'route_to_warehouse')->sum('quantity');
 
-        $fromWarehouse = $movements->where('movement_type', 'warehouse_to_route')->sum('quantity');
-        $toWarehouse = $movements->where('movement_type', 'route_to_warehouse')->sum('quantity');
-        $carriedOver = $movements->where('movement_type', 'route_to_route')->sum('quantity');
+        $transfers = self::routeTransferNet($routeId);
 
         return [
-            'from_warehouse' => $fromWarehouse,
-            'to_warehouse' => $toWarehouse,
-            'carried_over' => $carriedOver,
-            'net_on_route' => $fromWarehouse - $toWarehouse + $carriedOver,
+            'from_warehouse' => (int) $fromWarehouse,
+            'to_warehouse'   => (int) $toWarehouse,
+            'sent_to_routes'      => $transfers['sent'],
+            'received_from_routes' => $transfers['received'],
+            'net_on_route' => (int) $fromWarehouse - (int) $toWarehouse + $transfers['received'] - $transfers['sent'],
         ];
     }
 
-    // Get truck inventory across all routes for a carrier
-    public static function getTruckInventory(?int $carrierId = null): array
+    /**
+     * Net route-to-route box flow for a given route, accounting for movements the
+     * route owns (route_id) as well as movements where it is the counterpart
+     * (related_route_id). Direction is stored relative to the owning route.
+     *
+     * @return array{sent:int, received:int}
+     */
+    public static function routeTransferNet(int $routeId): array
     {
-        $query = self::query();
+        $ownedOut = (int) self::where('route_id', $routeId)
+            ->where('movement_type', 'route_to_route')
+            ->where('transfer_direction', 'out')
+            ->sum('quantity'); // this route sends
 
-        if ($carrierId) {
-            $query->whereHas('route', function ($q) use ($carrierId) {
-                $q->where('carrier_id', $carrierId);
-            });
-        }
+        $ownedIn = (int) self::where('route_id', $routeId)
+            ->where('movement_type', 'route_to_route')
+            ->where('transfer_direction', 'in')
+            ->sum('quantity'); // this route receives
 
-        // Get the latest truck inventory movements
-        $latestInventory = $query->where('movement_type', 'truck_inventory')
-            ->orderBy('moved_at', 'desc')
-            ->first();
+        // Movements owned by the counterpart route but pointing at this route.
+        $counterpartOut = (int) self::where('related_route_id', $routeId)
+            ->where('movement_type', 'route_to_route')
+            ->where('transfer_direction', 'out')
+            ->sum('quantity'); // counterpart sends to us -> we receive
+
+        $counterpartIn = (int) self::where('related_route_id', $routeId)
+            ->where('movement_type', 'route_to_route')
+            ->where('transfer_direction', 'in')
+            ->sum('quantity'); // counterpart receives from us -> we send
 
         return [
-            'boxes_on_truck' => $latestInventory ? $latestInventory->quantity : 0,
-            'last_updated' => $latestInventory ? $latestInventory->moved_at : null,
+            'sent'     => $ownedOut + $counterpartIn,
+            'received' => $ownedIn + $counterpartOut,
         ];
-    }
-
-    // Transfer boxes between routes
-    public static function transferToNextRoute(int $fromRouteId, int $toRouteId, int $quantity, array $options = []): void
-    {
-        // Record boxes leaving previous route
-        self::create([
-            'route_id' => $fromRouteId,
-            'movement_type' => 'route_to_route',
-            'quantity' => -$quantity, // Negative for outgoing
-            'box_content_status' => $options['status'] ?? 'empty',
-            'moved_at' => now(),
-            'notes' => "Transferred to route {$toRouteId}",
-        ]);
-
-        // Record boxes entering new route
-        self::create([
-            'route_id' => $toRouteId,
-            'movement_type' => 'route_to_route',
-            'quantity' => $quantity, // Positive for incoming
-            'box_content_status' => $options['status'] ?? 'empty',
-            'moved_at' => now(),
-            'notes' => "Transferred from route {$fromRouteId}",
-        ]);
-    }
-
-    // Update truck inventory
-    public static function updateTruckInventory(int $routeId, int $quantity, string $action = 'set'): void
-    {
-        $note = match ($action) {
-            'add' => "Added {$quantity} boxes to truck",
-            'remove' => "Removed {$quantity} boxes from truck",
-            'set' => "Truck inventory set to {$quantity} boxes",
-        };
-
-        if ($action === 'add') {
-            $currentInventory = self::getTruckInventory();
-            $quantity = $currentInventory['boxes_on_truck'] + $quantity;
-        } elseif ($action === 'remove') {
-            $currentInventory = self::getTruckInventory();
-            $quantity = max(0, $currentInventory['boxes_on_truck'] - $quantity);
-        }
-
-        self::create([
-            'route_id' => $routeId,
-            'movement_type' => 'truck_inventory',
-            'quantity' => $quantity,
-            'box_content_status' => 'empty',
-            'moved_at' => now(),
-            'notes' => $note,
-        ]);
     }
 }

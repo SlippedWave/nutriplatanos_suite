@@ -30,6 +30,8 @@
             <livewire:routes.box-movements-editor
                 wire:model="boxMovements"
                 :cameras="$cameras"
+                :routes="$routes"
+                :current-route-id="null"
                 :editable="true"
             />
 
