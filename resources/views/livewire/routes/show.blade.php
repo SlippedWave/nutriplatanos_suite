@@ -128,7 +128,7 @@ new class extends Component {
             @endphp
 
             {{-- Summary card --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
                 <div class="bg-blue-50 rounded-lg p-3 text-center">
                     <p class="text-xs text-blue-500 font-medium uppercase tracking-wide">Tomadas de cámaras</p>
                     <p class="text-2xl font-bold text-blue-700 mt-1">{{ $boxSummary['taken_from_cameras'] }}</p>
@@ -153,9 +153,15 @@ new class extends Component {
                     <p class="text-xs text-teal-500 font-medium uppercase tracking-wide">Recibidas de rutas</p>
                     <p class="text-2xl font-bold text-teal-700 mt-1">{{ $boxSummary['received_from_routes'] }}</p>
                 </div>
-                <div class="bg-gray-100 rounded-lg p-3 text-center col-span-2 md:col-span-4 lg:col-span-1">
-                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Neto en camión</p>
-                    <p class="text-2xl font-bold text-gray-700 mt-1">{{ $boxSummary['net_on_truck'] }}</p>
+                {{-- Boxes with product: what the carrier still has available to deliver. --}}
+                <div class="bg-gray-800 rounded-lg p-3 text-center">
+                    <p class="text-xs text-gray-300 font-medium uppercase tracking-wide">Con producto en camión</p>
+                    <p class="text-2xl font-bold text-white mt-1">{{ $boxSummary['net_full_on_truck'] }}</p>
+                </div>
+                {{-- Empties hold no product but remain the carrier's responsibility. --}}
+                <div class="bg-gray-100 rounded-lg p-3 text-center">
+                    <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Vacías en camión</p>
+                    <p class="text-2xl font-bold text-gray-700 mt-1">{{ $boxSummary['net_empty_on_truck'] }}</p>
                 </div>
             </div>
 

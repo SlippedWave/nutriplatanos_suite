@@ -505,7 +505,7 @@ class SaleService
 
         if ($boxesDelivered > $available) {
             throw ValidationException::withMessages([
-                'box_balance_delivered' => "No hay suficientes cajas en el camión. Disponibles: {$available}, solicitadas: {$boxesDelivered}.",
+                'box_balance_delivered' => "No hay suficientes cajas con producto en el camión. Disponibles: {$available}, solicitadas: {$boxesDelivered}.",
             ]);
         }
     }

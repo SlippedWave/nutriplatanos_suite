@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,6 +26,15 @@ class BoxMovement extends Model
         'movement_type' => 'string',
         'quantity' => 'integer',
         'moved_at' => 'datetime',
+    ];
+
+    /**
+     * The column defaults to 'empty' in the database while the editor offers
+     * 'full' first; setting it here means Eloquent always writes an explicit
+     * value, so the two can never disagree for app-created rows.
+     */
+    protected $attributes = [
+        'box_content_status' => 'full',
     ];
 
     const MOVEMENT_TYPES = [
@@ -125,52 +135,32 @@ class BoxMovement extends Model
         return $query->where('movement_type', 'truck_inventory');
     }
 
-    // Enhanced inventory calculation
-    public static function getRouteBoxInventory(int $routeId): array
-    {
-        $fromWarehouse = self::where('route_id', $routeId)->where('movement_type', 'warehouse_to_route')->sum('quantity');
-        $toWarehouse   = self::where('route_id', $routeId)->where('movement_type', 'route_to_warehouse')->sum('quantity');
-
-        $transfers = self::routeTransferNet($routeId);
-
-        return [
-            'from_warehouse' => (int) $fromWarehouse,
-            'to_warehouse'   => (int) $toWarehouse,
-            'sent_to_routes'      => $transfers['sent'],
-            'received_from_routes' => $transfers['received'],
-            'net_on_route' => (int) $fromWarehouse - (int) $toWarehouse + $transfers['received'] - $transfers['sent'],
-        ];
-    }
-
     /**
      * Net route-to-route box flow for a given route, accounting for movements the
      * route owns (route_id) as well as movements where it is the counterpart
      * (related_route_id). Direction is stored relative to the owning route.
      *
+     * Pass $contentStatus ('full'|'empty') to count only boxes moved in that
+     * state; omit it for the combined total.
+     *
      * @return array{sent:int, received:int}
      */
-    public static function routeTransferNet(int $routeId): array
+    public static function routeTransferNet(int $routeId, ?string $contentStatus = null): array
     {
-        $ownedOut = (int) self::where('route_id', $routeId)
+        $sum = fn (string $column, string $direction): int => (int) self::where($column, $routeId)
             ->where('movement_type', 'route_to_route')
-            ->where('transfer_direction', 'out')
-            ->sum('quantity'); // this route sends
+            ->where('transfer_direction', $direction)
+            ->when($contentStatus, fn (Builder $query) => $query->where('box_content_status', $contentStatus))
+            ->sum('quantity');
 
-        $ownedIn = (int) self::where('route_id', $routeId)
-            ->where('movement_type', 'route_to_route')
-            ->where('transfer_direction', 'in')
-            ->sum('quantity'); // this route receives
+        // Movements this route owns: direction is stored relative to the owner.
+        $ownedOut = $sum('route_id', 'out'); // this route sends
+        $ownedIn  = $sum('route_id', 'in');  // this route receives
 
-        // Movements owned by the counterpart route but pointing at this route.
-        $counterpartOut = (int) self::where('related_route_id', $routeId)
-            ->where('movement_type', 'route_to_route')
-            ->where('transfer_direction', 'out')
-            ->sum('quantity'); // counterpart sends to us -> we receive
-
-        $counterpartIn = (int) self::where('related_route_id', $routeId)
-            ->where('movement_type', 'route_to_route')
-            ->where('transfer_direction', 'in')
-            ->sum('quantity'); // counterpart receives from us -> we send
+        // Movements owned by the counterpart route but pointing at this route,
+        // so their stored direction is inverted from this route's perspective.
+        $counterpartOut = $sum('related_route_id', 'out'); // counterpart sends to us -> we receive
+        $counterpartIn  = $sum('related_route_id', 'in');  // counterpart receives from us -> we send
 
         return [
             'sent'     => $ownedOut + $counterpartIn,
