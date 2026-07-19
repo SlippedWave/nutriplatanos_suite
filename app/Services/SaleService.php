@@ -136,6 +136,10 @@ class SaleService
                 $this->createProductList($sale, $validated['products']);
             }
 
+            // Re-derive refund totals and payment status against the new product
+            // lines so an existing refund stays reflected on the sale.
+            $sale->recalculateRefundTotals();
+
             // Create note if provided
             if (!empty($validated['notes'])) {
                 $this->createSaleNote($sale, $validated['notes']);

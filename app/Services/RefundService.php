@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\Note;
 use App\Models\ProductList;
 use App\Models\Refund;
+use App\Models\Sale;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RefundService
 {
@@ -26,6 +28,9 @@ class RefundService
         try {
             $validated = $this->validateRefundData($data);
 
+            $sale = Sale::findOrFail($validated['sale_id']);
+            $this->validateRefundAgainstSale($sale, $validated['refund_method'], (float) $validated['refunded_amount']);
+
             DB::beginTransaction();
 
             $refundData = collect($validated)->except('products')->toArray();
@@ -34,6 +39,9 @@ class RefundService
             if (!empty($validated['products'])) {
                 $this->createProductList($refund, $validated['products']);
             }
+
+            // Reflect the refund on the sale it belongs to.
+            $sale->recalculateRefundTotals();
 
             DB::commit();
 
@@ -65,6 +73,9 @@ class RefundService
         try {
             $validated = $this->validateRefundData($data);
 
+            $sale = Sale::findOrFail($validated['sale_id']);
+            $this->validateRefundAgainstSale($sale, $validated['refund_method'], (float) $validated['refunded_amount']);
+
             DB::beginTransaction();
 
             $refundData = collect($validated)->except('products')->toArray();
@@ -76,6 +87,9 @@ class RefundService
             if (!empty($validated['products'])) {
                 $this->createProductList($refund, $validated['products']);
             }
+
+            // Re-sync the sale with the refund's new amount/method.
+            $sale->recalculateRefundTotals();
 
             DB::commit();
 
@@ -106,11 +120,15 @@ class RefundService
     {
         try {
             $refund = Refund::findOrFail($id);
+            $sale = $refund->sale;
 
             DB::beginTransaction();
             $refund->delete();
 
             $this->createRefundNote($refund, 'Reembolso eliminado el ' . now()->format('d/m/Y H:i') . ' por ' . Auth::user()->name);
+
+            // Reverse the refund's effect on the sale now that it is gone.
+            $sale?->recalculateRefundTotals();
 
             DB::commit();
 
@@ -148,6 +166,35 @@ class RefundService
         }
 
         return validator($data, $rules)->validate();
+    }
+
+    /**
+     * Enforce the business rules that tie a refund to its sale:
+     *  - Discounts may only be applied while the sale still has an outstanding
+     *    gross balance (i.e. pending or partial — not fully paid).
+     *  - A refund of any method may not exceed the amount still pending, since
+     *    there is no cash-back mechanism for the resulting overpayment.
+     *
+     * Both checks use the gross product value minus payments so they are stable
+     * whether or not a refund already exists on the sale (create vs. update).
+     */
+    private function validateRefundAgainstSale(Sale $sale, string $method, float $amount): void
+    {
+        $gross = (float) $sale->productList()->sum('total_price');
+        $paid = (float) $sale->payments()->sum('amount');
+        $pending = max(0.0, $gross - $paid);
+
+        if ($method === 'discount' && $paid >= $gross - 0.01) {
+            throw ValidationException::withMessages([
+                'refund_method' => 'Solo se pueden aplicar descuentos a ventas pendientes o con pago parcial.',
+            ]);
+        }
+
+        if ($amount > $pending + 0.01) {
+            throw ValidationException::withMessages([
+                'refunded_amount' => 'El monto del reembolso no puede exceder el monto pendiente de $' . number_format($pending, 2) . '.',
+            ]);
+        }
     }
 
     private function createProductList(Refund $refund, array $products): void

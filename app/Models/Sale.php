@@ -167,18 +167,26 @@ class Sale extends Model
         return $query->whereBetween('created_at', [$startDate, $endDate]);
     }
 
-    public function applyDiscountFromRefund(float $discountAmount): void
+    /**
+     * Recalculate refund-derived totals from the current (non-deleted) refund.
+     *
+     * `total_amount` remains the gross product value. `refunded_amount` and
+     * `total_amount_excluding_refunds` (the net amount owed) are derived from
+     * the sale's refund so a discount/product refund is reflected on the sale
+     * it belongs to. Idempotent: safe to call on refund create, update, and
+     * delete, and re-derives from scratch rather than subtracting incrementally.
+     */
+    public function recalculateRefundTotals(): void
     {
-        $this->load('productList');
+        $gross = (float) $this->productList()->sum('total_price');
+        $refund = $this->refund()->first();
+        $refunded = $refund ? min((float) $refund->refunded_amount, $gross) : 0.0;
 
-        $currentTotal = $this->total_amount;
-        $newTotal = max(0, $currentTotal - $discountAmount);
-        $this->total_amount = $newTotal;
-
-        // Update total amount excluding refunds accordingly
-        $this->total_amount_excluding_refunds = max(0, $this->total_amount_excluding_refunds - $discountAmount);
-
+        $this->refunded_amount = $refunded;
+        $this->total_amount_excluding_refunds = max(0.0, $gross - $refunded);
         $this->save();
+
+        $this->updatePaymentStatus();
     }
 
     /**
@@ -195,7 +203,8 @@ class Sale extends Model
      */
     public function getRemainingBalanceAttribute(): float
     {
-        return max(0.0, (float) $this->total_amount - $this->total_paid);
+        $netOwed = (float) ($this->total_amount_excluding_refunds ?? $this->total_amount);
+        return max(0.0, $netOwed - $this->total_paid);
     }
 
     /**
